@@ -1,0 +1,1 @@
+{"version":3,"sources":["px-breadcrumbs.es6.js"],"names":["Polymer","is","properties"],"mappings":"aAAA,CAAC,UAAW,CACVA,QAAQ,CAENC,GAAI,gBAFE,CAINC,WAAY,EAJN,CAAR,CAQD,CATD","file":"px-breadcrumbs.js","sourcesContent":["(function() {\n  Polymer({\n\n    is: 'px-breadcrumbs', \n\n    properties: {\n      \n    }\n  });\n})();\n"]}

@@ -1,0 +1,30 @@
+<!--
+    Relative paths assume component is being run from inside an app or another component, where dependencies are flat
+    siblings. When this component is run from its own repo (e.g. tests, examples), we assume the server is started with
+    'gulp serve' (or similar server setup) to enable correct finding of bower dependencies for local runs.
+-->
+<link rel="import" href="../polymer/polymer.html"/>
+
+<link rel="import" href="css/px-breadcrumbs-styles.html">
+
+<!--
+REPLACE THIS TEXT WITH A COMPONENT DESCRIPTION
+
+##### Usage
+
+    <px-breadcrumbs counter-value="1"></px-breadcrumbs>
+
+@element px-breadcrumbs
+@blurb REPLACE THIS TEXT WITH A COMPONENT DESCRIPTION
+@homepage index.html
+@demo index.html
+-->
+
+<dom-module id="px-breadcrumbs">
+  <template>
+    <style include="px-breadcrumbs-styles"></style>
+    <a href="javascript:" on-click="handleClick">Click here to increment counter:</a>
+    <span>{{counterValue}}</span>
+  </template>
+</dom-module>
+<script src="dist/px-breadcrumbs.js"></script>

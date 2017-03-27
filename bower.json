@@ -1,0 +1,36 @@
+{
+  "name": "px-breadcrumbs",
+  "version": "0.0.1",
+  "main": [
+    "px-breadcrumbs.html"
+  ],
+  "ignore": [
+    ".*",
+    "npm-debug.log",
+    "gulpfile.js",
+    "sass",
+    "bower_components",
+    "node_modules",
+    "test",
+    "OSS_Notice.pdf",
+    "scripts",
+    ".github",
+    "px-breadcrumbs.png",
+    "LICENSE.md",
+    "CONTRIBUTING.md",
+    "HISTORY.md",
+    "README.md",
+    ".jshintrc",
+    ".editorconfig",
+    "*.enc"
+  ],
+  "dependencies": {
+    "polymer": "^1.7.1",
+    "px-theme": "^2.0.3"
+  },
+  "devDependencies": {
+    "px-layout-design": "^0.4.3",
+    "px-starter-kit-design": "^0.7.3",
+    "px-demo": "^1.3.2"
+  }
+}
