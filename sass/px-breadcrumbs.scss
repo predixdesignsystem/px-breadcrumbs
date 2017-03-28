@@ -41,6 +41,29 @@
 
 // Component
 
+.breadcrumbTopItem {
+  display: inline-flex;
+  cursor:pointer;
+  &:hover {
+    color: $primary-blue;
+  }
+  &:active {
+    color: $primary-blue-pressed;
+  }
+  &.selected {
+    font-weight: 600;
+    color: $black;
+    &:hover {
+      color: $primary-blue;
+    }
+    &:active {
+      color: $primary-blue-pressed;
+    }
+  }
+}
+.breadCrumbdropdown {
+
+}
 // Trumps
 @import "inuit-clearfix/_trumps.clearfix.scss";
 @import "px-spacing-responsive-design/_trumps.spacing-responsive.scss";

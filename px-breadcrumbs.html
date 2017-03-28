@@ -4,7 +4,8 @@
     'gulp serve' (or similar server setup) to enable correct finding of bower dependencies for local runs.
 -->
 <link rel="import" href="../polymer/polymer.html"/>
-
+<link rel="import" href="../px-polymer-font-awesome/px-polymer-font-awesome.html"/>
+<link rel="import" href="../px-dropdown/px-dropdown.html"/>
 <link rel="import" href="css/px-breadcrumbs-styles.html">
 
 <!--
@@ -23,8 +24,28 @@ REPLACE THIS TEXT WITH A COMPONENT DESCRIPTION
 <dom-module id="px-breadcrumbs">
   <template>
     <style include="px-breadcrumbs-styles"></style>
-    <a href="javascript:" on-click="handleClick">Click here to increment counter:</a>
-    <span>{{counterValue}}</span>
+    <span class="flex">
+      <ul>
+        <template is="dom-repeat" items="[[mainPathItems]]">
+          <li data-text="[[item.text]]" data-index="[[index]]" class$="breadcrumbTopItem {{_calculatePathclass(index)}}" on-tap="_onPathTap">[[item.text]]
+            <template is="dom-if" if="{{_doesItemHaveChildren(item)}}">
+              <iron-icon icon="fa:fa-chevron-down"></iron-icon>
+            </template>
+            <template is="dom-if" if="{{_isNotLastItemInData(index)}}">
+              <iron-icon icon="fa:fa-angle-right"></iron-icon>
+            </template>
+          </li>
+        </template>
+      </ul>
+    </span>
+    <div class="breadCrumbdropdown" hidden$="[[_isDropdownHidden]]"> 
+      <ul>
+        <template is="dom-repeat" items="[[_clickedItemChildren]]">
+          <li data-text="[[item.text]]">[[item.text]]</li>
+        </template>
+      </ul>
+    </div>
+    
   </template>
 </dom-module>
 <script src="dist/px-breadcrumbs.js"></script>

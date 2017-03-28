@@ -37,7 +37,7 @@
       <!-- Component ---------------------------------------------------------->
       <px-demo-component>
         <px-breadcrumbs
-          counter-value="{{props.counterValue.value}}">
+          breadcrumb-data="[[breadcrumbData]]">
         </px-breadcrumbs>
       </px-demo-component>
       <!-- END Component ------------------------------------------------------>
@@ -190,6 +190,27 @@
             { configName: "Default",
               configReset: true }
           ]
+        }
+      },
+      breadcrumbData: {
+        type: Array,
+        value: function() {
+          return [
+            {
+            "text":"1", 
+            "hasChildren":true,
+            "children": [
+              {"text": "1.a",
+                "hasChildren": true,
+                "children": [
+                  {"text": "1.a.i", "selectedItem": true},
+                  {"text": "1.b.i"},
+                  {"text": "1.c.i"}
+                ]},
+              {"text": "1.b"},
+              {"text": "1.c"}
+            ]}
+          ];
         }
       }
     },
