@@ -53,16 +53,28 @@
   &.selected {
     font-weight: 600;
     color: $black;
-    &:hover {
-      color: $primary-blue;
-    }
-    &:active {
-      color: $primary-blue-pressed;
-    }
+    cursor:  default;
   }
 }
 .breadCrumbdropdown {
-
+  border: 1px solid gray;
+  overflow-y: auto;
+  max-height: 270px;
+  list-style-type: none;
+  margin: 0;
+  padding: 7px;
+  position: absolute;
+  li {   
+    list-style-type: none;
+    &:hover {
+      background-color: gray;
+      color: white;
+    }
+    &.selected {
+      color: $white;
+      background-color: blue;
+    }
+  }
 }
 // Trumps
 @import "inuit-clearfix/_trumps.clearfix.scss";

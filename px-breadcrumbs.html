@@ -38,14 +38,11 @@ REPLACE THIS TEXT WITH A COMPONENT DESCRIPTION
         </template>
       </ul>
     </span>
-    <div class="breadCrumbdropdown" hidden$="[[_isDropdownHidden]]"> 
-      <ul>
+      <ul class="breadCrumbdropdown flex flex--col" hidden$="[[_isDropdownHidden]]">
         <template is="dom-repeat" items="[[_clickedItemChildren]]">
           <li data-text="[[item.text]]">[[item.text]]</li>
         </template>
       </ul>
-    </div>
-    
   </template>
 </dom-module>
 <script src="dist/px-breadcrumbs.js"></script>
