@@ -41,13 +41,20 @@
 
 // Component
 
+.container {
+  background-color: $gray2;
+  box-shadow: 0 1px 1px 0 rgba(0,0,0,0.30);
+}
 .breadcrumbTopItem {
   display: inline-flex;
   cursor:pointer;
-  &:hover {
+  background-color: $gray2;
+  //this captures both the text and the icons
+  &:hover span>iron-icon, &:hover {
     color: $primary-blue;
   }
-  &:active {
+  //this captures both the text and the icons
+  &:active, span>iron-icon, &:active {
     color: $primary-blue-pressed;
   }
   &.selected {
@@ -56,16 +63,39 @@
     cursor:  default;
   }
 }
+
+ul {
+  margin: 0;
+  padding: 2px;
+}
+
+.downChevron {
+  iron-icon {
+    height: 0.7rem;
+    width: 0.7rem;
+    color: gray;
+  }
+}
+.rightAngle {
+  iron-icon {
+    height: 1rem;
+    width: 1rem;
+    color: gray;
+  }
+}
+
 .breadCrumbdropdown {
-  border: 1px solid gray;
   overflow-y: auto;
   max-height: 270px;
   list-style-type: none;
   margin: 0;
   padding: 7px;
   position: absolute;
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.15);
+  background-color: $white;
   li {   
     list-style-type: none;
+    cursor: pointer;
     &:hover {
       background-color: gray;
       color: white;
@@ -77,6 +107,11 @@
   }
 }
 // Trumps
+//because of the low specificity of hidden, we have to add this:
+//PolymerElements/iron-flex-layout#86.
+[hidden] {
+  display: none !important;
+}
 @import "inuit-clearfix/_trumps.clearfix.scss";
 @import "px-spacing-responsive-design/_trumps.spacing-responsive.scss";
 @import "px-widths-responsive-design/_trumps.widths-responsive.scss";
