@@ -11,10 +11,9 @@
         type: Array,
         value: function() {return [];}
       },
-      mainPathItems: {
+      _mainPathItems: {
         type: Array,
-        value: function() {return [];},
-        computed: '_computeMainPath(breadcrumbData)'
+        value: function() {return [];}
       },
       _clickItem: {
         type: Object,
@@ -28,8 +27,13 @@
       _isDropdownHidden: {
         type: Boolean,
         value: true
+      },
+      _selectedItem: {
+        type: Object,
+        value: function() {return {};}
       }
     },
+    observers: ['_calculatePath(breadcrumbData.*, _selectedItem)'],
     /**
      * This method is used to determine where the path click came from - we have 3 different options, 
      * 1. the text
@@ -43,26 +47,58 @@
     _normalizePathClickTarget(evt) {
       return (evt.target._iconsetName === 'fa') ? evt.target.parentNode.parentNode : evt.target;
     },
-    _computeMainPath(currentDataObj) {
-      var pathArray = [];
-      // if (currentDataObj.children) {
-      //   PathArray.push(currentDataObj)
-      // }
+    /**
+     * This method resets the existing _selectedItem
+     */
+    _resetSelectedItem() {
+      this._selectedItem.selectedItem = false;
+    },
+    /**
+     * This method is called on load, to calculate the initial Path, 
+     * everytime a breadcrumb is clicked.
+     * it recursively builds the path, while looking for the 
+     * selectedItem.
+     */
+    _calculatePath() {
+      var pathArray = [],
+      currentDataObj = this.breadcrumbData,
+      self = this,
+      foundSelectedItem = false;
+      console.log('_calculatePath');
+      this.set('_mainPathItems',[]);
       var recursiveLoopThroughObj = function(pathItem) {
-        for (var i=0; i<pathItem.length;i++) {
+        for (var i=0, len = pathItem.length; i<len;i++) {
+          console.log('pathItem[i] = ');
+          console.log(pathItem[i]);
+          if (foundSelectedItem) {
+            break;
+          };
+
+          if (pathItem[i].selectedItem) {
+              pathArray.push(pathItem[i]);
+              self.set('_selectedItem', pathItem[i]);
+              foundSelectedItem = true;
+              break;
+            }
+
           if (pathItem[i].children) {
+            //if it has children, we want to keep digging in
+            //so we push the item we are on into the pathArray
+            //and call ourselves with the children of the current item
             pathArray.push(pathItem[i]);
             recursiveLoopThroughObj(pathItem[i].children)
-          } else {
-            if (pathItem[i].selectedItem) {
-              pathArray.push(pathItem[i]);
-            }
           }
         }
       };
+
+      //the initial call into the recursion
       recursiveLoopThroughObj(currentDataObj);
-      return pathArray;
+
+      //once all the recursion is done, we can set the value of 
+      //_mainPathItems
+      this.set('_mainPathItems', pathArray);
     },
+   
     /**
      * This function checks whether the item in question has children.
      * @param {*} itemInPath 
@@ -76,7 +112,7 @@
      * @param {*} index 
      */
     _isNotLastItemInData(index) {
-      return this.mainPathItems.length-1 !== index;
+      return this._mainPathItems.length-1 !== index;
     },
     /**
      * This function is used to determine the correct classes that need to be passed in - if 
@@ -86,6 +122,26 @@
      */
     _calculatePathclass(index) {
       return !this._isNotLastItemInData(index) ?  ' selected' : '';
+    },
+    /**
+     * this method call a reset on whatever selected Item we 
+     * previously had, and call a set on the new selectedItem 
+     * @param {*} evt the click event from the dropdown item clicked
+     */
+    _dropdownTap(evt) {
+      this._resetSelectedItem();
+      console.log(evt);
+      var newSelectItem = evt.model.item;
+      this._setSelectedItem(newSelectItem);
+    },
+    /**
+     * This method sets a _selectedItem set from the passed object.
+     * @param {Object} selectedItem the new selected item
+     */
+    _setSelectedItem(selectedItem) {
+      selectedItem.selectedItem = true;
+      this.set('_selectedItem', selectedItem);
+      console.log(selectedItem);
     },
     _onPathTap(evt) {
       var dataItem = evt.model.item;

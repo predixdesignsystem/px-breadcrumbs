@@ -26,7 +26,7 @@ REPLACE THIS TEXT WITH A COMPONENT DESCRIPTION
     <style include="px-breadcrumbs-styles"></style>
     <div class="container flex">
       <ul>
-        <template is="dom-repeat" items="[[mainPathItems]]">
+        <template is="dom-repeat" items="[[_mainPathItems]]">
           <li data-text="[[item.text]]" data-index="[[index]]" class$="breadcrumbTopItem {{_calculatePathclass(index)}}" on-tap="_onPathTap">[[item.text]]
             <template is="dom-if" if="{{_doesItemHaveChildren(item)}}">
               <span class="downChevron"><iron-icon icon="fa:fa-chevron-down"></iron-icon></span>
