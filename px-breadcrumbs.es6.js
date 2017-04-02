@@ -15,7 +15,7 @@
         type: Array,
         value: function() {return [];}
       },
-      _clickItem: {
+      _clickPathItem: {
         type: Object,
         value: function() {return {};}
       },
@@ -133,6 +133,11 @@
       console.log(evt);
       var newSelectItem = evt.model.item;
       this._setSelectedItem(newSelectItem);
+      //this hides the dropdown
+      this.set('_isDropdownHidden', true);
+      //and this clears out the field that hold the previously clicked
+      //path item.
+      this.set('_clickPathItem', {});
     },
     /**
      * This method sets a _selectedItem set from the passed object.
@@ -144,6 +149,7 @@
       console.log(selectedItem);
     },
     _onPathTap(evt) {
+      console.log('path click');
       var dataItem = evt.model.item;
       /* on tap, we need to find out if the clicked item is the same as before.
       * if it is, we make the dropdown go way.
@@ -155,29 +161,22 @@
         evt.stopPropagation();
         return;
       }
-      if (this._clickItem === evt.model.item) {
+      if (this._clickPathItem === dataItem) {
+        console.log('this._clickPathItem === evt.model.item');
         this.set('_isDropdownHidden', true);
-        this.set('_clickItem', {});
+        this.set('_clickPathItem', {});
       } else {
-        this.set('_clickItem', dataItem);
+        console.log('else');
+        this.set('_clickPathItem', dataItem);
         this.set('_isDropdownHidden', false);
+        this._changeDropdownPosition(evt);
       }
       // 1. Check if there are children. 
 
       if (this._doesItemHaveChildren(dataItem)) {
         this.set('_clickedItemChildren', dataItem.children);
       }
-      var normalizedTarget = this._normalizePathClickTarget(evt),
-          targetRect = normalizedTarget.getBoundingClientRect(),
-          targetLeft = targetRect.left,
-          targetBottom = targetRect.bottom,
-          targetHeight = targetRect.height,
-          windowScrollX = window.scrollX,
-          windowScrollY = window.scrollY,
-          dropdown = Polymer.dom(this.root).querySelector('.breadCrumbdropdown');
-      console.log(targetRect);
-      dropdown.style.top = (targetBottom + windowScrollY + 4) + 'px';
-      dropdown.style.left = targetLeft + windowScrollX + 'px';
+      
       
         // a. If there are kids, we need to update clickedItemChildren. 
         // b. If not, we fire an event that the clicked on item is the selected context.
@@ -198,10 +197,19 @@
      * 
      * @param {Object} positioning an object which holds the new positioning for the dropdown
      */
-    changeDropdownPosition(positioning) {
-      //TODO find out if we are hitting the window edge. 
-      //if we aren't, change the position of the dropdown to be under the clicked item
-      //if we are, have smart positioning, 
+    _changeDropdownPosition(evt) {
+      var normalizedTarget = this._normalizePathClickTarget(evt),
+          targetRect = normalizedTarget.getBoundingClientRect(),
+          targetLeft = targetRect.left,
+          targetBottom = targetRect.bottom,
+          targetHeight = targetRect.height,
+          windowScrollX = window.scrollX,
+          windowScrollY = window.scrollY,
+          dropdown = Polymer.dom(this.root).querySelector('.breadCrumbdropdown');
+      console.log(targetRect);
+      dropdown.style.top = (targetBottom + windowScrollY + 4) + 'px';
+      dropdown.style.left = targetLeft + windowScrollX + 'px';
+      
     },
     /**
      * This method dispatches a custom event ('px-breadcrumbs-item-clicked') that has the item attached to it.
