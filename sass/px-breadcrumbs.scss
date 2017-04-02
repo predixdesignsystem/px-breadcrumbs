@@ -89,7 +89,6 @@ ul {
   max-height: 270px;
   list-style-type: none;
   margin: 0;
-  padding: 7px;
   position: absolute;
   box-shadow: 0 1px 3px 0 rgba(0,0,0,0.15);
   background-color: $white;
@@ -112,6 +111,9 @@ ul {
 [hidden] {
   display: none !important;
 }
+$inuit-enable-paddings--tiny : true;
+$inuit-enable-paddings--small : true;
+@import "px-spacing-design/_trumps.spacing.scss";
 @import "inuit-clearfix/_trumps.clearfix.scss";
 @import "px-spacing-responsive-design/_trumps.spacing-responsive.scss";
 @import "px-widths-responsive-design/_trumps.widths-responsive.scss";
