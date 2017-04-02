@@ -33,7 +33,75 @@
         value: function() {return {};}
       }
     },
-    observers: ['_calculatePath(breadcrumbData.*, _selectedItem)'],
+    observers: ['prepareData(breadcrumbData.*, _selectedItem)'],
+    /**
+     * This method has a chain of promises that process the data as needed.
+     */
+    prepareData() {
+      this._calculatePath()
+      //check if we need to shorten anything
+      //.then((path) => this._isTextShorteningNecessery(path))
+      .then((obj) => this._fixLongAssetNames(obj))
+      .then((pathArray) => {
+        this.set('_mainPathItems', pathArray);
+      });
+    },
+    _isTextShorteningNecessery(pathArray) {
+      console.log('pathArray');
+      console.log(pathArray);
+    },
+    /**
+     * This method accepts the path array, and loops through it recursively
+     * looking for anything with more than 16 characters.
+     * 
+     * once it finds a long asset name, it shortens it.
+     * @param {Object} pathArray 
+     * @return {Promise} PathArray 
+     */
+    _fixLongAssetNames(pathArray) {
+      //var pathArray = obj.pathArray;
+      return new Promise((accept, reject) => {
+        //loop through each item
+        for (var i=0, len = pathArray.length; i<len;i++) {
+        //looking for anything that's over 16 characters.
+        if (pathArray[i].text.length > 16) {
+          //get the shotened version of the text
+          this._returnShortenString(pathArray[i])
+          .then((obj) => {
+            //and save it into the correct path.
+            var path = obj.path,
+                shortenedString = obj.text;
+            path.text = shortenedString;
+          });
+          
+        }
+        //make sure to search through the children as well by calling this recursively
+        if (pathArray[i].children) {
+          this._fixLongAssetNames(pathArray[i].children);
+        }
+      }
+      //once we're done, return the promise with the modified pathArray
+      return accept(pathArray);
+      });
+      
+    },
+    /**
+     * This method accepts an obj that has more than 16 characters in its text, and 
+     * returns the shortened version of that text.
+     * @param {Obj} pathItem 
+     * @return {Promise} shortenedString
+     */
+    _returnShortenString(pathItem) {
+      return new Promise((accept, reject) => {
+        var string = pathItem.text,
+        beginning = string.substring(0,6),
+        middle = "...",
+        end = string.substring(string.length-6);
+      
+        return accept({"text": beginning + middle + end, "path": pathItem});
+      });
+      
+    },
     /**
      * This method is used to determine where the path click came from - we have 3 different options, 
      * 1. the text
@@ -60,43 +128,41 @@
      * selectedItem.
      */
     _calculatePath() {
-      var pathArray = [],
-      currentDataObj = this.breadcrumbData,
-      self = this,
-      foundSelectedItem = false;
-      console.log('_calculatePath');
-      this.set('_mainPathItems',[]);
-      var recursiveLoopThroughObj = function(pathItem) {
-        for (var i=0, len = pathItem.length; i<len;i++) {
-          console.log('pathItem[i] = ');
-          console.log(pathItem[i]);
-          if (foundSelectedItem) {
-            break;
-          };
-
-          if (pathItem[i].selectedItem) {
-              pathArray.push(pathItem[i]);
-              self.set('_selectedItem', pathItem[i]);
-              foundSelectedItem = true;
+      return new Promise((fulfill, reject) => {
+        var pathArray = [],
+        currentDataObj = this.breadcrumbData,
+        self = this,
+        foundSelectedItem = false;
+        var recursiveLoopThroughObj = function(pathItem) {
+          for (var i=0, len = pathItem.length; i<len;i++) {
+            if (foundSelectedItem) {
               break;
+            };
+
+            if (pathItem[i].selectedItem) {
+                pathArray.push(pathItem[i]);
+                self.set('_selectedItem', pathItem[i]);
+                foundSelectedItem = true;
+                break;
+              }
+
+            if (pathItem[i].children) {
+              //if it has children, we want to keep digging in
+              //so we push the item we are on into the pathArray
+              //and call ourselves with the children of the current item
+              pathArray.push(pathItem[i]);
+              recursiveLoopThroughObj(pathItem[i].children)
             }
-
-          if (pathItem[i].children) {
-            //if it has children, we want to keep digging in
-            //so we push the item we are on into the pathArray
-            //and call ourselves with the children of the current item
-            pathArray.push(pathItem[i]);
-            recursiveLoopThroughObj(pathItem[i].children)
           }
-        }
-      };
+        };
 
-      //the initial call into the recursion
-      recursiveLoopThroughObj(currentDataObj);
+        //the initial call into the recursion
+        recursiveLoopThroughObj(currentDataObj);
 
-      //once all the recursion is done, we can set the value of 
-      //_mainPathItems
-      this.set('_mainPathItems', pathArray);
+        //once all the recursion is done, we can set the value of 
+        //_mainPathItems
+        return fulfill(pathArray);
+      });
     },
    
     /**
