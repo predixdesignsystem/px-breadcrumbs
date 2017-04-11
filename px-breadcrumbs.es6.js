@@ -33,18 +33,127 @@
         value: function() {return {};}
       }
     },
-    observers: ['prepareData(breadcrumbData.*, _selectedItem)'],
+    attached() {
+      this.prepareData();
+    },
+    observers: ['prepareData(_selectedItem)'],
     /**
      * This method has a chain of promises that process the data as needed.
      */
     prepareData() {
       this._calculatePath()
-      //check if we need to shorten anything
-      //.then((path) => this._isTextShorteningNecessery(path))
-      .then((obj) => this._fixLongAssetNames(obj))
+      .then((pathArray) => this._breadcrumbsDisplayOptions(pathArray))
       .then((pathArray) => {
         this.set('_mainPathItems', pathArray);
       });
+    },
+    _calculateSizeOfBreadcrumbs(strArray) {
+      
+      if (strArray) {
+        var accumulativeSizeOfBreadcrumbs = 0,
+        ctx = this._createCanvas();
+        for (var i=0; i<strArray.length;i++) {
+          accumulativeSizeOfBreadcrumbs += parseInt(ctx.measureText(strArray[i].text).width,10);
+          //if the item has children, we need to the size of the down chevron.
+          if (strArray[i].children) {
+            accumulativeSizeOfBreadcrumbs += 11;
+          }
+          //we need to also add 15 pixels for the angle right
+          if (i !==strArray.length -1) {
+            accumulativeSizeOfBreadcrumbs += 15;
+          }
+        }
+        return accumulativeSizeOfBreadcrumbs;
+      } else {
+        return [];
+      }
+    },
+    /* 
+    * in this method, we decide on the display options for the breadcrumbs. 
+    * we have the following options:
+    * 1. we can shorten all but the last one, and see if they fit
+    * 2. we can shorten all including the last one and see if they fit
+    * 3. we can shorten all of them, and include the overflow at the beginning of the array.
+    * @param {array} strArray an array of objects, which contains the breadcrumbs
+    */
+    _breadcrumbsDisplayOptions(strArray) {
+      return new Promise((accept, reject) => {
+        var ctx = this._createCanvas(),
+          accumulativeSizeOfAllBreadcrumbs = this._calculateSizeOfBreadcrumbs(strArray);
+          Polymer.dom.flush();
+          this.async(() => {
+            var breadcrumbs = document.querySelector('px-breadcrumbs'),
+                breadcrumbsContainer = Polymer.dom(breadcrumbs.root).querySelector('.container'),
+                breadcrumbsUlContainer = Polymer.dom(breadcrumbsContainer).querySelector('ul'),
+                bcUlContainerRect = breadcrumbsContainer.getBoundingClientRect(),
+                ulWidth = bcUlContainerRect.width;
+                
+            // we check to see if the container (which is sized automatically to fill out the page)
+            // can fit all the items in the breadcrumbs.
+            if (ulWidth < accumulativeSizeOfAllBreadcrumbs) {
+              
+              var allButTheLastItem = this._shortenLongAssetNames(strArray.slice(0, strArray.length-1)),
+                  sizeOfAllButLastItem = this._calculateSizeOfBreadcrumbs(allButTheLastItem),
+                  lastItem = this._calculateSizeOfBreadcrumbs([strArray.slice(-1)]);
+              
+              //we want to find out if the container can now fit all of the shortened items + the last Item, that wasn't shortened
+              if (ulWidth < sizeOfAllButLastItem + lastItem) {
+                //it doesn't fit, so, we go to second option.
+                var shortenAllItems = this._shortenLongAssetNames(strArray),
+                    sizeOfAllShortenedItem = this._calculateSizeOfBreadcrumbs(shortenAllItems);
+                
+                //we check if we can fit after we've shortened all the items
+                if (ulWidth < shortenAllItems) {
+                  //looks like we can't fit them, even after shortening them all. 
+                  //time for option 3.
+                  //i'm setting a random high number to start with
+                  var shortenAllItemsWithOverflow = 99999,
+                      overflowArray =stArray;
+                  //keep looping until all the items fit into the container
+                  while (ulWidth < shortenAllItemsWithOverflow) {
+                    //we remove the first item - mutating strArray, and returning the item
+                    //which then gets pushed into overflowArray, giving us an array of the items we
+                    //had to cut out once this loop is done.
+                    overflowArray.push(strArray.shift());
+                    shortenAllItemsWithOverflow = this._calculateSizeOfBreadcrumbs(strArray);
+                  }
+                  var overflowObj = {
+                    "text": "...",
+                    "children": overflowArray
+                  }
+                  //this pushes the overflowObj to the beginning of the array.
+                  strArray.unshift(overflowObj);
+                  return accept(strArray);
+                } else {
+                  //we can fit all the breadcrumbs once we've shortened them.
+                  return accept(shortenAllItems);
+                }
+              } else {
+                //shortening everything but the last one works, so we 
+                //re-add the last item - unshortened - to the array , and return that.
+                var lastItem = strArray.slice(strArray.length-1);
+                if (allButTheLastItem) {
+                  allButTheLastItem.push(lastItem[0]);
+                }
+                return accept(allButTheLastItem);
+              }
+            } else {
+              //everything fits, no need to shorten anything
+              console.log('everything fits off the bat');
+              return accept(strArray);
+            }
+          }, 1500);
+          
+      });
+    },
+    _createCanvas() {
+      var canvas = document.createElement('canvas');
+      canvas.height = 20;
+      canvas.width = 9999;
+      this._measurementCanvas = canvas;
+      var ctx = this._measurementCanvas.getContext('2d');
+      ctx.font = "15px GE Inspira Sans";
+      return ctx;
     },
     _isTextShorteningNecessery(pathArray) {
       console.log('pathArray');
@@ -58,32 +167,28 @@
      * @param {Object} pathArray 
      * @return {Promise} PathArray 
      */
-    _fixLongAssetNames(pathArray) {
-      //var pathArray = obj.pathArray;
-      return new Promise((accept, reject) => {
+    _shortenLongAssetNames(pathArray) {
         //loop through each item
         for (var i=0, len = pathArray.length; i<len;i++) {
-        //looking for anything that's over 16 characters.
-        if (pathArray[i].text.length > 16) {
-          //get the shotened version of the text
-          this._returnShortenString(pathArray[i])
-          .then((obj) => {
-            //and save it into the correct path.
-            var path = obj.path,
-                shortenedString = obj.text;
-            path.text = shortenedString;
-          });
-          
-        }
-        //make sure to search through the children as well by calling this recursively
-        if (pathArray[i].children) {
-          this._fixLongAssetNames(pathArray[i].children);
+          //looking for anything that's over 16 characters.
+          if (pathArray[i].text.length > 16) {
+            //get the shotened version of the text
+            this._returnShortenString(pathArray[i])
+            .then((obj) => {
+              //and save it into the correct path.
+              var path = obj.path,
+                  shortenedString = obj.text;
+              path.text = shortenedString;
+            });
+        } else {
+          //make sure to search through the children as well by calling this recursively
+          if (pathArray[i].children) {
+            this._shortenLongAssetNames(pathArray[i].children);
+          }
+          //once we're done, return the promise with the modified pathArray
+          return pathArray;
         }
       }
-      //once we're done, return the promise with the modified pathArray
-      return accept(pathArray);
-      });
-      
     },
     /**
      * This method accepts an obj that has more than 16 characters in its text, and 
