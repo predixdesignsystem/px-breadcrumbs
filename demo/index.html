@@ -197,7 +197,7 @@
         value: function() {
           return [
             {
-            "text":"A very long name, if I may say so", 
+            "text":"This is a very long string with more than 16 characters", 
             "hasChildren":true,
             "children": [
               {"text": "This is a very long string with more than 16 characters",
@@ -207,25 +207,51 @@
                   {"text": "1.b.i"},
                   {"text": "1.c.i"},
                   {"text":"This is a very long string with more than 16 characters", 
-                    "selectedItem": true}
-                ]},
-              {"text": "1.b"},
-              {"text": "1.c"}
-            ]}
-          ];
-        }
+                    "hasChildren": true,
+                    "children": [
+                      {"text": "1.a.i"},
+                      {"text": "1.b.i"},
+                      {"text": "1.c.i"},
+                      {"text":"This is a very long string with more than 16 characters", 
+                        "hasChildren":true,
+                        "children": [
+                          {"text": "This is a very long string with more than 16 characters",
+                            "hasChildren": true,
+                            "children": [
+                              {"text": "1.a.i"},
+                              {"text": "1.b.i"},
+                              {"text": "1.c.i"},
+                              {"text":"This is a very long string with more than 16 characters", 
+                                "hasChildren": true,
+                                "children": [
+                                  {"text": "1.a.i"},
+                                  {"text": "1.b.i"},
+                                  {"text": "1.c.i"},
+                                  {"text":"This is a very long string with more than 16 characters", 
+                                    "selectedItem": true}
+                                ]},
+                            {"text": "1.b"},
+                            {"text": "1.c"}
+                                ]},
+                            {"text": "1.b"},
+                            {"text": "1.c"}
+                          ]}
+                        ]}
+                      ]}
+                    ]}
+                  ]}
       }
-    },
+},
 
-    /**
-     * A reference for `this.props`. Read the documentation there.
-     */
-    demoProps: {
-      counterValue: {
-        type: Number,
-        defaultValue: '0',
-        inputType: 'text'
-      }
+  /**
+   * A reference for `this.props`. Read the documentation there.
+   */
+  demoProps: {
+    counterValue: {
+      type: Number,
+      defaultValue: '0',
+      inputType: 'text'
     }
-  });
+  }
+});
 </script>

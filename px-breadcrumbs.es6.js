@@ -33,9 +33,9 @@
         value: function() {return {};}
       }
     },
-    attached() {
-      this.prepareData();
-    },
+    // attached() {
+    //   this.prepareData();
+    // },
     observers: ['prepareData(_selectedItem)'],
     /**
      * This method has a chain of promises that process the data as needed.
@@ -65,7 +65,7 @@
         }
         return accumulativeSizeOfBreadcrumbs;
       } else {
-        return [];
+        return 0;
       }
     },
     /* 
@@ -94,37 +94,46 @@
               
               var allButTheLastItem = this._shortenLongAssetNames(strArray.slice(0, strArray.length-1)),
                   sizeOfAllButLastItem = this._calculateSizeOfBreadcrumbs(allButTheLastItem),
-                  lastItem = this._calculateSizeOfBreadcrumbs([strArray.slice(-1)]);
+                  lastItem = this._calculateSizeOfBreadcrumbs(strArray.slice(-1));
               
               //we want to find out if the container can now fit all of the shortened items + the last Item, that wasn't shortened
               if (ulWidth < sizeOfAllButLastItem + lastItem) {
                 //it doesn't fit, so, we go to second option.
+              
                 var shortenAllItems = this._shortenLongAssetNames(strArray),
                     sizeOfAllShortenedItem = this._calculateSizeOfBreadcrumbs(shortenAllItems);
                 
                 //we check if we can fit after we've shortened all the items
-                if (ulWidth < shortenAllItems) {
+                if (ulWidth < sizeOfAllShortenedItem) {
+                  
                   //looks like we can't fit them, even after shortening them all. 
                   //time for option 3.
                   //i'm setting a random high number to start with
                   var shortenAllItemsWithOverflow = 99999,
-                      overflowArray =stArray;
+                      overflowArray = [],
+                      removedItem;
                   //keep looping until all the items fit into the container
                   while (ulWidth < shortenAllItemsWithOverflow) {
                     //we remove the first item - mutating strArray, and returning the item
                     //which then gets pushed into overflowArray, giving us an array of the items we
                     //had to cut out once this loop is done.
-                    overflowArray.push(strArray.shift());
+                    removedItem = strArray.shift();
+                    console.log(removedItem);
+                    overflowArray.push(removedItem);
                     shortenAllItemsWithOverflow = this._calculateSizeOfBreadcrumbs(strArray);
                   }
                   var overflowObj = {
                     "text": "...",
                     "children": overflowArray
                   }
+                  
                   //this pushes the overflowObj to the beginning of the array.
                   strArray.unshift(overflowObj);
+                  console.log('shorten everything, include overflow');
                   return accept(strArray);
-                } else {
+                
+              } else {
+                  console.log('shorten everything fits');
                   //we can fit all the breadcrumbs once we've shortened them.
                   return accept(shortenAllItems);
                 }
@@ -135,6 +144,7 @@
                 if (allButTheLastItem) {
                   allButTheLastItem.push(lastItem[0]);
                 }
+                console.log('shorten everything but the last one.');
                 return accept(allButTheLastItem);
               }
             } else {
@@ -180,14 +190,15 @@
                   shortenedString = obj.text;
               path.text = shortenedString;
             });
-        } else {
-          //make sure to search through the children as well by calling this recursively
-          if (pathArray[i].children) {
-            this._shortenLongAssetNames(pathArray[i].children);
+          } else {
+            //make sure to search through the children as well by calling this recursively
+            if (pathArray[i].children) {
+              this._shortenLongAssetNames(pathArray[i].children);
+            }
+            debugger;
+            //once we're done, return the promise with the modified pathArray
+            return pathArray;
           }
-          //once we're done, return the promise with the modified pathArray
-          return pathArray;
-        }
       }
     },
     /**
@@ -224,7 +235,7 @@
      * This method resets the existing _selectedItem
      */
     _resetSelectedItem() {
-      this._selectedItem.selectedItem = false;
+      this.set('_selectedItem', false);
     },
     /**
      * This method is called on load, to calculate the initial Path, 
@@ -233,7 +244,7 @@
      * selectedItem.
      */
     _calculatePath() {
-      return new Promise((fulfill, reject) => {
+      return new Promise((accept, reject) => {
         var pathArray = [],
         currentDataObj = this.breadcrumbData,
         self = this,
@@ -264,9 +275,8 @@
         //the initial call into the recursion
         recursiveLoopThroughObj(currentDataObj);
 
-        //once all the recursion is done, we can set the value of 
-        //_mainPathItems
-        return fulfill(pathArray);
+        //once all the recursion is done, we can return the pathArray
+        return accept(pathArray);
       });
     },
    
@@ -301,7 +311,6 @@
      */
     _dropdownTap(evt) {
       this._resetSelectedItem();
-      console.log(evt);
       var newSelectItem = evt.model.item;
       this._setSelectedItem(newSelectItem);
       //this hides the dropdown
@@ -311,17 +320,16 @@
       this.set('_clickPathItem', {});
     },
     /**
-     * This method sets a _selectedItem set from the passed object.
+     * This method sets a _selectedItem from the passed object.
      * @param {Object} selectedItem the new selected item
      */
     _setSelectedItem(selectedItem) {
       selectedItem.selectedItem = true;
       this.set('_selectedItem', selectedItem);
-      console.log(selectedItem);
     },
     _onPathTap(evt) {
-      console.log('path click');
       var dataItem = evt.model.item;
+
       /* on tap, we need to find out if the clicked item is the same as before.
       * if it is, we make the dropdown go way.
       * if it is not, we save the new clicked item.
@@ -333,39 +341,19 @@
         return;
       }
       if (this._clickPathItem === dataItem) {
-        console.log('this._clickPathItem === evt.model.item');
         this.set('_isDropdownHidden', true);
         this.set('_clickPathItem', {});
       } else {
-        console.log('else');
         this.set('_clickPathItem', dataItem);
         this.set('_isDropdownHidden', false);
         this._changeDropdownPosition(evt);
       }
-      // 1. Check if there are children. 
-
+      
       if (this._doesItemHaveChildren(dataItem)) {
         this.set('_clickedItemChildren', dataItem.children);
       }
-      
-      
-        // a. If there are kids, we need to update clickedItemChildren. 
-        // b. If not, we fire an event that the clicked on item is the selected context.
-      // 2. If there are children, we need to find the left/top/height of the clicked item, and calculate the positioning of the dropdown accordingly 
-    },
-    
-    /**
-     * 
-     * @param {Object} clickedItem the clicked item
-     * @return Object that holds the calculated top/left for the dropdown.
-     */
-    extractClickedPathItemPosition(clickedItem) {
-      //TODO extract top/left/height from clickedItem.
-      // then, calculate the new positioning, and save it into an object.
-      // returns an object that holds the new top/left positioning.
     },
     /**
-     * 
      * @param {Object} positioning an object which holds the new positioning for the dropdown
      */
     _changeDropdownPosition(evt) {
@@ -377,10 +365,9 @@
           windowScrollX = window.scrollX,
           windowScrollY = window.scrollY,
           dropdown = Polymer.dom(this.root).querySelector('.breadCrumbdropdown');
-      console.log(targetRect);
+      
       dropdown.style.top = (targetBottom + windowScrollY + 4) + 'px';
       dropdown.style.left = targetLeft + windowScrollX + 'px';
-      
     },
     /**
      * This method dispatches a custom event ('px-breadcrumbs-item-clicked') that has the item attached to it.
@@ -388,7 +375,6 @@
      * @param {*} item the item that was clicked on.
      */
     _notifyClick(item) {
-      //TODO fire an event with the clicked on item.
       this.dispatchEvent(new CustomEvent('px-breadcrumbs-item-clicked', {item: item, composed: true}));
     }
   });
