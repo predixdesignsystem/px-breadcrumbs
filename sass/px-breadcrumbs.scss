@@ -30,11 +30,10 @@
 @import "px-flexbox-design/_base.flexbox.scss";
 @import "px-viewport-design/_base.viewport.scss";
 
-
-
-
-
-
+ul {
+  margin: 0;
+  padding: 2px;
+}
 // Meta
 
 // Objects
@@ -65,10 +64,6 @@
   }
 }
 
-ul {
-  margin: 0;
-  padding: 2px;
-}
 
 .downChevron {
   iron-icon {

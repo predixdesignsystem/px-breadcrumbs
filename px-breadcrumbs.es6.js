@@ -63,8 +63,7 @@
     _getContainerSize() {
       this.debounce('windowResize', () => {
         window.requestAnimationFrame(() => {
-          var breadcrumbs = document.querySelector('px-breadcrumbs'),
-              breadcrumbsContainer = Polymer.dom(breadcrumbs.root).querySelector('.container'),
+          var breadcrumbsContainer = Polymer.dom(this.root).querySelector('.container'),
               breadcrumbsUlContainer = Polymer.dom(breadcrumbsContainer).querySelector('ul'),
               bcUlContainerRect = breadcrumbsContainer.getBoundingClientRect();
 
@@ -74,7 +73,7 @@
         Polymer.RenderStatus.afterNextRender(this, () =>{
           this.prepareData();
         });
-      },10)
+      },10);
       
     },
     /* 
@@ -252,7 +251,7 @@
     },
     /**
      * This function is used to determine whether we are on the last Item in the array. - if 
-     * the index is the last item in the aray (length -1), we return false.
+     * the index equalsthe last item in the aray (length -1), we return false.
      * @param {Number} index the index of the item
      */
     _isLastItemInData(index) {
@@ -312,6 +311,7 @@
         this.set('_isDropdownHidden', false);
         this._changeDropdownPosition(evt);
       }
+
       if (this._doesItemHaveChildren(dataItem)) {
         //dataItem.children = shortenedVersion(dataItem.children)
         this.set('_clickedItemChildren', dataItem.children);
