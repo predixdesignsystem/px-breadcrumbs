@@ -93,9 +93,10 @@
     /* 
     * in this method, we decide on the display options for the breadcrumbs. 
     * we have the following options:
-    * 1. we can shorten all but the last one, and see if they fit
-    * 2. we can shorten all including the last one and see if they fit
-    * 3. we can shorten all of them, and include the overflow at the beginning of the array.
+    * 1. nothing needs to be shortened.
+    * 2. we can shorten all but the last one
+    * 2. we can shorten all including the last one
+    * 3. we can shorten all of them, and include the overflow at the beginning of the array. the last one is NOT shortened.
     * @param {array} strArray an array of objects, which contains the breadcrumbs
     */
     _breadcrumbsDisplayOptions(strArray) {
@@ -110,126 +111,98 @@
 
          
           this.async(() => {
+            //find the container we want to measure.
             var breadcrumbs = document.querySelector('px-breadcrumbs'),
                 breadcrumbsContainer = Polymer.dom(breadcrumbs.root).querySelector('.container'),
                 breadcrumbsUlContainer = Polymer.dom(breadcrumbsContainer).querySelector('ul'),
                 bcUlContainerRect = breadcrumbsContainer.getBoundingClientRect(),
-                ulWidth = bcUlContainerRect.width + 4; //the 4 is for the padding on the ul.
+                ulWidth = bcUlContainerRect.width + 4; //the 4 is for the padding (2px on each side) on the ul.
 
                
-            // we check to see if the container (which is sized automatically to fill out the page)
-            // can fit all the items in the breadcrumbs.
-            //the first option is the simpliest one - everything just fits, but if it doesn't fit...
+            /*
+            * option 1 
+            * we check to see if the container (which is sized automatically to fill out the page)
+            * can fit all the items in the breadcrumbs.
+            * the first option is the simpliest one - everything just fits, but if it doesn't fit...
+            */
             if (ulWidth < accumulativeSizeOfAllBreadcrumbs) {
               var allButTheLastItem = strArray.slice(0, strArray.length-1);
               
+              //these calls add the shortened text strings to the map, as well as the pixel sizes of the shortened
+              //string.
               map = this._shortenLongAssetNames(strArray, map);
               map = this._calculateSizeOfBreadcrumbs(strArray, map, false);
               
-              var sizeOfAllButLastItem = this._calculateAcummSize(, map, 'shortSize');
-              var sizeOfLastItem = map.get(strArray[strArray.length-1]).fullSize;
+              var sizeOfAllButLastItem = this._calculateAcummSize(allButTheLastItem, map, 'shortSize'),
+                  sizeOfFullLastItem = map.get(strArray[strArray.length-1]).fullSize,
+                  sizeOfShortLastItem = map.get(strArray[strArray.length-1]).shortSize;
 
-              // var beginningItems = strArray.slice(0, strArray.length-1);
-              // var lastItem = strArray.slice(-1);
-              // var preparePromise = () => {
-              //   var shortenedAllButTheLastItems, sizeOfAllButLastItem, sizeOfLastItem;
-              //   this._shortenLongAssetNames(allButTheLastItem)
-              //     .then((result) => {
-              //       shortenedAllButTheLastItems = result;
-              //       return this._calculateSizeOfBreadcrumbs(shortenedAllButTheLastItems);
-              //     })
-              //     .then((size) => {
-              //       sizeOfAllButLastItem = size;
-              //       return this._calculateSizeOfBreadcrumbs(lastItem);
-              //     })
-              //     .then((size) => {
-              //       sizeOfLastItem = size;
-              //       return Promise.resolve({sizeOfLastItem, sizeOfAllButLastItem, shortenedAllButTheLastItems});
-              //     });
-              // }
-
-              //preparePromise.then(({sizeOfLastItem, sizeOfAllButLastItem, shortenedAllButTheLastItems}) => {
-                //we want to find out if the container can now fit all of the shortened items + the last Item + 26 (11 for bottom chevron, 15 for side angle) for the last item, that wasn't shortened
-              if (ulWidth < sizeOfAllButLastItem + sizeOfLastItem) {
+              /*
+              * option 2
+              * we want to find out if the container can now fit all of the 
+              * shortened items + the last Item  that wasn't shortened
+              */
+              if (ulWidth < sizeOfAllButLastItem + sizeOfFullLastItem) {
                 //it doesn't fit, so, we go to second option.
               
-                var sizeOfAllShortenedItem = this._calculateAcummSize(strArray, map, 'shortSize');
+                var sizeOfAllShortenedItems = sizeOfAllButLastItem + sizeOfShortLastItem;
                 
-                //we check if we can fit after we've shortened all the items
-                if (ulWidth < sizeOfAllShortenedItem) {
+                /*
+                * option 3 
+                * we check if we can fit after we've shortened all the items 
+                */
+                if (ulWidth < sizeOfAllShortenedItems) {
                   //looks like we can't fit them, even after shortening them all. 
-                  //time for option 3.
+                  //time for option 4.
                   //i'm setting a random high number to start with
                   var shortenAllItemsWithOverflow = 99999,
                       pointer = 0,
                       removedItem,
-                      currentAccumSize = sizeOfAllButLastItem + sizeOfLastItem,
+                      currentAccumSize = sizeOfAllShortenedItems,
                       removedAccumSize = 0;
                   //keep looping until all the items fit into the container
                   while (ulWidth < currentAccumSize) {
-
+                    //get the size of the item we are placing into the overflow
                     var removedSize = map.get(strArray[pointer]).shortSize;
+                    // subtract the size from the overall accumulated size
                     currentAccumSize -= removedSize;
+                    //and make sure to manually change our pointer.
                     pointer++;
-                    // removedAccumSize += 
-                    // //we remove the first item - mutating allButTheLastItem, and returning the item
-                    // //which then gets pushed into overflowArray, giving us an array of the items we
-                    // //had to cut out once this loop is done.
-                    // removedItem = allButTheLastItem.shift();
-                    // //console.log(removedItem);
-                    // overflowArray.push(removedItem);
-                    // console.log(overflowArray);
-                    // shortenAllItemsWithOverflow = this._calculateSizeOfBreadcrumbs(allButTheLastItem);
-                    // currentAccumSize = currentAccumSize - this.
+                    
                   }
+
+                  //create the overflow object, and populate its children with the shortened strings (if necessary)
                   var overflowObj = {
                     "text": "...",
-                    "children": this._getSmallStrs(strArray.slice(0, pointer))
+                    //populate children with all the items we took out (from position 0 to the pointer)
+                    "children": this._getSmallStrs(strArray.slice(0, pointer), map)
                   },
-                  slicedStrArray = [overflowObj].concat(this._getSmallStrs(strArray.slice(pointer)));
+                  //add the overflow obj to the beginning of the slicedStrArray array, and follow it up with all the shortened strings, starting with the point we 
+                  // stopped at with the pointer.
+                  slicedStrArray = [overflowObj].concat(this._getSmallStrs(strArray.slice(pointer), map));
                   
-                  //TODO 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                   console.log('shorten everything, include overflow');
-                  return accept(allButTheLastItem);
+                  return accept(slicedStrArray);
                 } else {
+                  /*
+                  * option 3
+                  * we can fit all the breadcrumbs once we've shortened them.
+                  */
                   console.log('shorten everything fits');
-                  //we can fit all the breadcrumbs once we've shortened them.
-                  return accept(shortenAllItems);
-              }
+                  var strArrayShortened = this._getSmallStrs(strArray, map);
+                  return accept(strArrayShortened);
+                }
               } else {
-              //shortening everything but the last one works, so we 
-              //re-add the last item - unshortened - to the array , and return that.
-              var lastItem = strArray.slice(strArray.length-1);
-              if (allButTheLastItem) {
-                allButTheLastItem.push(lastItem[0]);
+                /*
+                * Option 2
+                * shortening everything but the last one works
+                */
+
+                console.log('shorten everything but the last one.');
+                var strArrayShortenedWithFullLastItem = this._getSmallStrs(strArray.slice(0, strArray.length-1),map).concat(strArray.slice(-1));
+                return accept(strArrayShortenedWithFullLastItem);
               }
-              console.log('shorten everything but the last one.');
-              return accept(allButTheLastItem);
-            }
-              });
-              
-              
-            
-          } else {
+            } else {
             //everything fits, no need to shorten anything
             console.log('everything fits off the bat');
             return accept(strArray);
@@ -238,9 +211,13 @@
       });
     },
     _getSmallStrs(items, map) {
-      return items.map((item) => {
+      debugger;
+      var itemList =  items.map((item) => {
         item.text = map.get(item).shortText;
+        return item;
       });
+      debugger;
+      return itemList;
     },
     _createCanvas() {
       var canvas = document.createElement('canvas');
@@ -287,9 +264,9 @@
      * @return {Promise} shortenedString
      */
     _returnShortenString(itemText) {
-        var beginning = itemText.subitemText(0,6),
+        var beginning = itemText.substr(0,6),
         middle = "...",
-        end = itemText.subitemText(itemText.length-6);
+        end = itemText.substr(itemText.length-6);
         return beginning + middle + end;
     },
     /**
