@@ -29,18 +29,15 @@
         value: true
       },
       _selectedItem: {
-        type: Object,
-        value: function() {return {};}
+        type: Object
+      },
+      ulWidth: {
+        type: Number,
+        value: 0
       }
     },
-    // attached() {
-    //   this.prepareData();
-    // },
-    created() {
-      this.async(() => {
-        this._createCanvas();
-      });
-    },
+    behaviors: [Polymer.IronResizableBehavior],
+    listeners: {'iron-resize': '_getContainerSize'},
     observers: ['prepareData(_selectedItem)'],
     /**
      * This method has a chain of promises that process the data as needed.
@@ -59,36 +56,25 @@
         this.set('_mainPathItems', pathArray);
       });
     },
-    _calculateSizeOfBreadcrumbs(strArray, map, useFullSize=true) {
-      if (strArray) {
-        var ctx = this.ctx;
+    /**
+     * This method is called on initial page load, and on every page resize
+     * to find the width of the container after a draw, and queues
+     * the display options for the breadcrumbs for the next animation frame
+     * 
+     */
+    _getContainerSize() {
+      window.requestAnimationFrame(() => {
+        var breadcrumbs = document.querySelector('px-breadcrumbs'),
+            breadcrumbsContainer = Polymer.dom(breadcrumbs.root).querySelector('.container'),
+            breadcrumbsUlContainer = Polymer.dom(breadcrumbsContainer).querySelector('ul'),
+            bcUlContainerRect = breadcrumbsContainer.getBoundingClientRect();
 
-        for (var i=0; i<strArray.length;i++) {
-          var item = map.get(strArray[i]) || {};
-          var thingToMeasure = useFullSize ? strArray[i].text : item.shortText;
-          //console.log(parseInt(ctx.measureText(strArray[i].text).width,10));
-          var sizeOfItem = parseInt(ctx.measureText(thingToMeasure).width,10);
+        this.set('ulWidth', bcUlContainerRect.width + 4); //the 4 is for the padding (2px on each side) on the ul.
+      });
 
-          //if the item has children, we need to the size of the down chevron.
-          if (strArray[i].children) {
-            sizeOfItem += 11;
-          }
-
-          item[useFullSize ? 'fullSize' : 'shortSize'] = sizeOfItem;
-          map.set(strArray[i], item); 
-        }
-      }        
-        
-      return map;
-    },
-
-    _calculateAcummSize(items, map, requiredParam) {
-        return items.reduce((accum, item, index) => {
-          if (index !== items.length -1) {
-            accum += 15;
-          }
-          return accum + map.get(item)[requiredParam];
-        },0);
+      Polymer.RenderStatus.afterNextRender(this, () =>{
+        this.prepareData();
+      });
     },
     /* 
     * in this method, we decide on the display options for the breadcrumbs. 
@@ -101,174 +87,106 @@
     */
     _breadcrumbsDisplayOptions(strArray) {
       return new Promise((accept, reject) => {
-        var ctx = this.ctx,
-            map = new WeakMap(),
-            accumulativeSizeOfAllBreadcrumbs;
+        var breadcrumbsObj = new Breadcrumbs(strArray),
+            ulWidth = this.ulWidth;
+        /*
+        * option 1 
+        * we check to see if the container (which is sized automatically to fill out the page)
+        * can fit all the items in the breadcrumbs.
+        * the first option is the simpliest one - everything just fits, but if it doesn't fit...
+        */
+        if (ulWidth > breadcrumbsObj.sizeOfFullBreadcrumbs) {
+          //everything fits, no need to shorten anything
+          console.log('everything fits off the bat');
+          return accept(strArray);
+        }
 
-        map = this._calculateSizeOfBreadcrumbs(strArray, map, true);
+        /*
+        * option 2
+        * we want to find out if the container can now fit all of the 
+        * shortened items + the last Item  that wasn't shortened
+        */
+        if (ulWidth > breadcrumbsObj.sizeOfAllShortenedItemsExcludingLastItem + breadcrumbsObj.sizeOfFullLastItem) {
+          console.log('shorten everything but the last one.');
+          var strArrayShortenedWithFullLastItem = breadcrumbsObj.allShortenedItemsExcludingLast.concat(breadcrumbsObj.lastItemFull);
+          return accept(strArrayShortenedWithFullLastItem);
+        }
+
+        /*
+        * option 3 
+        * we check if we can fit after we've shortened all the items 
+        */
+        if (ulWidth > breadcrumbsObj.sizeOfAllShortenedItems) {
+          console.log('shorten everything fits');
+          var strArrayShortened = breadcrumbsObj.shortenedItems;
+          
+          return accept(strArrayShortened);
+        }
+
+        /*
+        * option 4
+        * we have to create an array with overflow.
+        * we only get to this if non of the if statements above are true.
+        */
         
-        accumulativeSizeOfAllBreadcrumbs = this._calculateAcummSize(strArray, map, 'fullSize');
-
-         
-          this.async(() => {
-            //find the container we want to measure.
-            var breadcrumbs = document.querySelector('px-breadcrumbs'),
-                breadcrumbsContainer = Polymer.dom(breadcrumbs.root).querySelector('.container'),
-                breadcrumbsUlContainer = Polymer.dom(breadcrumbsContainer).querySelector('ul'),
-                bcUlContainerRect = breadcrumbsContainer.getBoundingClientRect(),
-                ulWidth = bcUlContainerRect.width + 4; //the 4 is for the padding (2px on each side) on the ul.
-
-               
-            /*
-            * option 1 
-            * we check to see if the container (which is sized automatically to fill out the page)
-            * can fit all the items in the breadcrumbs.
-            * the first option is the simpliest one - everything just fits, but if it doesn't fit...
-            */
-            if (ulWidth < accumulativeSizeOfAllBreadcrumbs) {
-              var allButTheLastItem = strArray.slice(0, strArray.length-1);
-              
-              //these calls add the shortened text strings to the map, as well as the pixel sizes of the shortened
-              //string.
-              map = this._shortenLongAssetNames(strArray, map);
-              map = this._calculateSizeOfBreadcrumbs(strArray, map, false);
-              
-              var sizeOfAllButLastItem = this._calculateAcummSize(allButTheLastItem, map, 'shortSize'),
-                  sizeOfFullLastItem = map.get(strArray[strArray.length-1]).fullSize,
-                  sizeOfShortLastItem = map.get(strArray[strArray.length-1]).shortSize;
-
-              /*
-              * option 2
-              * we want to find out if the container can now fit all of the 
-              * shortened items + the last Item  that wasn't shortened
-              */
-              if (ulWidth < sizeOfAllButLastItem + sizeOfFullLastItem) {
-                //it doesn't fit, so, we go to second option.
-              
-                var sizeOfAllShortenedItems = sizeOfAllButLastItem + sizeOfShortLastItem;
-                
-                /*
-                * option 3 
-                * we check if we can fit after we've shortened all the items 
-                */
-                if (ulWidth < sizeOfAllShortenedItems) {
-                  //looks like we can't fit them, even after shortening them all. 
-                  //time for option 4.
-                  //i'm setting a random high number to start with
-                  var shortenAllItemsWithOverflow = 99999,
-                      pointer = 0,
-                      removedItem,
-                      currentAccumSize = sizeOfAllShortenedItems,
-                      removedAccumSize = 0;
-                  //keep looping until all the items fit into the container
-                  while (ulWidth < currentAccumSize) {
-                    //get the size of the item we are placing into the overflow
-                    var removedSize = map.get(strArray[pointer]).shortSize;
-                    // subtract the size from the overall accumulated size
-                    currentAccumSize -= removedSize;
-                    //and make sure to manually change our pointer.
-                    pointer++;
-                    
-                  }
-
-                  //create the overflow object, and populate its children with the shortened strings (if necessary)
-                  var overflowObj = {
-                    "text": "...",
-                    //populate children with all the items we took out (from position 0 to the pointer)
-                    "children": this._getSmallStrs(strArray.slice(0, pointer), map)
-                  },
-                  //add the overflow obj to the beginning of the slicedStrArray array, and follow it up with all the shortened strings, starting with the point we 
-                  // stopped at with the pointer.
-                  slicedStrArray = [overflowObj].concat(this._getSmallStrs(strArray.slice(pointer), map));
-                  
-                  console.log('shorten everything, include overflow');
-                  return accept(slicedStrArray);
-                } else {
-                  /*
-                  * option 3
-                  * we can fit all the breadcrumbs once we've shortened them.
-                  */
-                  console.log('shorten everything fits');
-                  var strArrayShortened = this._getSmallStrs(strArray, map);
-                  return accept(strArrayShortened);
-                }
-              } else {
-                /*
-                * Option 2
-                * shortening everything but the last one works
-                */
-
-                console.log('shorten everything but the last one.');
-                var strArrayShortenedWithFullLastItem = this._getSmallStrs(strArray.slice(0, strArray.length-1),map).concat(strArray.slice(-1));
-                return accept(strArrayShortenedWithFullLastItem);
-              }
-            } else {
-            //everything fits, no need to shorten anything
-            console.log('everything fits off the bat');
-            return accept(strArray);
-          }
-        }, 1500); 
+        return accept(this._createArrayWithOverflow(strArray, ulWidth));
       });
     },
-    _getSmallStrs(items, map) {
-      debugger;
-      var itemList =  items.map((item) => {
-        item.text = map.get(item).shortText;
-        return item;
-      });
-      debugger;
-      return itemList;
-    },
-    _createCanvas() {
-      var canvas = document.createElement('canvas');
-      canvas.height = 20;
-      canvas.width = 9999;
-      this._measurementCanvas = canvas;
-      var ctx = this._measurementCanvas.getContext('2d');
-      ctx.font = "15px GE Inspira Sans";
-      this.set('ctx', ctx) ;
-    },
-    /**
-     * This method accepts the path array, and loops through it recursively
-     * looking for anything with more than 16 characters.
-     * 
-     * once it finds a long asset name, it shortens it.
-     * @param {Object} pathArray 
-     * @return {Array} PathArray  - the modified array with the shortened names in it.
-     */
-    _shortenLongAssetNames(pathArray, map) {
-
-      //loop through each item
-        for (var i=0, len = pathArray.length; i<len;i++) {
-
-            var item = map.get(pathArray[i]) || {};
-
-            //either save the shortened version, or the full version of the text
-            item.shortText = (pathArray[i].text.length > 16) ? this._returnShortenString(pathArray[i].text) : pathArray[i].text;
-            
-            map.set(pathArray[i], item);
-
-          //make sure to search through the children as well by calling this recursively
-          if (pathArray[i].children) {
-            this._shortenLongAssetNames(pathArray[i].children, map);
-          }
+    /*
+    * this method is called once we've established that we need to have an
+    * array with overflow.
+    * we keep removing the size of items - starting from the beginning of the array - 
+    *  from the total size of all the items, until we can fit everything + the last item that isn't shortened
+    * into the container.
+    * @param {Array} strArray the array that holds the breadcrumbs
+    * @param {number} ulWidth the width of the ul container
+    */
+    _createArrayWithOverflow(strArray, ulWidth) {
+      return new Promise((accept, reject) => {
+      var shortenAllItemsWithOverflow = 99999,
+          pointer = 0,
+          removedItem,
+          breadcrumbsObj = new Breadcrumbs(strArray),
+          currentAccumSize = breadcrumbsObj.sizeOfAllShortenedItemsExcludingLastItem,
+          sizeOfFullLastItem = breadcrumbsObj.sizeOfFullLastItem,
+          sizeOfEllipsis = breadcrumbsObj.sizeOfEllipsis,
+          removedAccumSize = 0,
+          noRoomForFullLastItem = false,
+          lastItem = {},
+          overflowObj = {"text": "..."},
+          slicedStrArray = [];
+      //keep looping until all the items fit into the container
+      while (ulWidth < sizeOfEllipsis + currentAccumSize + sizeOfFullLastItem) {
+        if (pointer === strArray.length-1) {
+          noRoomForFullLastItem = true;
+          break
+        }
+        //get the size of the item we are placing into the overflow
+        var removedSize = breadcrumbsObj.sizeOfIndividualShortItem(strArray[pointer]);
+        // subtract the size from the overall accumulated size
+        currentAccumSize -= removedSize;
+        //and make sure to manually change our pointer.
+        pointer++;
       }
-      //once we're done, return with the modified map
-      return map;
-       
+
+      //create the overflow object, and populate its children with the shortened strings (if necessary)
+      overflowObj.children = breadcrumbsObj.shortenedItems.slice(0, pointer);
+
+      //the last item is usually full size, but, if if it's just the overflow and the last item
+      // and the last item is too long, it should shortened.
+      lastItem  = (noRoomForFullLastItem) ? breadcrumbsObj.lastItemShort : breadcrumbsObj.lastItemFull;
+      
+      //add the overflow obj to the beginning of the array, and follow it up with all the shortened strings, 
+      //starting with the point we stopped at with the pointer, and going till the last item, which is dynamically determined.
+      slicedStrArray = [overflowObj].concat(breadcrumbsObj.shortenedItems.slice(pointer, strArray.length-1)).concat(lastItem);
+      
+
+      console.log('shorten everything, include overflow');
+      return accept(slicedStrArray);
+      });
     },
-    /**
-     * This method accepts an obj that has more than 16 characters in its text, and 
-     * returns the shortened version of that text.
-     * @param {Obj} pathItem 
-     * @return {Promise} shortenedString
-     */
-    _returnShortenString(itemText) {
-        var beginning = itemText.substr(0,6),
-        middle = "...",
-        end = itemText.substr(itemText.length-6);
-        return beginning + middle + end;
-    },
+    
+
     /**
      * This method is used to determine where the path click came from - we have 3 different options, 
      * 1. the text
@@ -355,7 +273,8 @@
     },
     /**
      * this method calls a reset on whatever selected Item we 
-     * previously had, and calls a set on the new selectedItem 
+     * previously had, and calls a set on the new selectedItem, as well as calls prepareData which determines 
+     * how the breadcrumbs will show up.
      * @param {Object} evt the click event from the dropdown item clicked
      */
     _dropdownTap(evt) {
@@ -384,13 +303,12 @@
       selectedItem.selectedItem = true;
       this.set('_selectedItem', selectedItem);
     },
+    /* on tap, we need to find out if the clicked item is the same as before.
+    * if it is, we make the dropdown go way.
+    * if it is not, we save the new clicked item.
+    */
     _onPathTap(evt) {
       var dataItem = evt.model.item;
-
-      /* on tap, we need to find out if the clicked item is the same as before.
-      * if it is, we make the dropdown go way.
-      * if it is not, we save the new clicked item.
-      */
 
       // if the selected item (the one at the end of the breadcrumb) has been clicked, ignore it.
       if (evt.model.item.selectedItem) {
@@ -437,4 +355,117 @@
       this.dispatchEvent(new CustomEvent('px-breadcrumbs-item-clicked', {item: item, composed: true}));
     }
   });
+  
+  class Breadcrumbs {
+    constructor(breadcrumbs) {
+      this.breadcrumbs = breadcrumbs;
+      this.map = new WeakMap();
+      this.ctx = this._createCanvas();
+      this._preShortenItems(this.breadcrumbs);
+      return this;
+    }
+    _preShortenItems(items) {
+      for (let item of items) {
+        this._getShortenedText(item);
+      }
+    }
+    get sizeOfFullBreadcrumbs() {
+      this.__sizeOfFullBreadcrumbs = this.__sizeOfFullBreadcrumbs || this._calculateSizeOfBreadcrumbs(this.breadcrumbs);
+      return this.__sizeOfFullBreadcrumbs;
+    }
+    get sizeOfAllShortenedItemsExcludingLastItem() {
+      return this._calculateSizeOfBreadcrumbs(this.breadcrumbs.slice(0, this.breadcrumbs.length-1), false);
+    }
+    get sizeOfFullLastItem() {
+      return this._calculateSizeOfBreadcrumbs(this.breadcrumbs.slice(-1));
+    }
+    get sizeOfShortLastItem() {
+      return this._calculateSizeOfBreadcrumbs(this.breadcrumbs.slice(-1), false);
+    }
+    get lastItemFull() {
+      return this.breadcrumbs.slice(-1)[0];
+    }
+    get lastItemShort() {
+      return this.shortenedItems.slice(-1)[0];
+    }
+    get shortenedItems() {
+      
+      this.__shortenedItems = this.__shortenedItems ||  this.breadcrumbs.map((item) => {
+        var newItem = {};
+        newItem.text = this._getShortenedText(item);
+        newItem.children = item.children;
+        newItem.selectedItem = item.selectedItem;
+        newItem.hasChildren = item.hasChildren;
+        return newItem;
+      });
+      return this.__shortenedItems;
+    }
+    get sizeOfEllipsis() {
+      return parseInt(this.ctx.measureText('...').width,10)
+    }
+    get sizeOfAllShortenedItems() {
+      return this._calculateSizeOfBreadcrumbs(this.breadcrumbs, false);
+    }
+    get allShortenedItemsExcludingLast() {
+      return this.shortenedItems.slice(0, this.shortenedItems.length -1);
+    }
+    get sizeOfAllShortenedItems() {
+      return this._calculateSizeOfBreadcrumbs(this.breadcrumbs, false);
+    }
+    _getShortenedText(item) {
+      const cachedItem = this.map.get(item) || {};
+      cachedItem.shortText = cachedItem.shortText || `${item.text.substr(0,6)}...${item.text.substr(item.text.length-6)}`;
+      this.map.set(item, cachedItem);
+      return cachedItem.shortText;
+    }
+    _sizeOfIndividualFullItem(item) {
+      const cachedItem = this.map.get(item) || {};
+      cachedItem.fullSize = (cachedItem.fullSize || parseInt(this.ctx.measureText(item.text).width,10));
+      this.map.set(item, cachedItem);
+      return cachedItem.fullSize;
+    }
+    sizeOfIndividualShortItem(item) {
+      const cachedItem = this.map.get(item) || {};
+      cachedItem.shortSize = (cachedItem.shortSize || parseInt(this.ctx.measureText(cachedItem.shortText).width,10));
+      this.map.set(item, cachedItem);
+      return cachedItem.shortSize;
+    }
+    _calculateSizeOfBreadcrumbs(strArray, useFullSize=true) {
+      if (strArray) {
+        let accum = 0,
+            i = 0,
+            len = strArray.length,
+            sizeOfItem;
+
+        for (i=0; i<len;i++,sizeOfItem=null) {
+          
+          if (useFullSize) {
+            sizeOfItem = this._sizeOfIndividualFullItem(strArray[i]);
+          } else {
+            sizeOfItem = this.sizeOfIndividualShortItem(strArray[i]);
+          }
+
+          accum += sizeOfItem + 15; //the 15 is for the right angle.
+          
+          //if the item has children, we need to add the size of the down chevron.
+          if (strArray[i].children) {
+            accum += 11;
+          }
+        }
+        return accum;
+      }
+    }
+    _createCanvas() {
+      const canvas = document.createElement('canvas');
+      
+      canvas.height = 20;
+      canvas.width = 9999;
+
+      const ctx = canvas.getContext('2d');
+      ctx.font = "15px GE Inspira Sans";
+      return ctx;
+    }
+  }
+  
+
 })();
