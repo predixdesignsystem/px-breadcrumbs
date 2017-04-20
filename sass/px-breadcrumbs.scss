@@ -55,10 +55,10 @@
     color: $primary-blue;
   }
   //this captures both the text and the icons
-  &:active, span>iron-icon, &:active {
+  &:active, span>iron-icon {
     color: $primary-blue-pressed;
   }
-  &.selected {
+  &:last-of-type {
     font-weight: 600;
     color: $black;
     cursor:  default;

@@ -41,11 +41,9 @@
     observers: ['prepareData(_selectedItem)'],
     /**
      * This method has a chain of promises that process the data as needed.
-     * first, we find the selected item inside _calculatePath
-     * secondly, we set the _mainPathItems
-     * thirdly, we figure out the display options - whether we need overflow, shorten any names, etc.
-     * lastly, we set the _mainPathItems again, this time with the shortened/overflow version, 
-     * if necessary
+     * first, we extract the path out of the data that's passed in
+     * then we figure out the display options - whether we need overflow, shorten any names, etc.
+     * lastly, we set the _mainPathItems,  with the shortened/overflow version as needed
      */
     prepareData() {
       this._calculatePath()
@@ -63,18 +61,21 @@
      * 
      */
     _getContainerSize() {
-      window.requestAnimationFrame(() => {
-        var breadcrumbs = document.querySelector('px-breadcrumbs'),
-            breadcrumbsContainer = Polymer.dom(breadcrumbs.root).querySelector('.container'),
-            breadcrumbsUlContainer = Polymer.dom(breadcrumbsContainer).querySelector('ul'),
-            bcUlContainerRect = breadcrumbsContainer.getBoundingClientRect();
+      this.debounce('windowResize', () => {
+        window.requestAnimationFrame(() => {
+          var breadcrumbs = document.querySelector('px-breadcrumbs'),
+              breadcrumbsContainer = Polymer.dom(breadcrumbs.root).querySelector('.container'),
+              breadcrumbsUlContainer = Polymer.dom(breadcrumbsContainer).querySelector('ul'),
+              bcUlContainerRect = breadcrumbsContainer.getBoundingClientRect();
 
-        this.set('ulWidth', bcUlContainerRect.width + 4); //the 4 is for the padding (2px on each side) on the ul.
-      });
+          this.set('ulWidth', bcUlContainerRect.width + 4); //the 4 is for the padding (2px on each side) on the ul.
+        });
 
-      Polymer.RenderStatus.afterNextRender(this, () =>{
-        this.prepareData();
-      });
+        Polymer.RenderStatus.afterNextRender(this, () =>{
+          this.prepareData();
+        });
+      },10)
+      
     },
     /* 
     * in this method, we decide on the display options for the breadcrumbs. 
@@ -97,18 +98,16 @@
         */
         if (ulWidth > breadcrumbsObj.sizeOfFullBreadcrumbs) {
           //everything fits, no need to shorten anything
-          console.log('everything fits off the bat');
           return accept(strArray);
         }
 
         /*
         * option 2
-        * we want to find out if the container can now fit all of the 
-        * shortened items + the last Item  that wasn't shortened
+        * we want to find out if the container can now fit all the 
+        * shortened items + the last Item that wasn't shortened
         */
         if (ulWidth > breadcrumbsObj.sizeOfAllShortenedItemsExcludingLastItem + breadcrumbsObj.sizeOfFullLastItem) {
-          console.log('shorten everything but the last one.');
-          var strArrayShortenedWithFullLastItem = breadcrumbsObj.allShortenedItemsExcludingLast.concat(breadcrumbsObj.lastItemFull);
+          let strArrayShortenedWithFullLastItem = breadcrumbsObj.allShortenedItemsExcludingLast.concat(breadcrumbsObj.lastItemFull);
           return accept(strArrayShortenedWithFullLastItem);
         }
 
@@ -117,8 +116,7 @@
         * we check if we can fit after we've shortened all the items 
         */
         if (ulWidth > breadcrumbsObj.sizeOfAllShortenedItems) {
-          console.log('shorten everything fits');
-          var strArrayShortened = breadcrumbsObj.shortenedItems;
+          let strArrayShortened = breadcrumbsObj.shortenedItems;
           
           return accept(strArrayShortened);
         }
@@ -143,20 +141,20 @@
     */
     _createArrayWithOverflow(strArray, ulWidth) {
       return new Promise((accept, reject) => {
-      var shortenAllItemsWithOverflow = 99999,
-          pointer = 0,
-          removedItem,
+      var pointer = 0,
           breadcrumbsObj = new Breadcrumbs(strArray),
           currentAccumSize = breadcrumbsObj.sizeOfAllShortenedItemsExcludingLastItem,
           sizeOfFullLastItem = breadcrumbsObj.sizeOfFullLastItem,
           sizeOfEllipsis = breadcrumbsObj.sizeOfEllipsis,
-          removedAccumSize = 0,
           noRoomForFullLastItem = false,
           lastItem = {},
           overflowObj = {"text": "..."},
           slicedStrArray = [];
+
       //keep looping until all the items fit into the container
       while (ulWidth < sizeOfEllipsis + currentAccumSize + sizeOfFullLastItem) {
+        //if we made it to the last item, and it's STILL can't fit, break out of the 
+        // while loop, to ensure the last items doesn't go into the overflow object.
         if (pointer === strArray.length-1) {
           noRoomForFullLastItem = true;
           break
@@ -180,8 +178,6 @@
       //starting with the point we stopped at with the pointer, and going till the last item, which is dynamically determined.
       slicedStrArray = [overflowObj].concat(breadcrumbsObj.shortenedItems.slice(pointer, strArray.length-1)).concat(lastItem);
       
-
-      console.log('shorten everything, include overflow');
       return accept(slicedStrArray);
       });
     },
@@ -260,16 +256,7 @@
      * @param {Number} index the index of the item
      */
     _isLastItemInData(index) {
-      return this._mainPathItems[this._mainPathItems.length-1] === this._mainPathItems[index];
-    },
-    /**
-     * This function is used to determine the correct classes that need to be passed in - if 
-     * the index is the last item in the aray, we want it to be bold, so we pass the selected class.
-     * 
-     * @param {Number} index This represents the index of the item we are looking at in the array.
-     */
-    _calculatePathclass(index) {
-      return this._isLastItemInData(index) ? ' selected' : '';
+      return this._mainPathItems.length-1 === index;
     },
     /**
      * this method calls a reset on whatever selected Item we 
