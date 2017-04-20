@@ -36,37 +36,59 @@
     // attached() {
     //   this.prepareData();
     // },
+    created() {
+      this.async(() => {
+        this._createCanvas();
+      });
+    },
     observers: ['prepareData(_selectedItem)'],
     /**
      * This method has a chain of promises that process the data as needed.
+     * first, we find the selected item inside _calculatePath
+     * secondly, we set the _mainPathItems
+     * thirdly, we figure out the display options - whether we need overflow, shorten any names, etc.
+     * lastly, we set the _mainPathItems again, this time with the shortened/overflow version, 
+     * if necessary
      */
     prepareData() {
       this._calculatePath()
-      .then((pathArray) => this._breadcrumbsDisplayOptions(pathArray))
       .then((pathArray) => {
+        return this._breadcrumbsDisplayOptions(pathArray)})
+      .then((pathArray) => {
+        //and the second time this is being set, it's with the shortened versions, if necessary. 
         this.set('_mainPathItems', pathArray);
       });
     },
-    _calculateSizeOfBreadcrumbs(strArray) {
-      
+    _calculateSizeOfBreadcrumbs(strArray, map, useFullSize=true) {
       if (strArray) {
-        var accumulativeSizeOfBreadcrumbs = 0,
-        ctx = this._createCanvas();
+        var ctx = this.ctx;
+
         for (var i=0; i<strArray.length;i++) {
-          accumulativeSizeOfBreadcrumbs += parseInt(ctx.measureText(strArray[i].text).width,10);
+          var item = map.get(strArray[i]) || {};
+          var thingToMeasure = useFullSize ? strArray[i].text : item.shortText;
+          //console.log(parseInt(ctx.measureText(strArray[i].text).width,10));
+          var sizeOfItem = parseInt(ctx.measureText(thingToMeasure).width,10);
+
           //if the item has children, we need to the size of the down chevron.
           if (strArray[i].children) {
-            accumulativeSizeOfBreadcrumbs += 11;
+            sizeOfItem += 11;
           }
-          //we need to also add 15 pixels for the angle right
-          if (i !==strArray.length -1) {
-            accumulativeSizeOfBreadcrumbs += 15;
-          }
+
+          item[useFullSize ? 'fullSize' : 'shortSize'] = sizeOfItem;
+          map.set(strArray[i], item); 
         }
-        return accumulativeSizeOfBreadcrumbs;
-      } else {
-        return 0;
-      }
+      }        
+        
+      return map;
+    },
+
+    _calculateAcummSize(items, map, requiredParam) {
+        return items.reduce((accum, item, index) => {
+          if (index !== items.length -1) {
+            accum += 15;
+          }
+          return accum + map.get(item)[requiredParam];
+        },0);
     },
     /* 
     * in this method, we decide on the display options for the breadcrumbs. 
@@ -78,82 +100,146 @@
     */
     _breadcrumbsDisplayOptions(strArray) {
       return new Promise((accept, reject) => {
-        var ctx = this._createCanvas(),
-          accumulativeSizeOfAllBreadcrumbs = this._calculateSizeOfBreadcrumbs(strArray);
-          Polymer.dom.flush();
+        var ctx = this.ctx,
+            map = new WeakMap(),
+            accumulativeSizeOfAllBreadcrumbs;
+
+        map = this._calculateSizeOfBreadcrumbs(strArray, map, true);
+        
+        accumulativeSizeOfAllBreadcrumbs = this._calculateAcummSize(strArray, map, 'fullSize');
+
+         
           this.async(() => {
             var breadcrumbs = document.querySelector('px-breadcrumbs'),
                 breadcrumbsContainer = Polymer.dom(breadcrumbs.root).querySelector('.container'),
                 breadcrumbsUlContainer = Polymer.dom(breadcrumbsContainer).querySelector('ul'),
                 bcUlContainerRect = breadcrumbsContainer.getBoundingClientRect(),
-                ulWidth = bcUlContainerRect.width;
-                
+                ulWidth = bcUlContainerRect.width + 4; //the 4 is for the padding on the ul.
+
+               
             // we check to see if the container (which is sized automatically to fill out the page)
             // can fit all the items in the breadcrumbs.
+            //the first option is the simpliest one - everything just fits, but if it doesn't fit...
             if (ulWidth < accumulativeSizeOfAllBreadcrumbs) {
+              var allButTheLastItem = strArray.slice(0, strArray.length-1);
               
-              var allButTheLastItem = this._shortenLongAssetNames(strArray.slice(0, strArray.length-1)),
-                  sizeOfAllButLastItem = this._calculateSizeOfBreadcrumbs(allButTheLastItem),
-                  lastItem = this._calculateSizeOfBreadcrumbs(strArray.slice(-1));
+              map = this._shortenLongAssetNames(strArray, map);
+              map = this._calculateSizeOfBreadcrumbs(strArray, map, false);
               
-              //we want to find out if the container can now fit all of the shortened items + the last Item, that wasn't shortened
-              if (ulWidth < sizeOfAllButLastItem + lastItem) {
+              var sizeOfAllButLastItem = this._calculateAcummSize(, map, 'shortSize');
+              var sizeOfLastItem = map.get(strArray[strArray.length-1]).fullSize;
+
+              // var beginningItems = strArray.slice(0, strArray.length-1);
+              // var lastItem = strArray.slice(-1);
+              // var preparePromise = () => {
+              //   var shortenedAllButTheLastItems, sizeOfAllButLastItem, sizeOfLastItem;
+              //   this._shortenLongAssetNames(allButTheLastItem)
+              //     .then((result) => {
+              //       shortenedAllButTheLastItems = result;
+              //       return this._calculateSizeOfBreadcrumbs(shortenedAllButTheLastItems);
+              //     })
+              //     .then((size) => {
+              //       sizeOfAllButLastItem = size;
+              //       return this._calculateSizeOfBreadcrumbs(lastItem);
+              //     })
+              //     .then((size) => {
+              //       sizeOfLastItem = size;
+              //       return Promise.resolve({sizeOfLastItem, sizeOfAllButLastItem, shortenedAllButTheLastItems});
+              //     });
+              // }
+
+              //preparePromise.then(({sizeOfLastItem, sizeOfAllButLastItem, shortenedAllButTheLastItems}) => {
+                //we want to find out if the container can now fit all of the shortened items + the last Item + 26 (11 for bottom chevron, 15 for side angle) for the last item, that wasn't shortened
+              if (ulWidth < sizeOfAllButLastItem + sizeOfLastItem) {
                 //it doesn't fit, so, we go to second option.
               
-                var shortenAllItems = this._shortenLongAssetNames(strArray),
-                    sizeOfAllShortenedItem = this._calculateSizeOfBreadcrumbs(shortenAllItems);
+                var sizeOfAllShortenedItem = this._calculateAcummSize(strArray, map, 'shortSize');
                 
                 //we check if we can fit after we've shortened all the items
                 if (ulWidth < sizeOfAllShortenedItem) {
-                  
                   //looks like we can't fit them, even after shortening them all. 
                   //time for option 3.
                   //i'm setting a random high number to start with
                   var shortenAllItemsWithOverflow = 99999,
-                      overflowArray = [],
-                      removedItem;
+                      pointer = 0,
+                      removedItem,
+                      currentAccumSize = sizeOfAllButLastItem + sizeOfLastItem,
+                      removedAccumSize = 0;
                   //keep looping until all the items fit into the container
-                  while (ulWidth < shortenAllItemsWithOverflow) {
-                    //we remove the first item - mutating strArray, and returning the item
-                    //which then gets pushed into overflowArray, giving us an array of the items we
-                    //had to cut out once this loop is done.
-                    removedItem = strArray.shift();
-                    console.log(removedItem);
-                    overflowArray.push(removedItem);
-                    shortenAllItemsWithOverflow = this._calculateSizeOfBreadcrumbs(strArray);
+                  while (ulWidth < currentAccumSize) {
+
+                    var removedSize = map.get(strArray[pointer]).shortSize;
+                    currentAccumSize -= removedSize;
+                    pointer++;
+                    // removedAccumSize += 
+                    // //we remove the first item - mutating allButTheLastItem, and returning the item
+                    // //which then gets pushed into overflowArray, giving us an array of the items we
+                    // //had to cut out once this loop is done.
+                    // removedItem = allButTheLastItem.shift();
+                    // //console.log(removedItem);
+                    // overflowArray.push(removedItem);
+                    // console.log(overflowArray);
+                    // shortenAllItemsWithOverflow = this._calculateSizeOfBreadcrumbs(allButTheLastItem);
+                    // currentAccumSize = currentAccumSize - this.
                   }
                   var overflowObj = {
                     "text": "...",
-                    "children": overflowArray
-                  }
+                    "children": this._getSmallStrs(strArray.slice(0, pointer))
+                  },
+                  slicedStrArray = [overflowObj].concat(this._getSmallStrs(strArray.slice(pointer)));
                   
-                  //this pushes the overflowObj to the beginning of the array.
-                  strArray.unshift(overflowObj);
+                  //TODO 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                   console.log('shorten everything, include overflow');
-                  return accept(strArray);
-                
-              } else {
+                  return accept(allButTheLastItem);
+                } else {
                   console.log('shorten everything fits');
                   //we can fit all the breadcrumbs once we've shortened them.
                   return accept(shortenAllItems);
-                }
-              } else {
-                //shortening everything but the last one works, so we 
-                //re-add the last item - unshortened - to the array , and return that.
-                var lastItem = strArray.slice(strArray.length-1);
-                if (allButTheLastItem) {
-                  allButTheLastItem.push(lastItem[0]);
-                }
-                console.log('shorten everything but the last one.');
-                return accept(allButTheLastItem);
               }
-            } else {
-              //everything fits, no need to shorten anything
-              console.log('everything fits off the bat');
-              return accept(strArray);
+              } else {
+              //shortening everything but the last one works, so we 
+              //re-add the last item - unshortened - to the array , and return that.
+              var lastItem = strArray.slice(strArray.length-1);
+              if (allButTheLastItem) {
+                allButTheLastItem.push(lastItem[0]);
+              }
+              console.log('shorten everything but the last one.');
+              return accept(allButTheLastItem);
             }
-          }, 1500);
-          
+              });
+              
+              
+            
+          } else {
+            //everything fits, no need to shorten anything
+            console.log('everything fits off the bat');
+            return accept(strArray);
+          }
+        }, 1500); 
+      });
+    },
+    _getSmallStrs(items, map) {
+      return items.map((item) => {
+        item.text = map.get(item).shortText;
       });
     },
     _createCanvas() {
@@ -163,11 +249,7 @@
       this._measurementCanvas = canvas;
       var ctx = this._measurementCanvas.getContext('2d');
       ctx.font = "15px GE Inspira Sans";
-      return ctx;
-    },
-    _isTextShorteningNecessery(pathArray) {
-      console.log('pathArray');
-      console.log(pathArray);
+      this.set('ctx', ctx) ;
     },
     /**
      * This method accepts the path array, and loops through it recursively
@@ -175,31 +257,28 @@
      * 
      * once it finds a long asset name, it shortens it.
      * @param {Object} pathArray 
-     * @return {Promise} PathArray 
+     * @return {Array} PathArray  - the modified array with the shortened names in it.
      */
-    _shortenLongAssetNames(pathArray) {
-        //loop through each item
+    _shortenLongAssetNames(pathArray, map) {
+
+      //loop through each item
         for (var i=0, len = pathArray.length; i<len;i++) {
-          //looking for anything that's over 16 characters.
-          if (pathArray[i].text.length > 16) {
-            //get the shotened version of the text
-            this._returnShortenString(pathArray[i])
-            .then((obj) => {
-              //and save it into the correct path.
-              var path = obj.path,
-                  shortenedString = obj.text;
-              path.text = shortenedString;
-            });
-          } else {
-            //make sure to search through the children as well by calling this recursively
-            if (pathArray[i].children) {
-              this._shortenLongAssetNames(pathArray[i].children);
-            }
-            debugger;
-            //once we're done, return the promise with the modified pathArray
-            return pathArray;
+
+            var item = map.get(pathArray[i]) || {};
+
+            //either save the shortened version, or the full version of the text
+            item.shortText = (pathArray[i].text.length > 16) ? this._returnShortenString(pathArray[i].text) : pathArray[i].text;
+            
+            map.set(pathArray[i], item);
+
+          //make sure to search through the children as well by calling this recursively
+          if (pathArray[i].children) {
+            this._shortenLongAssetNames(pathArray[i].children, map);
           }
       }
+      //once we're done, return with the modified map
+      return map;
+       
     },
     /**
      * This method accepts an obj that has more than 16 characters in its text, and 
@@ -207,16 +286,11 @@
      * @param {Obj} pathItem 
      * @return {Promise} shortenedString
      */
-    _returnShortenString(pathItem) {
-      return new Promise((accept, reject) => {
-        var string = pathItem.text,
-        beginning = string.substring(0,6),
+    _returnShortenString(itemText) {
+        var beginning = itemText.subitemText(0,6),
         middle = "...",
-        end = string.substring(string.length-6);
-      
-        return accept({"text": beginning + middle + end, "path": pathItem});
-      });
-      
+        end = itemText.subitemText(itemText.length-6);
+        return beginning + middle + end;
     },
     /**
      * This method is used to determine where the path click came from - we have 3 different options, 
@@ -240,8 +314,7 @@
     /**
      * This method is called on load, to calculate the initial Path, 
      * everytime a breadcrumb is clicked.
-     * it recursively builds the path, while looking for the 
-     * selectedItem.
+     * it recursively builds the path, and returns it as a promise.
      */
     _calculatePath() {
       return new Promise((accept, reject) => {
@@ -257,7 +330,6 @@
 
             if (pathItem[i].selectedItem) {
                 pathArray.push(pathItem[i]);
-                self.set('_selectedItem', pathItem[i]);
                 foundSelectedItem = true;
                 break;
               }
@@ -285,29 +357,29 @@
      * @param {*} itemInPath 
      */
     _doesItemHaveChildren(itemInPath) {
-      return itemInPath.hasChildren;
+      return (itemInPath && itemInPath.hasChildren);
     },
     /**
      * This function is used to determine whether we are on the last Item in the array. - if 
      * the index is the last item in the aray (length -1), we return false.
-     * @param {*} index 
+     * @param {Number} index the index of the item
      */
-    _isNotLastItemInData(index) {
-      return this._mainPathItems.length-1 !== index;
+    _isLastItemInData(index) {
+      return this._mainPathItems[this._mainPathItems.length-1] === this._mainPathItems[index];
     },
     /**
      * This function is used to determine the correct classes that need to be passed in - if 
      * the index is the last item in the aray, we want it to be bold, so we pass the selected class.
      * 
-     * @param {*} index This represents the index of the item we are looking at in the array.
+     * @param {Number} index This represents the index of the item we are looking at in the array.
      */
     _calculatePathclass(index) {
-      return !this._isNotLastItemInData(index) ?  ' selected' : '';
+      return this._isLastItemInData(index) ? ' selected' : '';
     },
     /**
-     * this method call a reset on whatever selected Item we 
-     * previously had, and call a set on the new selectedItem 
-     * @param {*} evt the click event from the dropdown item clicked
+     * this method calls a reset on whatever selected Item we 
+     * previously had, and calls a set on the new selectedItem 
+     * @param {Object} evt the click event from the dropdown item clicked
      */
     _dropdownTap(evt) {
       this._resetSelectedItem();
@@ -315,9 +387,17 @@
       this._setSelectedItem(newSelectItem);
       //this hides the dropdown
       this.set('_isDropdownHidden', true);
+      this._changePathFromDropdownClick();
       //and this clears out the field that hold the previously clicked
       //path item.
       this.set('_clickPathItem', {});
+      
+    },
+    /**
+     * This method calls the prepareData method, which runs through the 
+     */
+    _changePathFromDropdownClick() {
+      this.prepareData();
     },
     /**
      * This method sets a _selectedItem from the passed object.
@@ -340,16 +420,18 @@
         evt.stopPropagation();
         return;
       }
+      //if the item that is clicked is the open option, hide the dropdown, and reset the _clickPathItem object.
       if (this._clickPathItem === dataItem) {
         this.set('_isDropdownHidden', true);
         this.set('_clickPathItem', {});
       } else {
+        //new click on new item, set the clicked item, show the dropdown and set its position.
         this.set('_clickPathItem', dataItem);
         this.set('_isDropdownHidden', false);
         this._changeDropdownPosition(evt);
       }
-      
       if (this._doesItemHaveChildren(dataItem)) {
+        //dataItem.children = shortenedVersion(dataItem.children)
         this.set('_clickedItemChildren', dataItem.children);
       }
     },
