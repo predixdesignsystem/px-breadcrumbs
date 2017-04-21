@@ -126,7 +126,7 @@
         * we only get to this if non of the if statements above are true.
         */
         
-        return accept(this._createArrayWithOverflow(strArray, ulWidth));
+        return accept(this._createArrayWithOverflow(strArray, ulWidth, breadcrumbsObj));
       });
     },
     /*
@@ -138,16 +138,15 @@
     * @param {Array} strArray the array that holds the breadcrumbs
     * @param {number} ulWidth the width of the ul container
     */
-    _createArrayWithOverflow(strArray, ulWidth) {
+    _createArrayWithOverflow(strArray, ulWidth, breadcrumbsObj) {
       return new Promise((accept, reject) => {
       var pointer = 0,
-          breadcrumbsObj = new Breadcrumbs(strArray),
           currentAccumSize = breadcrumbsObj.sizeOfAllShortenedItemsExcludingLastItem,
           sizeOfFullLastItem = breadcrumbsObj.sizeOfFullLastItem,
           sizeOfEllipsis = breadcrumbsObj.sizeOfEllipsis,
           noRoomForFullLastItem = false,
           lastItem = {},
-          overflowObj = {"text": "..."},
+          overflowObj = {"text": "...", "hasChildren": true},
           slicedStrArray = [];
 
       //keep looping until all the items fit into the container
@@ -165,6 +164,8 @@
         //and make sure to manually change our pointer.
         pointer++;
       }
+      
+      
 
       //create the overflow object, and populate its children with the shortened strings (if necessary)
       overflowObj.children = breadcrumbsObj.shortenedItems.slice(0, pointer);
@@ -208,46 +209,51 @@
      */
     _calculatePath() {
       return new Promise((accept, reject) => {
-        var pathArray = [],
-        currentDataObj = this.breadcrumbData,
-        self = this,
-        foundSelectedItem = false;
-        var recursiveLoopThroughObj = function(pathItem) {
-          for (var i=0, len = pathItem.length; i<len;i++) {
-            if (foundSelectedItem) {
-              break;
-            };
+        var graph = this.graph || new Graph(this.breadcrumbData),
+            pathArray = graph.selectedItemPath;
 
-            if (pathItem[i].selectedItem) {
-                pathArray.push(pathItem[i]);
-                foundSelectedItem = true;
-                break;
-              }
-
-            if (pathItem[i].children) {
-              //if it has children, we want to keep digging in
-              //so we push the item we are on into the pathArray
-              //and call ourselves with the children of the current item
-              pathArray.push(pathItem[i]);
-              recursiveLoopThroughObj(pathItem[i].children)
-            }
-          }
-        };
-
-        //the initial call into the recursion
-        recursiveLoopThroughObj(currentDataObj);
-
+        this.set('graph', graph);
+        
         //once all the recursion is done, we can return the pathArray
         return accept(pathArray);
       });
     },
-   
+    _addParentPropToItem(parent) {
+      var i=0,
+          children = parent.children,
+          len = children.length,
+          breadcrumbsObj = this.breadcrumbsObj;
+
+      for (; i<len;i++) {
+        var newItem = {};
+        newItem.children = children[i].children;
+        newItem.text = children[i].text;
+        newItem.hasChildren = children[i].hasChildren;
+        newItem.selectedItem = children[i].selectedItem;
+        newItem.parent = parent;
+
+        breadcrumbsObj._addToWeakMap = newItem;
+      }
+    },
     /**
      * This function checks whether the item in question has children.
      * @param {*} itemInPath 
      */
-    _doesItemHaveChildren(itemInPath) {
-      return (itemInPath && itemInPath.hasChildren);
+    _doesItemHaveSiblings(itemInPath) {
+      var graph = this.graph,
+          hasSibling = graph.hasSiblings(itemInPath);
+      //we check that the item exists, has chil
+      return hasSibling;
+    },
+     /**
+     * This function checks whether the item in question has children, and is not the first item in the array - used by the dom-repeat
+     * to determine whether the angle down should show up - the ... does not need it, and is always first.
+     * @param {Object} itemInPath the item we are checking against
+     * @param {Number} index the index of the item in the array
+     */
+    _doesItemHaveChildrenAndIsNotFirst(itemInPath, index) {
+      //we check that the item exists, has chil
+      return (itemInPath && itemInPath.hasChildren && index !==0);
     },
     /**
      * This function is used to determine whether we are on the last Item in the array. - if 
@@ -312,9 +318,12 @@
         this._changeDropdownPosition(evt);
       }
 
-      if (this._doesItemHaveChildren(dataItem)) {
-        //dataItem.children = shortenedVersion(dataItem.children)
-        this.set('_clickedItemChildren', dataItem.children);
+      var sourceItem = dataItem.hasOwnProperty('source') ? dataItem.source : dataItem;
+
+      if (this._doesItemHaveSiblings(sourceItem)) {
+        var graph = this.graph,
+            siblings = graph.getSiblings(sourceItem);
+        this.set('_clickedItemChildren', siblings);
       }
     },
     /**
@@ -344,18 +353,14 @@
   });
   
   class Breadcrumbs {
-    constructor(breadcrumbs) {
+    constructor(breadcrumbs = []) {
       this.breadcrumbs = breadcrumbs;
       this.map = new WeakMap();
       this.ctx = this._createCanvas();
       this._preShortenItems(this.breadcrumbs);
       return this;
     }
-    _preShortenItems(items) {
-      for (let item of items) {
-        this._getShortenedText(item);
-      }
-    }
+    
     get sizeOfFullBreadcrumbs() {
       this.__sizeOfFullBreadcrumbs = this.__sizeOfFullBreadcrumbs || this._calculateSizeOfBreadcrumbs(this.breadcrumbs);
       return this.__sizeOfFullBreadcrumbs;
@@ -376,14 +381,15 @@
       return this.shortenedItems.slice(-1)[0];
     }
     get shortenedItems() {
-      
       this.__shortenedItems = this.__shortenedItems ||  this.breadcrumbs.map((item) => {
-        var newItem = {};
-        newItem.text = this._getShortenedText(item);
-        newItem.children = item.children;
-        newItem.selectedItem = item.selectedItem;
-        newItem.hasChildren = item.hasChildren;
-        return newItem;
+        var wrapper = {};
+        wrapper.source = item;
+        wrapper.isTruncated = true;
+        wrapper.text = this._getShortenedText(item);
+        wrapper.children = item.children;
+        wrapper.selectedItem = item.selectedItem;
+        wrapper.hasChildren = item.hasChildren;
+        return wrapper;
       });
       return this.__shortenedItems;
     }
@@ -398,6 +404,22 @@
     }
     get sizeOfAllShortenedItems() {
       return this._calculateSizeOfBreadcrumbs(this.breadcrumbs, false);
+    }
+
+    _addItemToBreadcrumbsClassAndWeakMap(item) {
+      this.breadcrumbs.push(item);
+      this._addToWeakMap(item);
+    }
+    _addToWeakMap(item) {
+      const cachedItem = this.map.get(item) || null;
+      if (!cachedItem) {
+        this.map.set(item, item);  
+      }
+    }
+    _preShortenItems(items) {
+      for (let item of items) {
+        this._getShortenedText(item);
+      }
     }
     _getShortenedText(item) {
       const cachedItem = this.map.get(item) || {};
@@ -452,7 +474,73 @@
       ctx.font = "15px GE Inspira Sans";
       return ctx;
     }
-  }
+  };
   
+  class Graph {
+    constructor(nodes) {
+      this.map = new WeakMap();
+      this._selectedItem = null;
+      this.graph = this._crawlGraph(nodes);
+      this.nodes = nodes;
+      return this;
+    }
+    _crawlGraph(nodes) {
+      
+      var recursiveLoopThroughObj = function(nodes, parent, path=[]) {
+        var metaData = {};
 
+          for (var i=0, len = nodes.length; i<len;i++) {
+
+            if (parent) {
+              metaData.parent = parent;
+            }
+
+            if (nodes[i].children) {
+              //if it has children, we want to keep digging in
+              //so we push the item we are on into the pathArray
+              //and call ourselves with the children of the current item
+              metaData.children = nodes[i].children;
+
+              recursiveLoopThroughObj.call(this,nodes[i].children, nodes[i], path.concat(parent ? [parent] : []));
+            }
+
+            metaData.path = path;
+            
+            if (nodes[i].selectedItem) {
+              this._selectedItem = nodes[i];
+            }
+            this.map.set(nodes[i], metaData);
+          }
+
+        }.bind(this);
+
+        //the initial call into the recursion
+        recursiveLoopThroughObj(nodes);
+    }
+    get selectedItem() {
+      return this._selectedItem;
+    }
+    get selectedItemPath() {
+      
+      var metaData = this.map.get(this._selectedItem);
+      return (metaData) ? metaData.path : undefined;
+    }
+    hasSiblings(item) {
+      var parent = this.map.get(item).parent;
+      return (parent.children) ? true : false;
+    }
+    getSiblings(item) {
+      var parent = this.map.get(item).parent;
+      return parent.children.filter((sibling) => {
+        return sibling !== item;
+      });
+    }
+    set selectedItem(item) {
+      if (item) {
+        this._selectedItem.selectedItem = false;
+      item.selectedItem = true;
+      this._selectedItem = item;
+      }
+    }
+  }
 })();
