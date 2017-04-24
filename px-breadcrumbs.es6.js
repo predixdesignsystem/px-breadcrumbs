@@ -243,7 +243,8 @@
      */
     _doesItemHaveSiblings(itemInPath) {
       var graph = this.graph,
-          hasSibling = graph.hasSiblings(itemInPath);
+          source = itemInPath.source ? itemInPath.source : itemInPath,
+          hasSibling = graph.hasSiblings(source);
       //we check that the item exists, has chil
       return hasSibling;
     },
@@ -253,9 +254,8 @@
      * @param {Object} itemInPath the item we are checking against
      * @param {Number} index the index of the item in the array
      */
-    _doesItemHaveChildrenAndIsNotFirst(itemInPath, index) {
-      //we check that the item exists, has chil
-      return (itemInPath && itemInPath.hasChildren && index !==0);
+    _doesItemHaveSiblingsAndIsNotFirst(itemInPath, index) {
+      return (itemInPath && this._doesItemHaveSiblings(itemInPath) && index !==0);
     },
     /**
      * This function is used to determine whether we are on the last Item in the array. - if 
@@ -500,7 +500,13 @@
             if (parent) {
               metaData.parent = parent;
             }
-
+            
+            if (nodes.length >1) {
+              metaData.siblings = nodes.filter((node) => {
+                return node === nodes[i];
+              });
+            }
+            
             
             if (nodes[i].children) {
               //if it has children, we want to keep digging in
@@ -541,8 +547,8 @@
     }
     hasSiblings(item) {
       debugger;
-      var parent = this.map.get(item).parent;
-      return (parent.children) ? true : false;
+      var siblings = this.map.get(item).siblings;
+      return siblings && siblings.length;
     }
     getSiblings(item) {
       var parent = this.map.get(item).parent;
@@ -551,7 +557,6 @@
       });
     }
     set selectedItem(item) {
-      debugger;
       if (item) {
         this._selectedItem.selectedItem = false;
       item.selectedItem = true;
