@@ -37,7 +37,9 @@
       }
     },
     behaviors: [Polymer.IronResizableBehavior],
-    listeners: {'iron-resize': '_getContainerSize'},
+    listeners: {
+      'iron-resize': '_getContainerSize',
+      'px-breadcrumbs-item-selected': '_foundSelectedItem'},
     observers: ['prepareData(_selectedItem)'],
     /**
      * This method has a chain of promises that process the data as needed.
@@ -209,9 +211,9 @@
      */
     _calculatePath() {
       return new Promise((accept, reject) => {
-        var graph = this.graph || new Graph(this.breadcrumbData),
+        var graph = this.graph || new Graph(this.breadcrumbData, this),
             pathArray = graph.selectedItemPath;
-
+        
         this.set('graph', graph);
         
         //once all the recursion is done, we can return the pathArray
@@ -287,11 +289,15 @@
     _changePathFromDropdownClick() {
       this.prepareData();
     },
+    _foundSelectedItem(evt) {
+      this._setSelectedItem(evt.detail.item);
+    },
     /**
      * This method sets a _selectedItem from the passed object.
      * @param {Object} selectedItem the new selected item
      */
     _setSelectedItem(selectedItem) {
+      
       selectedItem.selectedItem = true;
       this.set('_selectedItem', selectedItem);
     },
@@ -348,7 +354,7 @@
      * @param {*} item the item that was clicked on.
      */
     _notifyClick(item) {
-      this.dispatchEvent(new CustomEvent('px-breadcrumbs-item-clicked', {item: item, composed: true}));
+      this.fire('px-breadcrumbs-item-clicked', {item: item, composed: true});
     }
   });
   
@@ -477,14 +483,14 @@
   };
   
   class Graph {
-    constructor(nodes) {
+    constructor(nodes, pxBreacdcrumbs) {
       this.map = new WeakMap();
       this._selectedItem = null;
-      this.graph = this._crawlGraph(nodes);
+      this.graph = this._crawlGraph(nodes, pxBreacdcrumbs);
       this.nodes = nodes;
       return this;
     }
-    _crawlGraph(nodes) {
+    _crawlGraph(nodes,pxBreacdcrumbs) {
       
       var recursiveLoopThroughObj = function(nodes, parent, path=[]) {
         var metaData = {};
@@ -495,19 +501,26 @@
               metaData.parent = parent;
             }
 
+            
             if (nodes[i].children) {
               //if it has children, we want to keep digging in
               //so we push the item we are on into the pathArray
               //and call ourselves with the children of the current item
               metaData.children = nodes[i].children;
+              path = path.concat(parent ? [parent] : [])
 
-              recursiveLoopThroughObj.call(this,nodes[i].children, nodes[i], path.concat(parent ? [parent] : []));
+              recursiveLoopThroughObj.call(this,nodes[i].children, nodes[i], path);
             }
 
-            metaData.path = path;
+            metaData.path = path.concat(parent ? [parent] : []);
             
             if (nodes[i].selectedItem) {
               this._selectedItem = nodes[i];
+
+              //add the parent and the selected item itself to the path
+              metaData.path = path.concat(parent, nodes[i]);
+              
+              pxBreacdcrumbs.fire('px-breadcrumbs-item-selected', {item: nodes[i]});
             }
             this.map.set(nodes[i], metaData);
           }
@@ -523,9 +536,11 @@
     get selectedItemPath() {
       
       var metaData = this.map.get(this._selectedItem);
+      
       return (metaData) ? metaData.path : undefined;
     }
     hasSiblings(item) {
+      debugger;
       var parent = this.map.get(item).parent;
       return (parent.children) ? true : false;
     }
@@ -536,6 +551,7 @@
       });
     }
     set selectedItem(item) {
+      debugger;
       if (item) {
         this._selectedItem.selectedItem = false;
       item.selectedItem = true;
