@@ -34,29 +34,26 @@
       ulWidth: {
         type: Number,
         value: 0
+      },
+      _selectedItemPath: {
+        type: Array,
+        value: function() {return [];},
+        readOnly: true
       }
     },
     behaviors: [Polymer.IronResizableBehavior],
     listeners: {
       'iron-resize': '_getContainerSize'
     },
-    attached() {
-      this.prepareData();
-    },
-    /**
-     * This method has a chain of promises that process the data as needed.
-     * first, we extract the path out of the data that's passed in
-     * then we figure out the display options - whether we need overflow, shorten any names, etc.
-     * lastly, we set the _mainPathItems,  with the shortened/overflow version as needed
-     */
-    prepareData() {
-      this._calculatePath()
-      .then((pathArray) => {
-        return this._breadcrumbsDisplayOptions(pathArray)})
-      .then((pathArray) => {
-        //and the second time this is being set, it's with the shortened versions, if necessary. 
-        this.set('_mainPathItems', pathArray);
-      });
+    observers: [
+      '_calculatePath(_selectedItem)', 
+      '_rebuildBreadcrumbsDisplayOptions(_selectedItemPath, ulWidth)',
+      'prepareData(breadcrumbData)'
+      ],
+    _calculatePath(selectedItem) {
+      debugger;
+      var graph = this.graph;
+      this._set_selectedItemPath(graph.getPathToItem(selectedItem));
     },
     /**
      * This method is called on initial page load, and on every page resize
@@ -74,9 +71,7 @@
           this.set('ulWidth', bcUlContainerRect.width + 4); //the 4 is for the padding (2px on each side) on the ul.
         });
 
-        Polymer.RenderStatus.afterNextRender(this, () =>{
-            this.prepareData();
-        });
+       // Polymer.RenderStatus.afterNextRender(this, this._rebuildBreadcrumbsDisplayOptions);
       },10);
       
     },
@@ -89,14 +84,17 @@
     * 3. we can shorten all of them, and include the overflow at the beginning of the array. the last one is NOT shortened.
     * @param {array} strArray an array of objects, which contains the breadcrumbs
     */
-    _breadcrumbsDisplayOptions(strArray) {
-      return new Promise((accept, reject) => {
-        var graph = this.graph,
-            breadcrumbsObj = new Breadcrumbs(strArray, graph),
-            ulWidth = this.ulWidth;
-        //check that we even have a width. If not, just return 0 - it'll run again.
-        if (ulWidth > 0) {
-          /*
+    _rebuildBreadcrumbsDisplayOptions() {
+
+      var itemPath = this._selectedItemPath || [],
+          graph = this.graph,
+          ulWidth = this.ulWidth;
+
+      if (!itemPath.length || !graph || !ulWidth) return;
+
+      var breadcrumbsObj = new Breadcrumbs(itemPath, graph);
+
+        /*
         * option 1 
         * we check to see if the container (which is sized automatically to fill out the page)
         * can fit all the items in the breadcrumbs.
@@ -104,7 +102,8 @@
         */
         if (ulWidth > breadcrumbsObj.sizeOfFullBreadcrumbs) {
           //everything fits, no need to shorten anything
-          return accept(strArray);
+          this.set('_mainPathItems', itemPath);
+          return;
         }
 
         /*
@@ -115,7 +114,8 @@
         if (ulWidth > breadcrumbsObj.sizeOfAllShortenedItemsExcludingLastItem + breadcrumbsObj.sizeOfFullLastItem) {
           
           let strArrayShortenedWithFullLastItem = breadcrumbsObj.allShortenedItemsExcludingLast.concat(breadcrumbsObj.lastItemFull);
-          return accept(strArrayShortenedWithFullLastItem);
+          this.set('_mainPathItems', strArrayShortenedWithFullLastItem);
+          return;
         }
 
         /*
@@ -125,7 +125,8 @@
         if (ulWidth > breadcrumbsObj.sizeOfAllShortenedItems) {
           let strArrayShortened = breadcrumbsObj.shortenedItems;
           
-          return accept(strArrayShortened);
+          this.set('_mainPathItems', strArrayShortened);
+          return;
         }
 
         /*
@@ -133,13 +134,9 @@
         * we have to create an array with overflow.
         * we only get to this if non of the if statements above are true.
         */
-        
-        return accept(this._createArrayWithOverflow(strArray, ulWidth, breadcrumbsObj));
-      } else {
-        //we're at width 0, just return 0;
-        return accept(0);
-      }
-      });
+      
+        this.set('_mainPathItems',this._createArrayWithOverflow(itemPath, ulWidth, breadcrumbsObj));
+
     },
     /*
     * this method is called once we've established that we need to have an
@@ -152,7 +149,6 @@
     */
     _createArrayWithOverflow(strArray, ulWidth, breadcrumbsObj) {
       
-      return new Promise((accept, reject) => {
       var pointer = 0,
           currentAccumSize = breadcrumbsObj.sizeOfAllShortenedItemsExcludingLastItem,
           sizeOfFullLastItem = breadcrumbsObj.sizeOfFullLastItem,
@@ -191,10 +187,17 @@
       //starting with the point we stopped at with the pointer, and going till the last item, which is dynamically determined.
       slicedStrArray = [overflowObj].concat(breadcrumbsObj.shortenedItems.slice(pointer, strArray.length-1)).concat(lastItem);
       
-      return accept(slicedStrArray);
-      });
+      return slicedStrArray;
+
     },
-    
+    /**
+     * This function is used to determine whether we are on the last Item in the array. - if 
+     * the index equalsthe last item in the aray (length -1), we return false.
+     * @param {Number} index the index of the item
+     */
+    _isLastItemInData(index) {
+      return this._mainPathItems.length-1 === index;
+    },
 
     /**
      * This method is used to determine where the path click came from - we have 3 different options, 
@@ -210,26 +213,17 @@
       return (evt.target._iconsetName === 'fa') ? evt.target.parentNode.parentNode : evt.target;
     },
     /**
-     * This method resets the existing _selectedItem
+     *  
+     * 
+     * 
      */
-    _resetSelectedItem() {
-      this.set('_selectedItem', false);
-    },
-    /**
-     * This method is called on load, to calculate the initial Path, 
-     * everytime a breadcrumb is clicked.
-     * it recursively builds the path, and returns it as a promise.
-     */
-    _calculatePath() {
-      return new Promise((accept, reject) => {
-          var graph = this.graph || new Graph(this.breadcrumbData, this),
-            pathArray = graph.selectedItemPath;
+    prepareData(breadcrumbsData) {
+        if (!breadcrumbsData.length) return;
+
+        var graph = new Graph(this.breadcrumbData, this);
         
         this.set('graph', graph);
-        
-        return accept(pathArray);
-        
-      });
+        this.set('_selectedItem', graph.selectedItem);
     },
     _addParentPropToItem(parent) {
       var i=0,
@@ -258,16 +252,7 @@
           source = itemInPath.source ? itemInPath.source : itemInPath,
           isItemOverflow = itemInPath.text === '...' ? true : false;
 
-      debugger;
       return (!isItemOverflow)  ? graph.hasSiblings(source) : false;
-    },
-    /**
-     * This function is used to determine whether we are on the last Item in the array. - if 
-     * the index equalsthe last item in the aray (length -1), we return false.
-     * @param {Number} index the index of the item
-     */
-    _isLastItemInData(index) {
-      return this._mainPathItems.length-1 === index;
     },
     /**
      * this method calls a reset on whatever selected Item we 
@@ -276,7 +261,6 @@
      * @param {Object} evt the click event from the dropdown item clicked
      */
     _dropdownTap(evt) {
-      //this._resetSelectedItem();
       var newSelectItem = evt.model.item.source ? evt.model.item.source : evt.model.item;
       //this._setSelectedItem(newSelectItem);
       //this hides the dropdown
@@ -291,35 +275,15 @@
      * This method calls the prepareData method, which runs through the 
      */
     _changePathFromClick(item) {
+      this.set('_selectedItem', item);
       
-      var graph = this.graph,
-          source = item.source ? item.source : item,
-          mainPathItems = graph.getPathToItem(source);
-      this._breadcrumbsDisplayOptions(mainPathItems)
-      .then((mainPathItems) => {
-        this.set('_mainPathItems', mainPathItems);
-      });
-
-      
-    },
-    _foundSelectedItem(evt) {
-      this._setSelectedItem(evt.detail.item);
-    },
-    /**
-     * This method sets a _selectedItem from the passed object.
-     * @param {Object} selectedItem the new selected item
-     */
-    _handleSelectedItem(selectedItem) {
-      
-      selectedItem.selectedItem = true;
-      this.set('_selectedItem', selectedItem);
     },
     /* on tap, we need to find out if the clicked item is the same as before.
     * if it is, we make the dropdown go way.
     * if it is not, we save the new clicked item.
     */
     _onPathTap(evt) {
-      var dataItem = evt.model.item;
+      var dataItem = evt.model.item.source ? evt.model.item.source : evt.model.item;
 
       //if the item that is clicked is the open option, hide the dropdown, and reset the _clickPathItem object.
       if (this._clickPathItem === dataItem) {
@@ -328,32 +292,21 @@
         return;
       }
 
-      var sourceItem = dataItem.hasOwnProperty('source') ? dataItem.source : dataItem,
-          isClickedItemOverflow = dataItem.text ==='...' ? true : false;
+      var isClickedItemOverflow = dataItem.text ==='...' ? true : false;
 
-      if (isClickedItemOverflow) {
-        this.set('_clickedItemChildren', dataItem.children);
-        return;
-      }
-
-      if (this._doesItemHaveSiblings(sourceItem)) {
+      if (this._doesItemHaveSiblings(dataItem) || isClickedItemOverflow) {
         var graph = this.graph,
-              siblings = graph.getSiblings(sourceItem);
+            siblings = !isClickedItemOverflow ? graph.getSiblings(dataItem) : dataItem.children;
+        
         this.set('_clickedItemChildren', siblings);
-
-        //new click on new item, set the clicked item, show the dropdown and set its position.
         this.set('_clickPathItem', dataItem);
         this.set('_isDropdownHidden', false);
-
         this._changeDropdownPosition(evt);
 
-        return;
+      } else {
+        this.set('_clickedItemChildren', []);
+        this._changePathFromClick(dataItem);
       }
-
-      this.set('_clickedItemChildren', []);
-      this._changePathFromClick(dataItem.source ? dataItem.source : dataItem);
-
-      
     },
     /**
      * @param {Object} positioning an object which holds the new positioning for the dropdown
@@ -483,7 +436,6 @@
           var source = strArray[i].source ? strArray[i].source : strArray[i];
           accum += sizeOfItem + 15; //the 15 is for the right angle.
           //if the item has siblings, we need to add the size of the down chevron.
-          console.log('strArray[i].text = ' + strArray[i].text);
           if (strArray[i].text !== "..." && this.graph.hasSiblings(source)) {
             accum += 11;
           }
@@ -571,7 +523,6 @@
       return metaData.path;
     }
     hasSiblings(item) {
-      debugger;
       var siblings = this.map.get(item).siblings;
       return siblings && siblings.length >1;
     }
