@@ -44,6 +44,7 @@ ul {
   background-color: $gray2;
   white-space: nowrap;
   box-shadow: 0 1px 1px 0 rgba(0,0,0,0.30);
+  padding: 0 calculateRem(30px) 0 calculateRem(20px);
 }
 .breadcrumbTopItem {
   display: inline-flex;
@@ -71,6 +72,7 @@ ul {
     height: 0.7rem;
     width: 0.7rem;
     color: gray;
+    font-weight: 100;
   }
 }
 .rightAngle {
@@ -95,8 +97,8 @@ ul {
     list-style-type: none;
     cursor: pointer;
     &:hover {
-      background-color: gray;
-      color: white;
+      background-color: $primary-blue;
+      color: $white;
     }
     &.selected {
       color: $white;

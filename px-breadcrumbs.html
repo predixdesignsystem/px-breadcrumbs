@@ -28,13 +28,15 @@ REPLACE THIS TEXT WITH A COMPONENT DESCRIPTION
     <div class="container flex">
       <ul class="topPath">
         <template is="dom-repeat" items="[[_mainPathItems]]">
-          <li data-text="[[item.text]]" data-item="[[item]]" data-index="[[index]]" class$="breadcrumbTopItem u-pl-- {{_calculatePathItemClass(item, _clickPathItem)}}" on-tap="_onPathTap">[[item.text]]
+          <li data-text="[[item.text]]" data-item="[[item]]" data-index="[[index]]" class$="breadcrumbTopItem u-ph- {{_calculatePathItemClass(item, _clickPathItem)}}" on-tap="_onPathTap">
+            <template is="dom-if" if="{{_isNotFirstItemInData(index, _mainPathItems)}}">
+              <span class="rightAngle"><iron-icon icon="fa:fa-angle-right"></iron-icon></span>
+            </template>
+            [[item.text]]
             <template is="dom-if" if="{{_doesItemHaveSiblings(item)}}">
               <span class="downChevron u-pl--"><iron-icon icon="fa:fa-chevron-down"></iron-icon></span>
             </template>
-            <template is="dom-if" if="{{!_isLastItemInData(index)}}">
-              <span class="rightAngle"><iron-icon icon="fa:fa-angle-right"></iron-icon></span>
-            </template>
+            
           </li>
         </template>
       </ul>

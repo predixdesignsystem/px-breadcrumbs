@@ -51,7 +51,6 @@
       'prepareData(breadcrumbData)'
       ],
     _calculatePathItemClass(pathItem) {
-      //debugger;
       pathItem = pathItem.source ? pathItem.source : pathItem;
 
       return (this._clickPathItem === pathItem) ? 'opened': '';
@@ -196,15 +195,12 @@
 
     },
     /**
-     * This function is used to determine whether we are on the last Item in the array. - if 
-     * the index equalsthe last item in the aray (length -1), we return false.
+     * This function is used to determine whether we are on the first Item in the array - used by a dom-if to check 
+     * if we should display the right angle (yes on all but the first one)
      * @param {Number} index the index of the item
      */
-    _isLastItemInData(index) {
-      console.log('this._mainPathItems.length-1 = ', this._mainPathItems.length-1);
-      console.log('index = ' + index);
-      console.log(this._mainPathItems.length-1 === index);
-      return this._mainPathItems.length-1 === index;
+    _isNotFirstItemInData(index) {
+      return index !== 0;
     },
 
     /**
@@ -447,8 +443,11 @@
           if (strArray[i].text !== "..." && this.graph.hasSiblings(source)) {
             accum += 11;
           }
+          //padding on each item
+          accum += 20;
         }
-        return accum;
+        //the 50 is for the padding left (20) + padding right (30)
+        return accum + 50;
       }
     }
     _createCanvas() {
