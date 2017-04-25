@@ -43,7 +43,7 @@
     },
     behaviors: [Polymer.IronResizableBehavior],
     listeners: {
-      'iron-resize': '_getContainerSize'
+      'iron-resize': '_onResize'
     },
     observers: [
       '_calculatePath(_selectedItem)', 
@@ -58,6 +58,12 @@
     _calculatePath(selectedItem) {
       var graph = this.graph;
       this._set_selectedItemPath(graph.getPathToItem(selectedItem));
+    },
+    _onResize() {
+      this.set('_isDropdownHidden', true);
+      this.set('_clickPathItem', {});
+      this.set('_clickedItemChildren', []);
+      this._getContainerSize();
     },
     /**
      * This method is called on initial page load, and on every page resize
