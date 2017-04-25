@@ -31,7 +31,7 @@
       _selectedItem: {
         type: Object
       },
-      ulWidth: {
+      _ulWidth: {
         type: Number,
         value: 0
       },
@@ -47,11 +47,16 @@
     },
     observers: [
       '_calculatePath(_selectedItem)', 
-      '_rebuildBreadcrumbsDisplayOptions(_selectedItemPath, ulWidth)',
+      '_rebuildBreadcrumbsDisplayOptions(_selectedItemPath, _ulWidth)',
       'prepareData(breadcrumbData)'
       ],
+    _calculatePathItemClass(pathItem) {
+      //debugger;
+      pathItem = pathItem.source ? pathItem.source : pathItem;
+
+      return (this._clickPathItem === pathItem) ? 'opened': '';
+    },
     _calculatePath(selectedItem) {
-      debugger;
       var graph = this.graph;
       this._set_selectedItemPath(graph.getPathToItem(selectedItem));
     },
@@ -68,7 +73,7 @@
               breadcrumbsUlContainer = Polymer.dom(breadcrumbsContainer).querySelector('ul'),
               bcUlContainerRect = breadcrumbsContainer.getBoundingClientRect();
 
-          this.set('ulWidth', bcUlContainerRect.width + 4); //the 4 is for the padding (2px on each side) on the ul.
+          this.set('_ulWidth', bcUlContainerRect.width + 4); //the 4 is for the padding (2px on each side) on the ul.
         });
 
        // Polymer.RenderStatus.afterNextRender(this, this._rebuildBreadcrumbsDisplayOptions);
@@ -88,9 +93,9 @@
 
       var itemPath = this._selectedItemPath || [],
           graph = this.graph,
-          ulWidth = this.ulWidth;
+          _ulWidth = this._ulWidth;
 
-      if (!itemPath.length || !graph || !ulWidth) return;
+      if (!itemPath.length || !graph || !_ulWidth) return;
 
       var breadcrumbsObj = new Breadcrumbs(itemPath, graph);
 
@@ -100,7 +105,7 @@
         * can fit all the items in the breadcrumbs.
         * the first option is the simpliest one - everything just fits, but if it doesn't fit...
         */
-        if (ulWidth > breadcrumbsObj.sizeOfFullBreadcrumbs) {
+        if (_ulWidth > breadcrumbsObj.sizeOfFullBreadcrumbs) {
           //everything fits, no need to shorten anything
           this.set('_mainPathItems', itemPath);
           return;
@@ -111,7 +116,7 @@
         * we want to find out if the container can now fit all the 
         * shortened items + the last Item that wasn't shortened
         */
-        if (ulWidth > breadcrumbsObj.sizeOfAllShortenedItemsExcludingLastItem + breadcrumbsObj.sizeOfFullLastItem) {
+        if (_ulWidth > breadcrumbsObj.sizeOfAllShortenedItemsExcludingLastItem + breadcrumbsObj.sizeOfFullLastItem) {
           
           let strArrayShortenedWithFullLastItem = breadcrumbsObj.allShortenedItemsExcludingLast.concat(breadcrumbsObj.lastItemFull);
           this.set('_mainPathItems', strArrayShortenedWithFullLastItem);
@@ -122,7 +127,7 @@
         * option 3 
         * we check if we can fit after we've shortened all the items 
         */
-        if (ulWidth > breadcrumbsObj.sizeOfAllShortenedItems) {
+        if (_ulWidth > breadcrumbsObj.sizeOfAllShortenedItems) {
           let strArrayShortened = breadcrumbsObj.shortenedItems;
           
           this.set('_mainPathItems', strArrayShortened);
@@ -135,7 +140,7 @@
         * we only get to this if non of the if statements above are true.
         */
       
-        this.set('_mainPathItems',this._createArrayWithOverflow(itemPath, ulWidth, breadcrumbsObj));
+        this.set('_mainPathItems',this._createArrayWithOverflow(itemPath, _ulWidth, breadcrumbsObj));
 
     },
     /*
@@ -145,9 +150,9 @@
     *  from the total size of all the items, until we can fit everything + the last item that isn't shortened
     * into the container.
     * @param {Array} strArray the array that holds the breadcrumbs
-    * @param {number} ulWidth the width of the ul container
+    * @param {number} _ulWidth the width of the ul container
     */
-    _createArrayWithOverflow(strArray, ulWidth, breadcrumbsObj) {
+    _createArrayWithOverflow(strArray, _ulWidth, breadcrumbsObj) {
       
       var pointer = 0,
           currentAccumSize = breadcrumbsObj.sizeOfAllShortenedItemsExcludingLastItem,
@@ -159,7 +164,7 @@
           slicedStrArray = [];
 
       //keep looping until all the items fit into the container
-      while (ulWidth < sizeOfEllipsis + currentAccumSize + sizeOfFullLastItem) {
+      while (_ulWidth < sizeOfEllipsis + currentAccumSize + sizeOfFullLastItem) {
         //if we made it to the last item, and it's STILL can't fit, break out of the 
         // while loop, to ensure the last items doesn't go into the overflow object.
         if (pointer === strArray.length-1) {
@@ -196,6 +201,9 @@
      * @param {Number} index the index of the item
      */
     _isLastItemInData(index) {
+      console.log('this._mainPathItems.length-1 = ', this._mainPathItems.length-1);
+      console.log('index = ' + index);
+      console.log(this._mainPathItems.length-1 === index);
       return this._mainPathItems.length-1 === index;
     },
 
@@ -321,7 +329,7 @@
           windowScrollY = window.scrollY,
           dropdown = Polymer.dom(this.root).querySelector('.breadCrumbdropdown');
       
-      dropdown.style.top = (targetBottom + windowScrollY + 4) + 'px';
+      dropdown.style.top = (targetBottom + windowScrollY) + 'px';
       dropdown.style.left = targetLeft + windowScrollX + 'px';
     },
     /**

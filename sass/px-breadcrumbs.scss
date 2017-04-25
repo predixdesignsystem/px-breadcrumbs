@@ -32,7 +32,7 @@
 
 ul {
   margin: 0;
-  padding: 2px;
+  padding: 0;
 }
 // Meta
 
@@ -42,8 +42,8 @@ ul {
 
 .container {
   background-color: $gray2;
-  box-shadow: 0 1px 1px 0 rgba(0,0,0,0.30);
   white-space: nowrap;
+  box-shadow: 0 1px 1px 0 rgba(0,0,0,0.30);
 }
 .breadcrumbTopItem {
   display: inline-flex;
@@ -61,8 +61,10 @@ ul {
     font-weight: 600;
     color: $black;
   }
+  &.opened {
+    background-color: $white;
+  }
 }
-
 
 .downChevron {
   iron-icon {
@@ -81,12 +83,14 @@ ul {
 
 .breadCrumbdropdown {
   overflow-y: auto;
-  max-height: 270px;
+  max-height: calculateRem(270px);
   list-style-type: none;
   margin: 0;
+  padding-top: calculateRem(7px);
   position: absolute;
   box-shadow: 0 1px 3px 0 rgba(0,0,0,0.15);
   background-color: $white;
+  white-space: nowrap;
   li {   
     list-style-type: none;
     cursor: pointer;
