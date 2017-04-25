@@ -31,7 +31,7 @@ Second, import the component to your application with the following tag in your 
 Finally, use the component in your application:
 
 ```
-Insert Your demo code here.
+<px-breadcrumbs breadcrumbs-data="[[breadcrumbsData]]"></px-breadcrumbs>
 ```
 
 <br />
@@ -39,9 +39,9 @@ Insert Your demo code here.
 
 ## Documentation
 
-Read the full API and view the demo [here](https://predixdev.github.io/px-breadcrumbs).
+Read the full API and view the demo [here](https://www.predix-ui.com/#/components/px-breadcrumbs).
 
-The documentation in this repository is supplemental to the official Predix documentation, which is continuously updated and maintained by the Predix documentation team. Go to [http://predix.io](http://predix.io)  to see the official Predix documentation.
+The documentation in this repository is supplemental to the official Predix documentation, which is continuously updated and maintained by the Predix documentation team. Go to [http://predix.io](http://predix.io) to see the official Predix documentation.
 
 
 ## Local Development
@@ -60,7 +60,7 @@ From the component's directory, to start a local server run:
 $ gulp serve
 ```
 
-Navigate to the root of that server (e.g. http://localhost:8080/) in a browser to open the API documentation page, with link to the "Demo" / working examples.
+Navigate to the root of that server (e.g. http://localhost:8080/) in a browser to open the API documentation page.
 
 ### GE Coding Style Guide
 [GE JS Developer's Guide](https://github.com/GeneralElectric/javascript)
