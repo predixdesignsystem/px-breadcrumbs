@@ -260,6 +260,11 @@
       //create the overflow object, and populate its children with the shortened strings (if necessary)
       overflowObj.children = strArray.slice(0, pointer);
 
+      // clean up - in case the user clicked on the path, there will be a highlighted property set to true.
+      // since overflow shouldn't have anything highlighted, we clear is up, just to be sure.
+      overflowObj.children.forEach((child) => {
+          child.highlighted = false;
+      });
       //the last item is usually full size, but, if if it's just the overflow and the last item
       // and the last item is too long, it should shortened.
       lastItem  = (noRoomForFullLastItem) ? breadcrumbsObj.lastItemShort : breadcrumbsObj.lastItemFull;
@@ -390,14 +395,17 @@
       if (this._doesItemHaveSiblings(dataItem) || isClickedItemOverflow) {
         var graph = this.graph,
             siblings = !isClickedItemOverflow ? graph.getSiblings(dataItem) : dataItem.children;
-
+        
+        //if the item is the same as the dataItem, we want to highlight it.
         siblings = siblings.map((sibling) => {
           if (sibling === dataItem) {
             sibling.highlighted = true;
           }
           return sibling;
         });
-        this._resetFilter();
+        
+        if (this.filterMode) this._resetFilter();
+
         this.set('_clickedItemChildren', siblings);
         this.set('_clickPathItem', dataItem);
         this._changeDropdownPosition(evt);
@@ -435,6 +443,14 @@
     _notifyClick(item) {
       this.fire('px-breadcrumbs-item-clicked', {item: item, composed: true});
     },
+    /**
+     * This method filters out any results that don't match the value passed in through the event
+     * once we have an array of results, we check that there ARE results - if not, return an array
+     * with an object that says no results.
+     * if the user deleted all the input and it's blank, we make sure to return the original siblings
+     * we deboucne this so that we only get the results and do the work once the user stopped typing.
+     * @param {Object} evt the input change event
+     */
     _filterInputChange(evt) {
       this.debounce('filter', () => {
         var val = evt.target.value,
@@ -447,20 +463,25 @@
           filteredSiblings = siblings.filter((sibling) => {
             return sibling.text.indexOf(val) > -1;
           });
-          if (filteredSiblings.length) {
+          if (filteredSiblings.length) { //we found some results
             this.set('_clickedItemChildren', filteredSiblings);
-          } else {
+          } else { //nothing left after the filter
             this.set('_clickedItemChildren', [{"text": "No Results Found"}]);
           }
-          
-        } else {
+        } else { //the event gave us an empty string, return the original siblings.
           this.set('_clickedItemChildren', siblings);
         }        
       },250);
     },
+    /**
+     * This method returns the status of the filter-mode
+     */
     _isFilteredMode() {
       return this.filterMode;
     },
+    /**
+     * This method returns the status of the click-only-mode
+     */
     _isClickOnlyMode() {
       return this.clickOnlyMode;
     }
