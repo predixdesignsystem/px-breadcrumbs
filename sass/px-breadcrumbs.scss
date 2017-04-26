@@ -33,6 +33,7 @@
 ul {
   margin: 0;
   padding: 0;
+  min-height: calculateRem(30px);
 }
 // Meta
 
@@ -47,6 +48,8 @@ ul {
   padding: 0 calculateRem(30px) 0 calculateRem(20px);
 }
 .breadcrumbTopItem {
+  
+  min-height: calculateRem(30px);
   display: inline-flex;
   cursor:pointer;
   background-color: $gray2;
@@ -64,6 +67,9 @@ ul {
   }
   &.opened {
     background-color: $white;
+  }
+  span {
+    vertical-align: middle;
   }
 }
 
@@ -85,7 +91,8 @@ ul {
 
 .breadCrumbdropdown {
   overflow-y: auto;
-  max-height: calculateRem(270px);
+  max-height: calculateRem(300px);
+  overflow-y: auto;
   list-style-type: none;
   margin: 0;
   padding-top: calculateRem(7px);
@@ -97,7 +104,7 @@ ul {
     list-style-type: none;
     cursor: pointer;
     &:hover {
-      background-color: $primary-blue;
+      background-color: $gray1;
       color: $white;
     }
     &.selected {
@@ -106,14 +113,19 @@ ul {
     }
   }
 }
+.dropdownItem {
+  min-height: calculateRem(30px);
+}
 // Trumps
 //because of the low specificity of hidden, we have to add this:
 //PolymerElements/iron-flex-layout#86.
 [hidden] {
   display: none !important;
 }
+
 $inuit-enable-paddings--tiny : true;
 $inuit-enable-paddings--small : true;
+$inuit-enable-paddings--large : true;
 @import "px-spacing-design/_trumps.spacing.scss";
 @import "inuit-clearfix/_trumps.clearfix.scss";
 @import "px-spacing-responsive-design/_trumps.spacing-responsive.scss";

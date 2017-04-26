@@ -382,9 +382,9 @@
           windowScrollX = window.scrollX,
           windowScrollY = window.scrollY,
           dropdown = Polymer.dom(this.root).querySelector('.breadCrumbdropdown');
-      
-      dropdown.style.top = (targetBottom + windowScrollY) + 'px';
-      dropdown.style.left = targetLeft + windowScrollX + 'px';
+      debugger;
+      dropdown.style.top = (targetBottom + windowScrollY + 6) + 'px'; //remember to add the padding to push it down
+      dropdown.style.left = (targetLeft + windowScrollX - 10) + 'px'; //and rememeber to subtract the padding from the left
     },
     /**
      * This method dispatches a custom event ('px-breadcrumbs-item-clicked') that has the item attached to it.
