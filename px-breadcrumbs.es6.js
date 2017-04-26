@@ -397,7 +397,9 @@
             siblings = !isClickedItemOverflow ? graph.getSiblings(dataItem) : dataItem.children;
         
         //if the item is the same as the dataItem, we want to highlight it.
+        // we also want to make sure any previous highlighting is removed.
         siblings = siblings.map((sibling) => {
+          sibling.highlighted = false;
           if (sibling === dataItem) {
             sibling.highlighted = true;
           }
@@ -413,7 +415,8 @@
         
       // the clicked item has no siblings - we reset the contents of the dropdown
       // and change the path accordingly.
-      } else {
+    } else {
+        this._closeDropdown(); //just in case one is open.
         this.set('_clickedItemChildren', []);
         this._changePathFromClick(dataItem);
       }
@@ -662,7 +665,7 @@
           }
         }
         
-        return accum + 60;
+        return accum + 80;
       }
     }
     /**
