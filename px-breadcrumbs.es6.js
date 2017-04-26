@@ -84,14 +84,38 @@
       '_rebuildBreadcrumbsDisplayOptions(_selectedItemPath, _ulWidth)',
       'prepareData(breadcrumbData)'
       ],
-      _isClickOnlyMode() {
-        return this.clickOnlyMode;
-      },
-      /**
-       * This method checks whether the item that was passed in is the same one that is registered as the clicked one, and 
-       * if so, returns the 'opened' class.
-       * @param {Object} pathItem the item we are checking the class for
-       */
+    attached() {
+      document.addEventListener('click', this._onCaptureClick.bind(this));
+    },
+    detached() {
+      document.removeEventListener('click', this._onCaptureClick.bind(this));
+    },
+    /**
+     * This method captures all clicks, and determines where they come from, and whether the dropdown needs to be closed.
+     * @param {Object} evt 
+     */
+    _onCaptureClick(evt) {
+      //we look through the path to see if the click came anywhere from inside our component by filtering anything that isn't PX-BREADCRUMBS
+      var filteredPathList =  evt.path.filter((evtPathItem) => {
+        return evtPathItem.nodeName === "PX-BREADCRUMBS";
+      });
+      
+      //then we check to see if the length is empty - if it is, that means the click did NOT come from inside our component, which makes it an outside click.
+      if (!filteredPathList.length){
+        //if it's an outside click and the dropdown is open, we want to close it.
+        if (!this._isDropdownHidden) {
+          this._closeDropdown();
+        }
+      }
+    },
+    _isClickOnlyMode() {
+      return this.clickOnlyMode;
+    },
+    /**
+     * This method checks whether the item that was passed in is the same one that is registered as the clicked one, and 
+     * if so, returns the 'opened' class.
+     * @param {Object} pathItem the item we are checking the class for
+     */
     _calculatePathItemClass(pathItem) {
       pathItem = pathItem.source ? pathItem.source : pathItem;
       return (this._clickPathItem === pathItem) ? 'opened': '';
@@ -307,11 +331,8 @@
       var newSelectItem = evt.model.item.source ? evt.model.item.source : evt.model.item;
       //this._setSelectedItem(newSelectItem);
       //this hides the dropdown
-      this.set('_isDropdownHidden', true);
+      this._closeDropdown();
       this._changePathFromClick(newSelectItem);
-      //and this clears out the field that hold the previously clicked path item.
-      this.set('_clickPathItem', {});
-      
     },
     /**
      * This event is fired whenever a click occurs - from a top path item, or dropdown item - 
@@ -325,6 +346,11 @@
     _changePathFromClick(item) {
       this.set('_selectedItem', item);
       this.fire('px-breadcrumbs-item-changed', item);
+    },
+    _closeDropdown() {
+        this.set('_isDropdownHidden', true);
+        this.set('_clickedItemChildren', []);
+        this.set('_clickPathItem', {});
     },
     /* 
     * on tap, we need to find out if the clicked item is the same as before.
@@ -344,9 +370,7 @@
 
       //if the item that is clicked is the open option, hide the dropdown, and reset the _clickPathItem object.
       if (this._clickPathItem === dataItem) {
-        this.set('_isDropdownHidden', true);
-        this.set('_clickedItemChildren', []);
-        this.set('_clickPathItem', {});
+        this._closeDropdown();
         return;
       }
 
@@ -560,16 +584,21 @@
             sizeOfItem = this.sizeOfIndividualShortItem(strArray[i]);
           }
           var source = strArray[i].source ? strArray[i].source : strArray[i];
-          accum += sizeOfItem + 15; //the 15 is for the right angle.
+          accum += sizeOfItem;
           //if the item has siblings, we need to add the size of the down chevron.
           if (strArray[i].text !== "..." && this.graph.hasSiblings(source)) {
-            accum += 11;
+            accum += 15;
           }
           //padding on each item (10 on each side)
           accum += 20;
+
+          //right angle arrow - the last item doesn't get a right angle.
+          if (i !== len-1){
+            accum += 15; 
+          }
         }
-        //the 50 is for the padding left (20) + padding right (30)
-        return accum + 50;
+        
+        return accum + 60;
       }
     }
     /**

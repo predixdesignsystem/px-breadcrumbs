@@ -55,11 +55,11 @@ ul {
   background-color: $gray2;
   //this captures both the text and the icons
   &:hover span>iron-icon, &:hover {
-    color: $primary-blue;
+    color: $primary-default;
   }
   //this captures both the text and the icons
   &:active, span>iron-icon {
-    color: $primary-blue-pressed;
+    color: $primary-pressed;
   }
   &:last-of-type {
     font-weight: 600;
@@ -67,9 +67,6 @@ ul {
   }
   &.opened {
     background-color: $white;
-  }
-  span {
-    vertical-align: middle;
   }
 }
 
@@ -97,7 +94,7 @@ ul {
   margin: 0;
   padding-top: calculateRem(7px);
   position: absolute;
-  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.15);
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.20);
   background-color: $white;
   white-space: nowrap;
   li {   
@@ -105,7 +102,7 @@ ul {
     cursor: pointer;
     &:hover {
       background-color: $gray1;
-      color: $white;
+      color: $gray15;
     }
     &.selected {
       color: $white;
