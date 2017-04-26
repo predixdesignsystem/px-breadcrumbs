@@ -10,6 +10,7 @@
 <link rel="import" href="../../px-demo/px-demo-props.html" />
 <link rel="import" href="../../px-demo/px-demo-interactive.html" />
 <link rel="import" href="../../px-demo/px-demo-component-snippet.html" />
+<link rel="import" href="../../px-demo/px-demo-code-editor.html" />
 
 <!-- Imports for this componnent -->
 <link rel="import" href="../../px-demo/css/px-demo-styles.html" />
@@ -33,11 +34,12 @@
 
       <!-- Props -->
       <px-demo-props props="{{props}}" config="[[chosenConfig]]"></px-demo-props>
-
+      <px-demo-code-editor props="{{props}}"></px-demo-code-editor>
       <!-- Component ---------------------------------------------------------->
       <px-demo-component style="width: 100%">
         <px-breadcrumbs
-          breadcrumb-data="[[breadcrumbData]]">
+          breadcrumb-data="[[props.breadcrumbsData.value]]" 
+          click-only-mode="{{props.clickOnlyMode.value}}">
         </px-breadcrumbs>
       </px-demo-component>
       <!-- END Component ------------------------------------------------------>
@@ -188,14 +190,27 @@
         value: function(){
           return [
             { configName: "Default",
-              configReset: true }
+              configReset: true },
+            {
+             configName: "Click Only Mode",
+             clickOnlyMode: true 
+            }
           ]
         }
       },
-      breadcrumbData: {
-        type: Array,
-        value: function() {
-          return [
+      clickOnlyMode: {
+        type: Boolean,
+        value: false
+      }
+},
+
+  /**
+   * A reference for `this.props`. Read the documentation there.
+   */
+  demoProps: {
+    breadcrumbsData: {
+      type: Object,
+      defaultValue: [
             {
             "text":"1 This is a very long string with more than 16 characters", 
             "hasChildren":true,
@@ -244,19 +259,12 @@
               ]
             },
             {"text": "1.a"}
-          ]
-        }
-      }
-},
-
-  /**
-   * A reference for `this.props`. Read the documentation there.
-   */
-  demoProps: {
-    counterValue: {
-      type: Number,
-      defaultValue: '0',
-      inputType: 'text'
+          ],
+      inputType: 'code:JSON'
+    },
+    clickOnlyMode: {
+      type: Boolean,
+      defaultValue: false
     }
   }
 });

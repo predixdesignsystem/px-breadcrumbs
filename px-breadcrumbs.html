@@ -37,9 +37,12 @@ It also provides a quick way to navigate backwards within a path or within a spe
               <span class="rightAngle"><iron-icon icon="fa:fa-angle-right"></iron-icon></span>
             </template>
             [[item.text]]
-            <template is="dom-if" if="{{_doesItemHaveSiblings(item)}}">
-              <span class="downChevron u-pl--"><iron-icon icon="fa:fa-chevron-down"></iron-icon></span>
+            <template is="dom-if" if="{{!_isClickOnlyMode(clickOnlyMode)}}">
+              <template is="dom-if" if="{{_doesItemHaveSiblings(item)}}">
+                <span class="downChevron u-pl--"><iron-icon icon="fa:fa-chevron-down"></iron-icon></span>
+              </template>  
             </template>
+            
             
           </li>
         </template>

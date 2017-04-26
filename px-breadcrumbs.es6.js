@@ -66,6 +66,10 @@
         type: Array,
         value: function() {return [];},
         readOnly: true
+      },
+      clickOnlyMode: {
+        type: Boolean,
+        value: false
       }
     },
     behaviors: [Polymer.IronResizableBehavior],
@@ -77,6 +81,9 @@
       '_rebuildBreadcrumbsDisplayOptions(_selectedItemPath, _ulWidth)',
       'prepareData(breadcrumbData)'
       ],
+      _isClickOnlyMode() {
+        return this.clickOnlyMode;
+      },
       /**
        * This method checks whether the item that was passed in is the same one that is registered as the clicked one, and 
        * if so, returns the 'opened' class.
@@ -304,14 +311,20 @@
       
     },
     /**
+     * This event is fired whenever a click occurs - from a top path item, or dropdown item - 
+     * that changes the context. The new context is attached as 'item' 
+     * @event px-breadcrumbs-item-changed
+     */
+    /**
      * This method sets the _selectedItem to the item that was clicked - whether from the main path items, or the dropdown items
      * this is the only place we change _selectedItem on click.
      */
     _changePathFromClick(item) {
       this.set('_selectedItem', item);
-      
+      this.fire('px-breadcrumbs-item-changed', item);
     },
-    /* on tap, we need to find out if the clicked item is the same as before.
+    /* 
+    * on tap, we need to find out if the clicked item is the same as before.
     * if it is, we empty our the dropdown, hide it, and clear the _clickPathItem (the last item clicked).
     * if it is not the same item that was previously clicked, we save the new clicked item into _clickPathItem
     * set the siblings according to the item, show the dropdown and adjust the positioning for it.
@@ -320,6 +333,11 @@
     */
     _onPathTap(evt) {
       var dataItem = evt.model.item.source ? evt.model.item.source : evt.model.item;
+      //if the click only mode is on, just change the path
+      if (this.clickOnlyMode) {
+        this._changePathFromClick(dataItem);
+        return;
+      }
 
       //if the item that is clicked is the open option, hide the dropdown, and reset the _clickPathItem object.
       if (this._clickPathItem === dataItem) {
