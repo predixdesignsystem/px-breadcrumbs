@@ -29,8 +29,10 @@
 // Base
 @import "px-flexbox-design/_base.flexbox.scss";
 @import "px-viewport-design/_base.viewport.scss";
+$inuit-enable-input--regular : true;
+@import "px-forms-design/_base.forms.scss";
 
-ul {
+.container ul {
   margin: 0;
   padding: 0;
   max-height: calculateRem(30px);
@@ -86,10 +88,10 @@ ul {
   }
 }
 
-.breadCrumbdropdown {
-  overflow-y: auto;
-  max-height: calculateRem(300px);
-  overflow-y: auto;
+.breadCrumbDropdown {
+  max-height: calculateRem(360px);
+  min-width: calculateRem(200px);
+  overflow-y: hidden;
   list-style-type: none;
   margin: 0;
   padding-top: calculateRem(7px);
@@ -109,7 +111,21 @@ ul {
       background-color: blue;
     }
   }
+  ul {
+    margin: 0;
+    padding: 0;
+    max-height: calculateRem(300px);
+  }
 }
+
+.dropdownList {
+  overflow-y: auto;
+}
+
+.filterIcon {
+  color: $gray8;
+}
+
 .dropdownItem {
   min-height: calculateRem(30px);
   &.highlighted {
@@ -123,6 +139,7 @@ ul {
 [hidden] {
   display: none !important;
 }
+$inuit-enable-margins--small : true;
 $inuit-enable-paddings : true;
 $inuit-enable-paddings--tiny : true;
 $inuit-enable-paddings--small : true;

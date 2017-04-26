@@ -41,7 +41,8 @@ It also provides a quick way to navigate backwards within a path or within a spe
       <px-demo-component style="width: 100%">
         <px-breadcrumbs
           breadcrumb-data="[[props.breadcrumbsData.value]]" 
-          click-only-mode="{{props.clickOnlyMode.value}}">
+          click-only-mode="{{props.clickOnlyMode.value}}"
+          filter-mode="{{props.filterMode.value}}">
         </px-breadcrumbs>
       </px-demo-component>
       <!-- END Component ------------------------------------------------------>
@@ -198,13 +199,13 @@ It also provides a quick way to navigate backwards within a path or within a spe
             {
              configName: "Click Only Mode",
              clickOnlyMode: true 
+            },
+            {
+              configName: "Filter Mode",
+              filterMode: true
             }
           ]
         }
-      },
-      clickOnlyMode: {
-        type: Boolean,
-        value: false
       }
 },
 
@@ -255,7 +256,18 @@ It also provides a quick way to navigate backwards within a path or within a spe
                           {"text": "5.b"},
                           {"text": "5.c"}
                           ]
-                        }
+                        },
+                      {"text": "4.d.i"},
+                      {"text": "4.e.i"},
+                      {"text": "4.f.i"},
+                      {"text": "4.g.i"},
+                      {"text": "4.i.i"},
+                      {"text": "4.j.i"},
+                      {"text": "4.k.i"},
+                      {"text": "4.l.i"},
+                      {"text": "4.m.i"},
+                      {"text": "4.n.i"},
+                      {"text": "4.o.i"}
                       ]
                     }
                   ]
@@ -267,6 +279,10 @@ It also provides a quick way to navigate backwards within a path or within a spe
       inputType: 'code:JSON'
     },
     clickOnlyMode: {
+      type: Boolean,
+      defaultValue: false
+    },
+    filterMode: {
       type: Boolean,
       defaultValue: false
     }

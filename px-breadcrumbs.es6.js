@@ -73,6 +73,10 @@
       clickOnlyMode: {
         type: Boolean,
         value: false
+      },
+      filterMode: {
+        type: Boolean,
+        value: false
       }
     },
     behaviors: [Polymer.IronResizableBehavior],
@@ -107,9 +111,6 @@
           this._closeDropdown();
         }
       }
-    },
-    _isClickOnlyMode() {
-      return this.clickOnlyMode;
     },
     /**
      * This method checks whether the item that was passed in is the same one that is registered as the clicked one, and 
@@ -351,6 +352,10 @@
         this.set('_isDropdownHidden', true);
         this.set('_clickedItemChildren', []);
         this.set('_clickPathItem', {});
+        if (this.filterMode) this._resetFilter();
+    },
+    _resetFilter() {
+      Polymer.dom(this.root).querySelector('#filter').value = '';
     },
     _calculateDropdownItemClass(item) {
       return (item.highlighted) ? 'highlighted' : '';
@@ -392,6 +397,7 @@
           }
           return sibling;
         });
+        this._resetFilter();
         this.set('_clickedItemChildren', siblings);
         this.set('_clickPathItem', dataItem);
         this._changeDropdownPosition(evt);
@@ -417,7 +423,7 @@
           targetHeight = targetRect.height,
           windowScrollX = window.scrollX,
           windowScrollY = window.scrollY,
-          dropdown = Polymer.dom(this.root).querySelector('.breadCrumbdropdown');
+          dropdown = Polymer.dom(this.root).querySelector('.breadCrumbDropdown');
       dropdown.style.top = (targetBottom + windowScrollY + 6) + 'px'; //remember to add the padding to push it down
       dropdown.style.left = (targetLeft + windowScrollX - 10) + 'px'; //and rememeber to subtract the padding from the left
     },
@@ -429,7 +435,35 @@
     _notifyClick(item) {
       this.fire('px-breadcrumbs-item-clicked', {item: item, composed: true});
     },
-    
+    _filterInputChange(evt) {
+      this.debounce('filter', () => {
+        var val = evt.target.value,
+            graph = this.graph,
+            siblings = graph.getSiblings(this._clickPathItem),
+            filteredSiblings = [];
+        
+        //if anything was typed, filter out the items that don't contain the typed val
+        if (val.length) {
+          filteredSiblings = siblings.filter((sibling) => {
+            return sibling.text.indexOf(val) > -1;
+          });
+          if (filteredSiblings.length) {
+            this.set('_clickedItemChildren', filteredSiblings);
+          } else {
+            this.set('_clickedItemChildren', [{"text": "No Results Found"}]);
+          }
+          
+        } else {
+          this.set('_clickedItemChildren', siblings);
+        }        
+      },250);
+    },
+    _isFilteredMode() {
+      return this.filterMode;
+    },
+    _isClickOnlyMode() {
+      return this.clickOnlyMode;
+    }
   });
   
   class Breadcrumbs {

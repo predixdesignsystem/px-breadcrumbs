@@ -35,6 +35,7 @@
     "px-starter-kit-design": "^1.0.0",
     "px-demo": "^2.0.0",
     "px-colors-design": "^1.0.0",
-    "px-spacing-design": "^1.0.0"
+    "px-spacing-design": "^1.0.0",
+    "px-forms-design": "^2.0.0"
   }
 }
