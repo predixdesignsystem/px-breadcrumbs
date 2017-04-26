@@ -112,6 +112,10 @@ ul {
 }
 .dropdownItem {
   min-height: calculateRem(30px);
+  &.highlighted {
+    background-color: $select-default;
+    color: $white;
+  }
 }
 // Trumps
 //because of the low specificity of hidden, we have to add this:

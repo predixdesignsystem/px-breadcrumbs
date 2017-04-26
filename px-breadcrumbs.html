@@ -53,7 +53,7 @@ It also provides a quick way to navigate backwards within a path or within a spe
       <!-- the dropdown ul - starts out hidden -->
       <ul class="breadCrumbdropdown flex flex--col" hidden$="[[_isDropdownHidden]]">
         <template is="dom-repeat" items="[[_clickedItemChildren]]">
-          <li data-text="[[item.text]]" on-tap="_dropdownTap" class="u-pv-- u-ph- dropdownItem">[[item.text]]</li>
+          <li data-text="[[item.text]]" on-tap="_dropdownTap" class$="u-pv-- u-ph- dropdownItem {{_calculateDropdownItemClass(item)}}">[[item.text]]</li>
         </template>
       </ul>
     

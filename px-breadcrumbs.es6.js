@@ -352,6 +352,9 @@
         this.set('_clickedItemChildren', []);
         this.set('_clickPathItem', {});
     },
+    _calculateDropdownItemClass(item) {
+      return (item.highlighted) ? 'highlighted' : '';
+    },
     /* 
     * on tap, we need to find out if the clicked item is the same as before.
     * if it is, we empty our the dropdown, hide it, and clear the _clickPathItem (the last item clicked).
@@ -382,7 +385,13 @@
       if (this._doesItemHaveSiblings(dataItem) || isClickedItemOverflow) {
         var graph = this.graph,
             siblings = !isClickedItemOverflow ? graph.getSiblings(dataItem) : dataItem.children;
-        
+
+        siblings = siblings.map((sibling) => {
+          if (sibling === dataItem) {
+            sibling.highlighted = true;
+          }
+          return sibling;
+        });
         this.set('_clickedItemChildren', siblings);
         this.set('_clickPathItem', dataItem);
         this._changeDropdownPosition(evt);
