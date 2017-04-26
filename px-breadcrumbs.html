@@ -32,11 +32,13 @@ It also provides a quick way to navigate backwards within a path or within a spe
     <div class="container flex">
       <ul class="topPath">
         <template is="dom-repeat" items="[[_mainPathItems]]">
-          <li data-text="[[item.text]]" data-item="[[item]]" data-index="[[index]]" class$="breadcrumbTopItem u-ph- flex--middle {{_calculatePathItemClass(item, _clickPathItem)}}">
+          <li class="breadcrumbTopItem">
+            <template is="dom-if" if="{{_isNotFirstItemInData(index, _mainPathItems)}}">
+              <span class="rightAngle"><iron-icon icon="fa:fa-angle-right"></iron-icon></span>
+            </template>
+          </li>
+          <li data-text="[[item.text]]" data-item="[[item]]" data-index="[[index]]" class$="breadcrumbTopItem u-ph- u-pv flex--middle {{_calculatePathItemClass(item, _clickPathItem)}}">
             <span on-tap="_onPathTap">
-              <template is="dom-if" if="{{_isNotFirstItemInData(index, _mainPathItems)}}">
-                <span class="rightAngle"><iron-icon icon="fa:fa-angle-right"></iron-icon></span>
-              </template>
               [[item.text]]
               <template is="dom-if" if="{{!_isClickOnlyMode(clickOnlyMode)}}">
                 <template is="dom-if" if="{{_doesItemHaveSiblings(item)}}">
@@ -51,7 +53,7 @@ It also provides a quick way to navigate backwards within a path or within a spe
       <!-- the dropdown ul - starts out hidden -->
       <ul class="breadCrumbdropdown flex flex--col" hidden$="[[_isDropdownHidden]]">
         <template is="dom-repeat" items="[[_clickedItemChildren]]">
-          <li data-text="[[item.text]]" on-tap="_dropdownTap" class="u-pv- u-ph+ dropdownItem">[[item.text]]</li>
+          <li data-text="[[item.text]]" on-tap="_dropdownTap" class="u-pv-- u-ph+ dropdownItem">[[item.text]]</li>
         </template>
       </ul>
     

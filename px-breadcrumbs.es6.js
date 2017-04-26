@@ -67,6 +67,9 @@
         value: function() {return [];},
         readOnly: true
       },
+      /**
+       * Use this mode if you want a more traditional breadcrumb path, and don't want the dropdowns to show up when a path item is clicked.
+       */
       clickOnlyMode: {
         type: Boolean,
         value: false
@@ -382,7 +385,6 @@
           windowScrollX = window.scrollX,
           windowScrollY = window.scrollY,
           dropdown = Polymer.dom(this.root).querySelector('.breadCrumbdropdown');
-      debugger;
       dropdown.style.top = (targetBottom + windowScrollY + 6) + 'px'; //remember to add the padding to push it down
       dropdown.style.left = (targetLeft + windowScrollX - 10) + 'px'; //and rememeber to subtract the padding from the left
     },
