@@ -407,8 +407,10 @@
     */
     _onPathTap(evt) {
       var dataItem = evt.model.item.source ? evt.model.item.source : evt.model.item;
+      var isClickedItemOverflow = dataItem.text ==='...' ? true : false;
+
       //if the click only mode is on, just change the path
-      if (this.clickOnlyMode) {
+      if (this.clickOnlyMode && !isClickedItemOverflow) {
         this._changePathFromClick(dataItem);
         return;
       }
@@ -422,7 +424,7 @@
       // it's important to check if the clicked item is an overflow item, since it's the only one
       // that isn't in our graph - if we send it into getSiblings, the graph won't know what to do with it.
       // instead, if it IS an overflow item, we set the siblings as the children of dataItem.
-      var isClickedItemOverflow = dataItem.text ==='...' ? true : false;
+      
 
       if (this._doesItemHaveSiblings(dataItem) || isClickedItemOverflow) {
         var graph = this.graph,
@@ -467,8 +469,7 @@
           windowScrollX = window.scrollX || window.pageXOffset,
           windowScrollY = window.scrollY || window.pageYOffset,
           dropdown = Polymer.dom(this.root).querySelector('.breadCrumbDropdown');
-          console.log('targetBottom = ' + targetBottom);
-          console.log('windowScrollY = ' + windowScrollY);
+          
       dropdown.style.cssText ="top:" +  (targetBottom + windowScrollY + 12) + "px;" + " left: " + (targetLeft + windowScrollX - 10) + "px"; //remember to add the padding to push it down, and rememeber to subtract the padding from the left
        
     },
@@ -489,8 +490,9 @@
     /**
      * This method returns the status of the click-only-mode
      */
-    _isClickOnlyMode() {
-      return this.clickOnlyMode;
+    _isClickOnlyModeAndNotOverflow(item) {
+
+      return this.clickOnlyMode && item.text !== "...";
     }
   });
   

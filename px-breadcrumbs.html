@@ -37,10 +37,10 @@ It also provides a quick way to navigate backwards within a path or within a spe
               <span class="rightAngle"><iron-icon icon="fa:fa-angle-right"></iron-icon></span>
             </template>
           </li>
-          <li data-text="[[item.text]]" data-item="[[item]]" data-index="[[index]]" class$="breadcrumbTopItem u-ph- u-pv flex--middle {{_calculatePathItemClass(item, _clickPathItem)}}">
-            <span on-tap="_onPathTap">
+          <li data-text="[[item.text]]" data-item="[[item]]" data-index="[[index]]" class$="breadcrumbTopItem u-ph- u-pv flex--middle {{_calculatePathItemClass(item, _clickPathItem)}}" on-tap="_onPathTap">
+            <span>
               [[item.text]]
-              <template is="dom-if" if="{{!_isClickOnlyMode(clickOnlyMode)}}">
+              <template is="dom-if" if="{{!_isClickOnlyModeAndNotOverflow(item, clickOnlyMode)}}">
                 <template is="dom-if" if="{{_doesItemHaveSiblings(item)}}">
                   <span class="downChevron u-pl--"><iron-icon icon="fa:fa-chevron-down"></iron-icon></span>
                 </template>  
