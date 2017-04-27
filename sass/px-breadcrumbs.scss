@@ -35,7 +35,7 @@ $inuit-enable-input--regular : true;
 .container ul {
   margin: 0;
   padding: 0;
-  max-height: calculateRem(30px);
+  max-height: calculateRem(45px);
 }
 // Meta
 
@@ -51,7 +51,7 @@ $inuit-enable-input--regular : true;
 }
 .breadcrumbTopItem {
   
-  max-height: calculateRem(30px);
+  max-height: calculateRem(45px);
   display: inline-flex;
   cursor:pointer;
   background-color: $gray2;

@@ -102,8 +102,11 @@
     detached() {
       document.removeEventListener('click', this._onCaptureClick.bind(this));
     },
+    /**
+     * This method is called everytime the dom-repeat in the dropdown list is rendered.
+     * it checks whether there are results (more than just the dom-repeat template)
+     */
     _onDomChange() {
-      debugger;
       var dropdownList = Polymer.dom(this.root).querySelector('.dropdownList');
       if (dropdownList.children.length === 2) {
        this.set('_hideNoResultLi', false); 
@@ -461,11 +464,13 @@
           targetLeft = targetRect.left,
           targetBottom = targetRect.bottom,
           targetHeight = targetRect.height,
-          windowScrollX = window.scrollX,
-          windowScrollY = window.scrollY,
+          windowScrollX = window.scrollX || window.pageXOffset,
+          windowScrollY = window.scrollY || window.pageYOffset,
           dropdown = Polymer.dom(this.root).querySelector('.breadCrumbDropdown');
-      dropdown.style.top = (targetBottom + windowScrollY + 6) + 'px'; //remember to add the padding to push it down
-      dropdown.style.left = (targetLeft + windowScrollX - 10) + 'px'; //and rememeber to subtract the padding from the left
+          console.log('targetBottom = ' + targetBottom);
+          console.log('windowScrollY = ' + windowScrollY);
+      dropdown.style.cssText ="top:" +  (targetBottom + windowScrollY + 12) + "px;" + " left: " + (targetLeft + windowScrollX - 10) + "px"; //remember to add the padding to push it down, and rememeber to subtract the padding from the left
+       
     },
     /**
      * This method dispatches a custom event ('px-breadcrumbs-item-clicked') that has the item attached to it.
@@ -474,40 +479,6 @@
      */
     _notifyClick(item) {
       this.fire('px-breadcrumbs-item-clicked', {item: item, composed: true});
-    },
-    /**
-     * This method filters out any results that don't match the value passed in through the event
-     * once we have an array of results, we check that there ARE results - if not, return an array
-     * with an object that says no results.
-     * if the user deleted all the input and it's blank, we make sure to return the original siblings
-     * we deboucne this so that we only get the results and do the work once the user stopped typing.
-     * @param {Object} evt the input change event
-     */
-    _filterInputChange(evt) {
-
-      // this.debounce('filter', () => {
-
-      //   var val = evt.target.value,
-      //       graph = this.graph,
-      //       clickedItem = this._clickPathItem,
-      //       siblings = (clickedItem !== "...") ? graph.getSiblings(clickedItem) : this._clickedItemChildren,
-      //       filteredSiblings = [];
-      //   console.log(clickedItem);
-      //   //if anything was typed, filter out the items that don't contain the typed val
-      //   if (val.length) {
-      //     //if (evt.target.t)
-      //     filteredSiblings = siblings.filter((sibling) => {
-      //       return sibling.text.indexOf(val) > -1;
-      //     });
-      //     if (filteredSiblings.length) { //we found some results
-      //       this.set('_clickedItemChildren', filteredSiblings);
-      //     } else { //nothing left after the filter
-      //       this.set('_clickedItemChildren', [{"text": "No Results Found"}]);
-      //     }
-      //   } else { //the event gave us an empty string, return the original siblings.
-      //     this.set('_clickedItemChildren', siblings);
-      //   }        
-      // },250);
     },
     /**
      * This method returns the status of the filter-mode
