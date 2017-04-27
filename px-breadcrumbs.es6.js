@@ -77,6 +77,14 @@
       filterMode: {
         type: Boolean,
         value: false
+      },
+      _filterString: {
+        type: String,
+        value: ''
+      },
+      _hideNoResultLi: {
+        type: Boolean,
+        value: true
       }
     },
     behaviors: [Polymer.IronResizableBehavior],
@@ -94,13 +102,34 @@
     detached() {
       document.removeEventListener('click', this._onCaptureClick.bind(this));
     },
+    _onDomChange() {
+      debugger;
+      var dropdownList = Polymer.dom(this.root).querySelector('.dropdownList');
+      if (dropdownList.children.length === 2) {
+       this.set('_hideNoResultLi', false); 
+      } else {
+        this.set('_hideNoResultLi', true); 
+      }
+    },
+    _filterSiblings(_filterString) {
+      
+      if (!_filterString) return false;
+
+      _filterString = _filterString.toLowerCase();
+      return function(item) {
+        item = item.source ? item.source : item;
+        return item.text.toLowerCase().indexOf(_filterString) > -1;
+      }
+    },
     /**
      * This method captures all clicks, and determines where they come from, and whether the dropdown needs to be closed.
      * @param {Object} evt 
      */
     _onCaptureClick(evt) {
+      
       //we look through the path to see if the click came anywhere from inside our component by filtering anything that isn't PX-BREADCRUMBS
-      var filteredPathList =  evt.path.filter((evtPathItem) => {
+      var normalizedEvent = Polymer.dom(evt),
+          filteredPathList =  normalizedEvent.path.filter((evtPathItem) => {
         return evtPathItem.nodeName === "PX-BREADCRUMBS";
       });
       
@@ -360,7 +389,7 @@
         if (this.filterMode) this._resetFilter();
     },
     _resetFilter() {
-      Polymer.dom(this.root).querySelector('#filter').value = '';
+      this.set('_filterString','');
     },
     _calculateDropdownItemClass(item) {
       return (item.highlighted) ? 'highlighted' : '';
@@ -416,7 +445,7 @@
       // the clicked item has no siblings - we reset the contents of the dropdown
       // and change the path accordingly.
     } else {
-        this._closeDropdown(); //just in case one is open.
+        this._closeDropdown(); //just in case a dropdown is open.
         this.set('_clickedItemChildren', []);
         this._changePathFromClick(dataItem);
       }
@@ -455,26 +484,30 @@
      * @param {Object} evt the input change event
      */
     _filterInputChange(evt) {
-      this.debounce('filter', () => {
-        var val = evt.target.value,
-            graph = this.graph,
-            siblings = graph.getSiblings(this._clickPathItem),
-            filteredSiblings = [];
-        
-        //if anything was typed, filter out the items that don't contain the typed val
-        if (val.length) {
-          filteredSiblings = siblings.filter((sibling) => {
-            return sibling.text.indexOf(val) > -1;
-          });
-          if (filteredSiblings.length) { //we found some results
-            this.set('_clickedItemChildren', filteredSiblings);
-          } else { //nothing left after the filter
-            this.set('_clickedItemChildren', [{"text": "No Results Found"}]);
-          }
-        } else { //the event gave us an empty string, return the original siblings.
-          this.set('_clickedItemChildren', siblings);
-        }        
-      },250);
+
+      // this.debounce('filter', () => {
+
+      //   var val = evt.target.value,
+      //       graph = this.graph,
+      //       clickedItem = this._clickPathItem,
+      //       siblings = (clickedItem !== "...") ? graph.getSiblings(clickedItem) : this._clickedItemChildren,
+      //       filteredSiblings = [];
+      //   console.log(clickedItem);
+      //   //if anything was typed, filter out the items that don't contain the typed val
+      //   if (val.length) {
+      //     //if (evt.target.t)
+      //     filteredSiblings = siblings.filter((sibling) => {
+      //       return sibling.text.indexOf(val) > -1;
+      //     });
+      //     if (filteredSiblings.length) { //we found some results
+      //       this.set('_clickedItemChildren', filteredSiblings);
+      //     } else { //nothing left after the filter
+      //       this.set('_clickedItemChildren', [{"text": "No Results Found"}]);
+      //     }
+      //   } else { //the event gave us an empty string, return the original siblings.
+      //     this.set('_clickedItemChildren', siblings);
+      //   }        
+      // },250);
     },
     /**
      * This method returns the status of the filter-mode
