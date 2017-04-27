@@ -104,22 +104,34 @@
     },
     /**
      * This method is called everytime the dom-repeat in the dropdown list is rendered.
-     * it checks whether there are results (more than just the dom-repeat template)
+     * it checks whether there are results (more than just the dom-repeat template, and the hidden LI),
+     * and if there are only 2, changes the _hideNoResultLI to false, showing the "no results found" LI
      */
     _onDomChange() {
+      //find the dropdown
       var dropdownList = Polymer.dom(this.root).querySelector('.dropdownList');
+      //check if there are only 2 elements - which means no results
       if (dropdownList.children.length === 2) {
+        //if so, show the no results li by setting this to false
        this.set('_hideNoResultLi', false); 
       } else {
+        //we have results, make sure the "no results" LI is hidden
         this.set('_hideNoResultLi', true); 
       }
     },
+    /**
+     * This method is called by the dom-repeat filter in the dropdown - it checks the item to see if the search string 
+     * is in the item - Polymer wants a function returned with a property for the item.
+     * @param {String} _filterString the typed in filter string
+     */
     _filterSiblings(_filterString) {
-      
+      //no value? send it back.
       if (!_filterString) return false;
-
+      //convert our string to lowercase
       _filterString = _filterString.toLowerCase();
+      //Polymer wants a function returned
       return function(item) {
+        //make sure we are looking at the full text, not the shortened text by searching the text in the original item, if it exists.
         item = item.source ? item.source : item;
         return item.text.toLowerCase().indexOf(_filterString) > -1;
       }
@@ -385,15 +397,27 @@
       this.set('_selectedItem', item);
       this.fire('px-breadcrumbs-item-changed', item);
     },
+    /**
+     * This method is called every time we want the dropdown closed.
+     */
     _closeDropdown() {
         this.set('_isDropdownHidden', true);
         this.set('_clickedItemChildren', []);
         this.set('_clickPathItem', {});
         if (this.filterMode) this._resetFilter();
     },
+    /**
+     * this sets the value of _filterStrin to an empty string, emptying out the filter field. 
+     * needed for the dropdown is closed, or moves to another path item.
+     */
     _resetFilter() {
       this.set('_filterString','');
     },
+    /**
+     * The dropdown list contains the item that's in the top path - we want to highlight that item by returning the 
+     * highlighted class on the ones where highlighted is true.
+     * @param {Object} item 
+     */
     _calculateDropdownItemClass(item) {
       return (item.highlighted) ? 'highlighted' : '';
     },
@@ -469,7 +493,7 @@
           windowScrollX = window.scrollX || window.pageXOffset,
           windowScrollY = window.scrollY || window.pageYOffset,
           dropdown = Polymer.dom(this.root).querySelector('.breadCrumbDropdown');
-          
+      //IE11 doesn't like style.left or style.top, so i'm using cssText, which works everywhere. Thanks IE.
       dropdown.style.cssText ="top:" +  (targetBottom + windowScrollY + 12) + "px;" + " left: " + (targetLeft + windowScrollX - 10) + "px"; //remember to add the padding to push it down, and rememeber to subtract the padding from the left
        
     },
@@ -648,7 +672,7 @@
             i = 0,
             len = strArray.length,
             sizeOfItem;
-
+        //run through all the items, and get the sizes.
         for (i=0; i<len;i++,sizeOfItem=null) {
           
           if (useFullSize) {
@@ -657,6 +681,7 @@
             sizeOfItem = this.sizeOfIndividualShortItem(strArray[i]);
           }
           var source = strArray[i].source ? strArray[i].source : strArray[i];
+          //add the size of the of the item into our accumulator
           accum += sizeOfItem;
           //if the item has siblings, we need to add the size of the down chevron.
           if (strArray[i].text !== "..." && this.graph.hasSiblings(source)) {
@@ -713,11 +738,11 @@
             if (parent) {
               metaData.parent = parent;
             }
-            
+            //we have siblings!
             if (nodes.length >1) {
               metaData.siblings = nodes;
             }
-                        
+            //add the existing item to the path
             itemPath = path.concat([nodes[i]]);
             
             if (nodes[i].children) {
@@ -726,14 +751,11 @@
               //and call ourselves with the children of the current item
               recursiveLoopThroughObj.call(this,nodes[i].children, nodes[i], itemPath);
             }
-
+            //add the path property to the metaData
             metaData.path = itemPath;
             
             if (nodes[i].selectedItem) {
               this._selectedItem = nodes[i];
-
-              //add the parent and the selected item itself to the path
-              //metaData.path = path.concat(parent);
             }
             this.map.set(nodes[i], metaData);
           }
