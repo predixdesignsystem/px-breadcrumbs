@@ -435,6 +435,9 @@
 
       //if the click only mode is on, just change the path
       if (this.clickOnlyMode && !isClickedItemOverflow) {
+        //in case the overflow menu is open
+        this._closeDropdown();
+        //and change our path.
         this._changePathFromClick(dataItem);
         return;
       }
