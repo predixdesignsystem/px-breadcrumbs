@@ -109,9 +109,9 @@
      */
     _onDomChange() {
       //find the dropdown
-      var dropdownList = Polymer.dom(this.root).querySelector('.dropdownList');
+      var dropdownListItemCount = Polymer.dom(this.root).querySelector('#dropdownListDomRepeat').renderedItemCount;
       //check if there are only 2 elements - which means no results
-      if (dropdownList.children.length === 2) {
+      if (!dropdownListItemCount) {
         //if so, show the no results li by setting this to false
        this.set('_hideNoResultLi', false); 
       } else {
@@ -193,7 +193,7 @@
         window.requestAnimationFrame(() => {
           var breadcrumbsContainer = Polymer.dom(this.root).querySelector('.container'),
               breadcrumbsUlContainer = Polymer.dom(breadcrumbsContainer).querySelector('ul'),
-              bcUlContainerRect = breadcrumbsContainer.getBoundingClientRect();
+              bcUlContainerRect = breadcrumbsUlContainer.getBoundingClientRect();
 
           this.set('_ulWidth', bcUlContainerRect.width + 4); //the 4 is for the padding (2px on each side) on the ul.
         });
@@ -685,7 +685,7 @@
           accum += sizeOfItem;
           //if the item has siblings, we need to add the size of the down chevron.
           if (strArray[i].text !== "..." && this.graph.hasSiblings(source)) {
-            accum += 15;
+            accum += 16;
           }
           //padding on each item (10 on each side)
           accum += 20;
@@ -696,7 +696,7 @@
           }
         }
         
-        return accum + 80;
+        return accum;
       }
     }
     /**

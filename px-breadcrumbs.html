@@ -32,11 +32,11 @@ It also provides a quick way to navigate backwards within a path or within a spe
     <div class="container flex">
       <ul class="topPath">
         <template is="dom-repeat" items="[[_mainPathItems]]">
-          <li class="breadcrumbTopItem">
-            <template is="dom-if" if="{{_isNotFirstItemInData(index, _mainPathItems)}}">
+          <template is="dom-if" if="{{_isNotFirstItemInData(index, _mainPathItems)}}">
+            <li class="breadcrumbTopItem">
               <span class="rightAngle"><iron-icon icon="fa:fa-angle-right"></iron-icon></span>
-            </template>
-          </li>
+            </li>
+          </template>
           <li data-text="[[item.text]]" data-item="[[item]]" data-index="[[index]]" class$="breadcrumbTopItem u-ph- u-pv flex--middle {{_calculatePathItemClass(item, _clickPathItem)}}" on-tap="_onPathTap">
             <span>
               [[item.text]]
@@ -55,7 +55,7 @@ It also provides a quick way to navigate backwards within a path or within a spe
         <template is="dom-if" if="{{_isFilteredMode(filterMode)}}">
           <div class="filter u-mv- u-ph- flex">
             <div style="width:93%">
-              <input type="text" placeholder="Filter" class="text-input" value="{{_filterString::input}}" on-input="_filterInputChange" id="filter">
+              <input type="text" placeholder="Filter" class="text-input" value="{{_filterString::input}}" id="filter">
             </div>
             <div class="filterIcon">
               <iron-icon icon="fa:fa-filter"></iron-icon>
@@ -64,7 +64,7 @@ It also provides a quick way to navigate backwards within a path or within a spe
         </template>
         
         <ul class="flex flex--col dropdownList">
-          <template is="dom-repeat" items="[[_clickedItemChildren]]" filter="{{_filterSiblings(_filterString)}}" on-dom-change="_onDomChange">
+          <template is="dom-repeat" items="[[_clickedItemChildren]]" filter="{{_filterSiblings(_filterString)}}" on-dom-change="_onDomChange" id="dropdownListDomRepeat">
             <li data-text="[[item.text]]" on-tap="_dropdownTap" class$="u-pv-- u-ph- dropdownItem {{_calculateDropdownItemClass(item)}}">[[item.text]]</li>
           </template>
           <li hidden$=[[_hideNoResultLi]] class="u-pv-- u-ph- dropdownItem">No Results Found</li>

@@ -36,6 +36,7 @@ $inuit-enable-input--regular : true;
   margin: 0;
   padding: 0;
   max-height: calculateRem(45px);
+  max-width:100%;
 }
 // Meta
 
@@ -48,11 +49,11 @@ $inuit-enable-input--regular : true;
   white-space: nowrap;
   box-shadow: 0 1px 1px 0 rgba(0,0,0,0.30);
   padding: 0 calculateRem(20px) 0 calculateRem(10px);
+  overflow:hidden;
 }
 .breadcrumbTopItem {
-  
+  list-style-type: none;
   max-height: calculateRem(45px);
-  display: inline-flex;
   cursor:pointer;
   background-color: $gray2;
   //this captures both the text and the icons
@@ -69,6 +70,9 @@ $inuit-enable-input--regular : true;
   }
   &.opened {
     background-color: $white;
+  }
+  span.rightAngle>iron-icon {
+    margin-top: calculateRem(17px);
   }
 }
 
@@ -114,12 +118,17 @@ $inuit-enable-input--regular : true;
   ul {
     margin: 0;
     padding: 0;
-    max-height: calculateRem(300px);
   }
 }
 
+.topPath {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+}
 .dropdownList {
   overflow-y: auto;
+  max-height: calculateRem(360px);
 }
 
 .filterIcon {
