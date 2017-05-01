@@ -1,4 +1,4 @@
-(function() {
+(function(window) {
   Polymer({
 
     is: 'px-breadcrumbs', 
@@ -141,7 +141,6 @@
      * @param {Object} evt 
      */
     _onCaptureClick(evt) {
-      
       //we look through the path to see if the click came anywhere from inside our component by filtering anything that isn't PX-BREADCRUMBS
       var normalizedEvent = Polymer.dom(evt),
           filteredPathList =  normalizedEvent.path.filter((evtPathItem) => {
@@ -217,7 +216,7 @@
 
       if (!itemPath.length || !graph || !_ulWidth) return;
 
-      var breadcrumbsObj = new Breadcrumbs(itemPath, graph);
+      var breadcrumbsObj = new window.pxBreadcrumbs.Breadcrumbs(itemPath, graph);
 
         /*
         * option 1 
@@ -316,13 +315,12 @@
       //add the overflow obj to the beginning of the array, and follow it up with all the shortened strings, 
       //starting with the point we stopped at with the pointer, and going till the last item, which is dynamically determined.
       slicedStrArray = [overflowObj].concat(breadcrumbsObj.shortenedItems.slice(pointer, strArray.length-1)).concat(lastItem);
-      
       return slicedStrArray;
 
     },
     /**
      * This function is used to determine whether we are on the first Item in the array - used by a dom-if to check 
-     * if we should display the right angle (yes on all but the first one)
+     * if we should display the right angle (we should display it on all but the first one)
      * @param {Number} index the index of the item
      */
     _isNotFirstItemInData(index) {
@@ -379,7 +377,7 @@
      */
     _dropdownTap(evt) {
       var newSelectItem = evt.model.item.source ? evt.model.item.source : evt.model.item;
-      //this._setSelectedItem(newSelectItem);
+      
       //this hides the dropdown
       this._closeDropdown();
       this._changePathFromClick(newSelectItem);
@@ -717,7 +715,10 @@
       return ctx;
     }
   };
-  
+
+  window.pxBreadcrumbs = {};
+  window.pxBreadcrumbs.Breadcrumbs = Breadcrumbs;
+
   class Graph {
     constructor(nodes) {
       this.map = new WeakMap();
@@ -825,4 +826,5 @@
       }
     }
   }
-})();
+  window.pxBreadcrumbs.Graph = Graph;
+})(window);

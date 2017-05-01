@@ -15,15 +15,88 @@
     <!-- Retain this link for px-theme.html -->
     <!-- px-theme is needed for WCT to run without errors -->
     <link rel="import" href="../../px-theme/px-theme-styles.html"/>
-    <!-- This script link will contain the generated script for basic wct test cases -->
-    <script src="px-breadcrumbs-base-tests.js"></script>
     <!-- This script link will contain the generated script stub for custom, developer-added test cases -->
     <script src="px-breadcrumbs-custom-tests.js"></script>
+    <script src="../../test-fixture/test-fixture-mocha.js"></script>
+    <link href="../../test-fixture/test-fixture.html" rel="import">
   </head>
 
   <body>
+
+    <p class="notElement">hello</p>
     <style include="px-theme-styles" is="custom-style"></style>
-    <h3>Web Component Test : Fixture for px-breadcrumbs</h3>
-    <px-breadcrumbs id="px_breadcrumbs_1"></px-breadcrumbs>
+    
+    <test-fixture id="breadcrumbsFixture">
+      <template>
+       <px-breadcrumbs></px-breadcrumbs>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="breadcrumbsFixtureWithData">
+      <template>
+       <px-breadcrumbs breadcrumb-data='[
+            {
+            "text":"1 This is a very long string with more than 16 characters", 
+            "hasChildren":true,
+            "children": [
+              {"text": "2 This is a very long string with more than 16 characters",
+                "hasChildren": true,
+                "children": [
+                  {"text": "3.a.i"},
+                  {"text": "3.b.i"},
+                  {"text": "3.c.i"},
+                  {"text":"3 This is a very long string with more than 16 characters", 
+                    "hasChildren": true,
+                    "children": [
+                      {"text": "4.a.i"},
+                      {"text": "4.b.i"},
+                      {"text": "4.c.i"},
+                      {"text":"4 This is a very long string with more than 16 characters", 
+                        "hasChildren":true,
+                        "children": [
+                          {"text": "5 This is a very long string with more than 16 characters",
+                            "hasChildren": true,
+                            "children": [
+                              {"text": "6.a.i"},
+                              {"text": "6.b.i"},
+                              {"text": "6.c.i"},
+                              {"text":"6 This is a very long string with more than 16 characters", 
+                                "hasChildren": true,
+                                "children": [
+                                  {"text": "7.a.i"},
+                                  {"text": "7.b.i"},
+                                  {"text": "7.c.i"},
+                                  {"text":"7 This is a very long string with more than 16 characters", 
+                                    "selectedItem": true}
+                                ]},
+                              {"text": "6.b"},
+                              {"text": "6.c"}
+                            ]},
+                          {"text": "5.b"},
+                          {"text": "5.c"}
+                          ]
+                        },
+                      {"text": "4.d.i"},
+                      {"text": "4.e.i"},
+                      {"text": "4.f.i"},
+                      {"text": "4.g.i"},
+                      {"text": "4.i.i"},
+                      {"text": "4.j.i"},
+                      {"text": "4.k.i"},
+                      {"text": "4.l.i"},
+                      {"text": "4.m.i"},
+                      {"text": "4.n.i"},
+                      {"text": "4.o.i"}
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {"text": "1.a"}
+          ]'></px-breadcrumbs>
+      </template>
+    </test-fixture>
+
   </body>
 </html>
