@@ -6,12 +6,21 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link rel="import" href="px-breadcrumbs.html" />
   <link rel="import" href="../polymer/polymer.html" />
-  <title></title>
+  <link rel="import" href="../../px-demo/css/px-demo-styles.html" />
+  <style>
+    html, body {
+      font-size:15px;
+    }
+  </style>
 </head>
 <body>
   <dom-module id="px-bc-demo">
     <template >
-      <px-breadcrumbs breadcrumb-data="[[breadcrumbData]]"></px-breadcrumbs>
+      <style include="px-demo-styles" is="custom-style"></style>
+      <div style="">
+        <px-breadcrumbs breadcrumb-data="[[breadcrumbData]]"></px-breadcrumbs>
+      </div>
+      
     </template>
   </dom-module>
   <script>

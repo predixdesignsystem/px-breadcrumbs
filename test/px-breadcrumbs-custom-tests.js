@@ -978,12 +978,12 @@ describe('Breadcrumb Class', function() {
 
 describe('integration tests', function() {
   var sandbox,
-      breadcrumbsEl,
-      breadcrumbsElWithData;
+      fixtureContainer,
+      breadcrumbsEl;
 
   beforeEach(function () {
-    breadcrumbsEl = fixture('breadcrumbsFixture');
-    breadcrumbsElWithData = fixture('breadcrumbsFixtureWithData');
+    fixtureContainer = fixture('breadcrumbsFixtureWithDataAndWidth');
+    breadcrumbsEl = fixtureContainer.querySelector('px-breadcrumbs');
     sandbox = sinon.sandbox.create();
   });
 
@@ -991,7 +991,121 @@ describe('integration tests', function() {
     sandbox.restore();
   });
 
-  
+  it('checks that if there\'s enough room, every item is displayed in full.', function(done) {
+    fixtureContainer.style.width = '2820px';
+    breadcrumbsEl.notifyResize();
+    Polymer.dom.flush();
+    window.setTimeout(function() {
+      var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
+      debugger;
+      expect(items).to.have.lengthOf(13);
+      expect(items[0].innerText.trim()).to.eql('1 This is a very long string with more than 16 characters');
+      expect(items[2].innerText.trim()).to.eql('2 This is a very long string with more than 16 characters');
+      expect(items[4].innerText.trim()).to.eql('3 This is a very long string with more than 16 characters');
+      expect(items[6].innerText.trim()).to.eql('4 This is a very long string with more than 16 characters');
+      expect(items[8].innerText.trim()).to.eql('5 This is a very long string with more than 16 characters');
+      expect(items[10].innerText.trim()).to.eql('6 This is a very long string with more than 16 characters');
+      expect(items[12].innerText.trim()).to.eql('7 This is a very long string with more than 16 characters');
+      done();
+    },100);
+  });
+
+  it('checks that if there\'s enough room, every item is shortened, except the last item, which is displayed in full.', function(done) {
+    fixtureContainer.style.width = '2770px';
+    breadcrumbsEl.notifyResize();
+    Polymer.dom.flush();
+    window.setTimeout(function() {
+        var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
+        debugger;
+        expect(items).to.have.lengthOf(13);
+        expect(items[0].innerText.trim()).to.eql('1 This...acters');
+        expect(items[2].innerText.trim()).to.eql('2 This...acters');
+        expect(items[4].innerText.trim()).to.eql('3 This...acters');
+        expect(items[6].innerText.trim()).to.eql('4 This...acters');
+        expect(items[8].innerText.trim()).to.eql('5 This...acters');
+        expect(items[10].innerText.trim()).to.eql('6 This...acters');
+        expect(items[12].innerText.trim()).to.eql('7 This is a very long string with more than 16 characters');
+        done();
+    },100);
+  });
+
+  it('checks that if there\'s enough room, every item is shortened.', function(done) {
+    fixtureContainer.style.width = '1150px';
+    breadcrumbsEl.notifyResize();
+    Polymer.dom.flush();
+    window.setTimeout(function() {
+      var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
+      debugger;
+      expect(items).to.have.lengthOf(13);
+      expect(items[0].innerText.trim()).to.eql('1 This...acters');
+      expect(items[2].innerText.trim()).to.eql('2 This...acters');
+      expect(items[4].innerText.trim()).to.eql('3 This...acters');
+      expect(items[6].innerText.trim()).to.eql('4 This...acters');
+      expect(items[8].innerText.trim()).to.eql('5 This...acters');
+      expect(items[10].innerText.trim()).to.eql('6 This...acters');
+      expect(items[12].innerText.trim()).to.eql('7 This...acters');
+      done();
+    },100);
+  });
+
+  it('checks that if there\'s enough room, overflow shows up with 2 shortened items, and a full last item.', function(done) {
+    fixtureContainer.style.width = '900px';
+    breadcrumbsEl.notifyResize();
+    Polymer.dom.flush();
+    window.setTimeout(function() {
+      var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
+      debugger;
+      expect(items).to.have.lengthOf(7);
+      expect(items[0].innerText.trim()).to.eql('...');
+      expect(items[2].innerText.trim()).to.eql('5 This...acters');
+      expect(items[4].innerText.trim()).to.eql('6 This...acters');
+      expect(items[6].innerText.trim()).to.eql('7 This is a very long string with more than 16 characters');
+      done();
+    },100);
+  });
+
+  it('checks that if there\'s enough room, overflow shows up with 1 shortened items, and a full last item', function(done) {
+    fixtureContainer.style.width = '845px';
+    breadcrumbsEl.notifyResize();
+    Polymer.dom.flush();
+    window.setTimeout(function() {
+      var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
+      debugger;
+      expect(items).to.have.lengthOf(5);
+      expect(items[0].innerText.trim()).to.eql('...');
+      expect(items[2].innerText.trim()).to.eql('6 This...acters');
+      expect(items[4].innerText.trim()).to.eql('7 This is a very long string with more than 16 characters');
+      done();
+    },100);
+  });
+
+  it('checks that if there\'s enough room, overflow shows up with a full last item', function(done) {
+    fixtureContainer.style.width = '766px';
+    breadcrumbsEl.notifyResize();
+    Polymer.dom.flush();
+    window.setTimeout(function() {
+      var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
+      debugger;
+      expect(items).to.have.lengthOf(3);
+      expect(items[0].innerText.trim()).to.eql('...');
+      expect(items[2].innerText.trim()).to.eql('7 This is a very long string with more than 16 characters');
+      done();
+    },100);
+  });
+
+  it('checks that if there\'s enough room, overflow shows up with a short last item', function(done) {
+    fixtureContainer.style.width = '640px';
+    breadcrumbsEl.notifyResize();
+    Polymer.dom.flush();
+    window.setTimeout(function() {
+      var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
+      debugger;
+      expect(items).to.have.lengthOf(3);
+      expect(items[0].innerText.trim()).to.eql('...');
+      expect(items[2].innerText.trim()).to.eql('7 This...acters');
+      done();
+    },100);
+  });
 
 });
 }

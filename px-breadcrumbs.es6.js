@@ -476,7 +476,6 @@
       // the clicked item has no siblings - we reset the contents of the dropdown
       // and change the path accordingly.
     } else {
-      debugger;
         this._closeDropdown(); //just in case a dropdown is open.
         this.set('_clickedItemChildren', []);
         this._changePathFromClick(dataItem);
