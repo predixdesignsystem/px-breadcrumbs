@@ -101,6 +101,7 @@
     },
     detached() {
       document.removeEventListener('click', this._onCaptureClick.bind(this));
+      if (this.isDebouncerActive('windowResize')) this.cancelDebouncer('windowResize');
     },
     /**
      * This method is called everytime the dom-repeat in the dropdown list is rendered.
@@ -291,7 +292,7 @@
           break
         }
         //get the size of the item we are placing into the overflow
-        var removedSize = breadcrumbsObj.sizeOfIndividualShortItem(strArray[pointer]);
+        var removedSize = breadcrumbsObj._sizeOfIndividualShortItem(strArray[pointer]);
         // subtract the size from the overall accumulated size
         currentAccumSize -= removedSize;
         //and make sure to manually change our pointer.
@@ -475,6 +476,7 @@
       // the clicked item has no siblings - we reset the contents of the dropdown
       // and change the path accordingly.
     } else {
+      debugger;
         this._closeDropdown(); //just in case a dropdown is open.
         this.set('_clickedItemChildren', []);
         this._changePathFromClick(dataItem);
@@ -516,7 +518,6 @@
      * This method returns the status of the click-only-mode
      */
     _isClickOnlyModeAndNotOverflow(item) {
-
       return this.clickOnlyMode && item.text !== "...";
     }
   });
@@ -652,7 +653,7 @@
      * it checks for a cached version before setting this value
      * @param {Object} item a breadcrumb Item
      */
-    sizeOfIndividualShortItem(item) {
+    _sizeOfIndividualShortItem(item) {
       const cachedItem = this.map.get(item) || {};
       cachedItem.shortSize = (cachedItem.shortSize || parseInt(this.ctx.measureText(cachedItem.shortText).width,10));
       this.map.set(item, cachedItem);
@@ -679,7 +680,7 @@
           if (useFullSize) {
             sizeOfItem = this._sizeOfIndividualFullItem(strArray[i]);
           } else {
-            sizeOfItem = this.sizeOfIndividualShortItem(strArray[i]);
+            sizeOfItem = this._sizeOfIndividualShortItem(strArray[i]);
           }
           var source = strArray[i].source ? strArray[i].source : strArray[i];
           //add the size of the of the item into our accumulator
@@ -781,15 +782,6 @@
     get selectedItemPath() {
       var metaData = this.map.get(this._selectedItem);
       return (metaData) ? metaData.path : undefined;
-    }
-    /**
-     * This method is called when a new item is selected - it 
-     * changes the selected Item on the graph, and returns the new selected item path.
-     * @param {Object} item the newly selected item
-     */
-    handleSelectedItem(item) {
-      this.selectedItem = item;
-      return this.selectedItemPath;
     }
     /**
      * This method returns the path specified on an item.
