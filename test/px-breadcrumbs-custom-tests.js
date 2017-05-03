@@ -960,7 +960,6 @@ describe('Breadcrumb Class', function() {
 
   it('gets the siblings of the item passed (getSiblings)', function() {
     var response = graph.getSiblings(breadcrumbsArray[3]);
-    debugger;
     expect(response).have.lengthOf(15);
   });
 
@@ -976,7 +975,7 @@ describe('Breadcrumb Class', function() {
   });
 });
 
-describe('integration tests', function() {
+describe('integration tests, no special modes', function() {
   var sandbox,
       fixtureContainer,
       breadcrumbsEl;
@@ -997,7 +996,6 @@ describe('integration tests', function() {
     Polymer.dom.flush();
     window.setTimeout(function() {
       var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
-      debugger;
       expect(items).to.have.lengthOf(13);
       expect(items[0].innerText.trim()).to.eql('1 This is a very long string with more than 16 characters');
       expect(items[2].innerText.trim()).to.eql('2 This is a very long string with more than 16 characters');
@@ -1016,7 +1014,6 @@ describe('integration tests', function() {
     Polymer.dom.flush();
     window.setTimeout(function() {
         var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
-        debugger;
         expect(items).to.have.lengthOf(13);
         expect(items[0].innerText.trim()).to.eql('1 This...acters');
         expect(items[2].innerText.trim()).to.eql('2 This...acters');
@@ -1034,8 +1031,7 @@ describe('integration tests', function() {
     breadcrumbsEl.notifyResize();
     Polymer.dom.flush();
     window.setTimeout(function() {
-      var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
-      debugger;
+      var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem'); 
       expect(items).to.have.lengthOf(13);
       expect(items[0].innerText.trim()).to.eql('1 This...acters');
       expect(items[2].innerText.trim()).to.eql('2 This...acters');
@@ -1054,7 +1050,6 @@ describe('integration tests', function() {
     Polymer.dom.flush();
     window.setTimeout(function() {
       var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
-      debugger;
       expect(items).to.have.lengthOf(7);
       expect(items[0].innerText.trim()).to.eql('...');
       expect(items[2].innerText.trim()).to.eql('5 This...acters');
@@ -1070,7 +1065,6 @@ describe('integration tests', function() {
     Polymer.dom.flush();
     window.setTimeout(function() {
       var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
-      debugger;
       expect(items).to.have.lengthOf(5);
       expect(items[0].innerText.trim()).to.eql('...');
       expect(items[2].innerText.trim()).to.eql('6 This...acters');
@@ -1085,7 +1079,6 @@ describe('integration tests', function() {
     Polymer.dom.flush();
     window.setTimeout(function() {
       var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
-      debugger;
       expect(items).to.have.lengthOf(3);
       expect(items[0].innerText.trim()).to.eql('...');
       expect(items[2].innerText.trim()).to.eql('7 This is a very long string with more than 16 characters');
@@ -1099,7 +1092,6 @@ describe('integration tests', function() {
     Polymer.dom.flush();
     window.setTimeout(function() {
       var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
-      debugger;
       expect(items).to.have.lengthOf(3);
       expect(items[0].innerText.trim()).to.eql('...');
       expect(items[2].innerText.trim()).to.eql('7 This...acters');
@@ -1107,5 +1099,164 @@ describe('integration tests', function() {
     },100);
   });
 
+  it('checks that the dropdown is visible when the first top path item is clicked, and counts the number of items in the dropdown', function(done) {
+    fixtureContainer.style.width = '2820px';
+    breadcrumbsEl.notifyResize();
+    Polymer.dom.flush();
+    window.setTimeout(function() {
+      var topPathItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem'),
+        dropdown = Polymer.dom(breadcrumbsEl.root).querySelector('.breadCrumbDropdown'),
+        dropdownItems;
+    
+      expect(breadcrumbsEl._isDropdownHidden).to.be.true;
+      topPathItems[0].click();
+      Polymer.dom.flush();
+      expect(breadcrumbsEl._isDropdownHidden).to.be.false;
+
+      dropdownItems = Polymer.dom(dropdown).querySelectorAll('.dropdownItem');
+      
+      expect(dropdownItems).to.have.lengthOf(3); //it's 3, and not 2 because of the hidden results LI
+      done();
+    },100);
+  });
+
+  it('checks the the top path changes when an item with no siblings is clicked', function(done) {
+    fixtureContainer.style.width = '2820px';
+    breadcrumbsEl.notifyResize();
+    Polymer.dom.flush();
+    window.setTimeout(function() {
+      var topPathItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
+
+      expect(topPathItems).to.have.lengthOf(13);
+
+      topPathItems[2].click();
+      Polymer.dom.flush();
+      topPathItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
+      
+      expect(topPathItems).to.have.lengthOf(3);
+      done();
+    },100);
+  });
+
+  it('checks that a dropdown item click changes the top Path items length', function(done) {
+    fixtureContainer.style.width = '2820px';
+    breadcrumbsEl.notifyResize();
+    Polymer.dom.flush();
+
+    window.setTimeout(function() {
+      var topPathItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem'),
+          dropdownItems;
+
+      expect(topPathItems).to.have.lengthOf(13);
+      
+      topPathItems[4].click();
+      Polymer.dom.flush();
+
+      dropdownItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.dropdownItem');
+
+      dropdownItems[0].click();
+      Polymer.dom.flush();
+      
+      topPathItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
+
+      expect(topPathItems).to.have.lengthOf(5);
+      done();
+    },100);
+  });
+  
+  it('checks that a dropdown item click from an overflow changes the top Path items length', function(done) {
+    fixtureContainer.style.width = '640px';
+    breadcrumbsEl.notifyResize();
+    Polymer.dom.flush();
+
+    window.setTimeout(function() {
+      var topPathItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem'),
+          dropdownItems;
+          
+      expect(topPathItems).to.have.lengthOf(3);
+
+      topPathItems[0].click();
+      Polymer.dom.flush();
+
+      dropdownItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.dropdownItem');
+
+      dropdownItems[0].click();
+      Polymer.dom.flush();
+      
+      topPathItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
+
+      expect(topPathItems).to.have.lengthOf(1);
+      done()
+    },100);
+  });
+});
+
+describe('integration tests, Click Only Mode', function(done) {
+  var sandbox,
+      fixtureContainer,
+      breadcrumbsEl;
+
+  beforeEach(function () {
+    fixtureContainer = fixture('breadcrumbsFixtureWithDataAndWidthAndClickOnly');
+    breadcrumbsEl = fixtureContainer.querySelector('px-breadcrumbs');
+    sandbox = sinon.sandbox.create();
+  });
+
+  afterEach(function () {
+    sandbox.restore();
+  });
+
+  it('checks that the top Path Item length changes when an item is clicked', function(done) {
+    fixtureContainer.style.width = '2820px';
+    breadcrumbsEl.notifyResize();
+    Polymer.dom.flush();
+
+    window.setTimeout(function() {
+      var topPathItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
+      
+      expect(topPathItems).to.have.lengthOf(13);
+
+      topPathItems[0].click();
+      Polymer.dom.flush();
+
+      topPathItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
+      expect(topPathItems).to.have.lengthOf(1);
+      done();
+    },100);
+  });
+});
+
+describe('integration tests, filter Mode', function(done) {
+  var sandbox,
+      fixtureContainer,
+      breadcrumbsEl;
+
+  beforeEach(function () {
+    fixtureContainer = fixture('breadcrumbsFixtureWithDataAndWidthAndFilter');
+    breadcrumbsEl = fixtureContainer.querySelector('px-breadcrumbs');
+    sandbox = sinon.sandbox.create();
+  });
+
+  afterEach(function () {
+    sandbox.restore();
+  });
+
+  it('checks that the opened dropdown has the filter showing.', function(done) {
+    fixtureContainer.style.width = '2820px';
+    breadcrumbsEl.notifyResize();
+    Polymer.dom.flush();
+
+    window.setTimeout(function() {
+      var filter = Polymer.dom(breadcrumbsEl.root).querySelector('.filter'),
+          topPathItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem'),
+          breadcrumbDropdown = Polymer.dom(breadcrumbsEl.root).querySelector('.breadCrumbDropdown'),
+          dropdown = Polymer.dom(breadcrumbsEl.root).querySelector('.breadCrumbDropdown');
+
+      topPathItems[0].click();
+      Polymer.dom.flush();
+      expect(filter).to.exist;
+      done();
+    },100);
+  });
 });
 }
