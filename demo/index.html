@@ -24,9 +24,9 @@
     <!-- Header -->
     <px-demo-header
         module-name="px-breadcrumbs"
-        description="Breadcrumb dropdown displays the navigational path of the user through a context browser. 
-The breadcrumb links provide a way to see the path of navigation or contextual relationship between objects. 
-It also provides a quick way to navigate backwards within a path or within a specific context.">
+        description="Breadcrumb dropdown displays the navigational path of the user through a context browser.
+        The breadcrumb links provide a way to see the path of navigation or contextual relationship between objects.
+        It also provides a quick way to navigate backwards within a path or within a specific context.">
     </px-demo-header>
 
     <!-- Interactive -->
@@ -40,7 +40,7 @@ It also provides a quick way to navigate backwards within a path or within a spe
       <!-- Component ---------------------------------------------------------->
       <px-demo-component style="width: 100%">
         <px-breadcrumbs
-          breadcrumb-data="[[props.breadcrumbsData.value]]" 
+          breadcrumb-data="[[props.breadcrumbsData.value]]"
           click-only-mode="{{props.clickOnlyMode.value}}"
           filter-mode="{{props.filterMode.value}}">
         </px-breadcrumbs>
@@ -54,9 +54,7 @@ It also provides a quick way to navigate backwards within a path or within a spe
     </px-demo-interactive>
 
     <!-- API Viewer -->
-    <px-demo-api-viewer source="px-breadcrumbs"
-      hide='["notifyResize", "resizerShouldNotify", "stopResizeNotificationsFor", "assignParentResizable"]'
-    ></px-demo-api-viewer>
+    <px-demo-api-viewer source="px-breadcrumbs" hide='["notifyResize", "resizerShouldNotify", "stopResizeNotificationsFor", "assignParentResizable"]'></px-demo-api-viewer>
 
     <!-- Footer -->
     <px-demo-footer></px-demo-footer>
@@ -198,7 +196,7 @@ It also provides a quick way to navigate backwards within a path or within a spe
               configReset: true },
             {
              configName: "Click Only Mode",
-             clickOnlyMode: true 
+             clickOnlyMode: true
             },
             {
               configName: "Filter Mode",
@@ -217,7 +215,7 @@ It also provides a quick way to navigate backwards within a path or within a spe
       type: Object,
       defaultValue: [
             {
-            "text":"1 This is a very long string with more than 16 characters", 
+            "text":"1 This is a very long string with more than 16 characters",
             "hasChildren":true,
             "children": [
               {"text": "2 This is a very long string with more than 16 characters",
@@ -226,13 +224,13 @@ It also provides a quick way to navigate backwards within a path or within a spe
                   {"text": "3.a.i"},
                   {"text": "3.b.i"},
                   {"text": "3.c.i"},
-                  {"text":"3 This is a very long string with more than 16 characters", 
+                  {"text":"3 This is a very long string with more than 16 characters",
                     "hasChildren": true,
                     "children": [
                       {"text": "4.a.i"},
                       {"text": "4.b.i"},
                       {"text": "4.c.i"},
-                      {"text":"4 This is a very long string with more than 16 characters", 
+                      {"text":"4 This is a very long string with more than 16 characters",
                         "hasChildren":true,
                         "children": [
                           {"text": "5 This is a very long string with more than 16 characters",
@@ -241,13 +239,13 @@ It also provides a quick way to navigate backwards within a path or within a spe
                               {"text": "6.a.i"},
                               {"text": "6.b.i"},
                               {"text": "6.c.i"},
-                              {"text":"6 This is a very long string with more than 16 characters", 
+                              {"text":"6 This is a very long string with more than 16 characters",
                                 "hasChildren": true,
                                 "children": [
                                   {"text": "7.a.i"},
                                   {"text": "7.b.i"},
                                   {"text": "7.c.i"},
-                                  {"text":"7 This is a very long string with more than 16 characters", 
+                                  {"text":"7 This is a very long string with more than 16 characters",
                                     "selectedItem": true}
                                 ]},
                               {"text": "6.b"},
