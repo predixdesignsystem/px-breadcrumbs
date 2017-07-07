@@ -1,8 +1,8 @@
-#px-breadcrumbs
+# px-breadcrumbs
 
 ## Overview
 
-px-breadcrumbs is a Predix UI component
+Px-breadcrumbs displays the navigational path of the user through a context browser.
 
 ## Usage
 
