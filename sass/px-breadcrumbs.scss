@@ -57,11 +57,11 @@ $inuit-enable-input--regular : true;
   cursor:pointer;
   background-color: $gray2;
   //this captures both the text and the icons
-  &:hover span>iron-icon, &:hover {
+  &:hover span>px-icon, &:hover {
     color: $primary-default;
   }
   //this captures both the text and the icons
-  &:active, span>iron-icon {
+  &:active, span>px-icon {
     color: $primary-pressed;
   }
   &:last-of-type {
@@ -71,13 +71,13 @@ $inuit-enable-input--regular : true;
   &.opened {
     background-color: $white;
   }
-  span.rightAngle>iron-icon {
+  span.rightAngle>px-icon {
     margin-top: calculateRem(17px);
   }
 }
 
 .downChevron {
-  iron-icon {
+  px-icon {
     height: 0.7rem;
     width: 0.7rem;
     color: gray;
@@ -85,7 +85,7 @@ $inuit-enable-input--regular : true;
   }
 }
 .rightAngle {
-  iron-icon {
+  px-icon {
     height: 1rem;
     width: 1rem;
     color: gray;
@@ -103,7 +103,7 @@ $inuit-enable-input--regular : true;
   box-shadow: 0 1px 3px 0 rgba(0,0,0,0.20);
   background-color: $white;
   white-space: nowrap;
-  li {   
+  li {
     list-style-type: none;
     cursor: pointer;
     &:hover {

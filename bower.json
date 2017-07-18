@@ -26,8 +26,9 @@
   ],
   "dependencies": {
     "polymer": "^1.9.0",
-    "px-polymer-font-awesome": "^2.0.0",
-    "iron-resizable-behavior": "^2.0.0"
+    "px-icon-set": "^2.0.0",
+    "iron-resizable-behavior": "^2.0.0",
+    "px-app-helpers": "^1.0.0"
   },
   "devDependencies": {
     "px-theme": "^3.0.0",

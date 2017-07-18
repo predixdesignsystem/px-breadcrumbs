@@ -25,7 +25,7 @@
 
     <p class="notElement">hello</p>
     <style include="px-theme-styles" is="custom-style"></style>
-    
+
     <test-fixture id="breadcrumbsFixture">
       <template>
        <px-breadcrumbs></px-breadcrumbs>
@@ -34,134 +34,134 @@
 
     <test-fixture id="breadcrumbsFixtureWithData">
       <template>
-       <px-breadcrumbs breadcrumb-data='[
+       <px-breadcrumbs items='[
             {
-            "text":"1 This is a very long string with more than 16 characters", 
-            "hasChildren":true,
+            "label":"1 This is a very long string with more than 16 characters",
+            "id":"id1",
             "children": [
-              {"text": "2 This is a very long string with more than 16 characters",
-                "hasChildren": true,
+              {"label":"2 This is a very long string with more than 16 characters",
+                "id":"id2",
                 "children": [
-                  {"text": "3.a.i"},
-                  {"text": "3.b.i"},
-                  {"text": "3.c.i"},
-                  {"text":"3 This is a very long string with more than 16 characters", 
-                    "hasChildren": true,
+                  {"label": "3.a.i"},
+                  {"label": "3.b.i"},
+                  {"label": "3.c.i"},
+                  {"label":"3 This is a very long string with more than 16 characters",
+                    "id":"id3",
                     "children": [
-                      {"text": "4.a.i"},
-                      {"text": "4.b.i"},
-                      {"text": "4.c.i"},
-                      {"text":"4 This is a very long string with more than 16 characters", 
-                        "hasChildren":true,
+                      {"label": "4.a.i"},
+                      {"label": "4.b.i"},
+                      {"label": "4.c.i"},
+                      {"label":"4 This is a very long string with more than 16 characters",
+                        "id":"id4",
                         "children": [
-                          {"text": "5 This is a very long string with more than 16 characters",
-                            "hasChildren": true,
+                          {"label":"5 This is a very long string with more than 16 characters",
+                            "id":"id5",
                             "children": [
-                              {"text": "6.a.i"},
-                              {"text": "6.b.i"},
-                              {"text": "6.c.i"},
-                              {"text":"6 This is a very long string with more than 16 characters", 
-                                "hasChildren": true,
+                              {"label": "6.a.i"},
+                              {"label": "6.b.i"},
+                              {"label": "6.c.i"},
+                              {"label":"6 This is a very long string with more than 16 characters",
+                                "id":"id6",
                                 "children": [
-                                  {"text": "7.a.i"},
-                                  {"text": "7.b.i"},
-                                  {"text": "7.c.i"},
-                                  {"text":"7 This is a very long string with more than 16 characters", 
-                                    "selectedItem": true}
+                                  {"label": "7.a.i"},
+                                  {"label": "7.b.i"},
+                                  {"label": "7.c.i"},
+                                  {"label":"7 This is a very long string with more than 16 characters",
+                                   "id":"id7"}
                                 ]},
-                              {"text": "6.b"},
-                              {"text": "6.c"}
+                              {"label": "6.b"},
+                              {"label": "6.c"}
                             ]},
-                          {"text": "5.b"},
-                          {"text": "5.c"}
+                          {"label": "5.b"},
+                          {"label": "5.c"}
                           ]
                         },
-                      {"text": "4.d.i"},
-                      {"text": "4.e.i"},
-                      {"text": "4.f.i"},
-                      {"text": "4.g.i"},
-                      {"text": "4.i.i"},
-                      {"text": "4.j.i"},
-                      {"text": "4.k.i"},
-                      {"text": "4.l.i"},
-                      {"text": "4.m.i"},
-                      {"text": "4.n.i"},
-                      {"text": "4.o.i"}
+                      {"label": "4.d.i"},
+                      {"label": "4.e.i"},
+                      {"label": "4.f.i"},
+                      {"label": "4.g.i"},
+                      {"label": "4.i.i"},
+                      {"label": "4.j.i"},
+                      {"label": "4.k.i"},
+                      {"label": "4.l.i"},
+                      {"label": "4.m.i"},
+                      {"label": "4.n.i"},
+                      {"label": "4.o.i"}
                       ]
                     }
                   ]
                 }
               ]
             },
-            {"text": "1.a"}
-          ]'></px-breadcrumbs>
+            {"label": "1.a"}
+          ]' selected-route='["id1","id2","id3","id4","id5","id6","id7"]'></px-breadcrumbs>
       </template>
     </test-fixture>
 
     <test-fixture id="breadcrumbsFixtureWithDataAndWidth">
       <template>
         <div>
-       <px-breadcrumbs breadcrumb-data='[
+       <px-breadcrumbs items='[
             {
-            "text":"1 This is a very long string with more than 16 characters", 
-            "hasChildren":true,
+            "label":"1 This is a very long string with more than 16 characters",
+            "id":"id1",
             "children": [
-              {"text": "2 This is a very long string with more than 16 characters",
-                "hasChildren": true,
+              {"label":"2 This is a very long string with more than 16 characters",
+                "id":"id2",
                 "children": [
-                  {"text": "3.a.i"},
-                  {"text": "3.b.i"},
-                  {"text": "3.c.i"},
-                  {"text":"3 This is a very long string with more than 16 characters", 
-                    "hasChildren": true,
+                  {"label": "3.a.i"},
+                  {"label": "3.b.i"},
+                  {"label": "3.c.i"},
+                  {"label":"3 This is a very long string with more than 16 characters",
+                    "id":"id3",
                     "children": [
-                      {"text": "4.a.i"},
-                      {"text": "4.b.i"},
-                      {"text": "4.c.i"},
-                      {"text":"4 This is a very long string with more than 16 characters", 
-                        "hasChildren":true,
+                      {"label": "4.a.i"},
+                      {"label": "4.b.i"},
+                      {"label": "4.c.i"},
+                      {"label":"4 This is a very long string with more than 16 characters",
+                        "id":"id4",
                         "children": [
-                          {"text": "5 This is a very long string with more than 16 characters",
-                            "hasChildren": true,
+                          {"label":"5 This is a very long string with more than 16 characters",
+                            "id":"id5",
                             "children": [
-                              {"text": "6.a.i"},
-                              {"text": "6.b.i"},
-                              {"text": "6.c.i"},
-                              {"text":"6 This is a very long string with more than 16 characters", 
-                                "hasChildren": true,
+                              {"label": "6.a.i"},
+                              {"label": "6.b.i"},
+                              {"label": "6.c.i"},
+                              {"label":"6 This is a very long string with more than 16 characters",
+                                "id":"id6",
                                 "children": [
-                                  {"text": "7.a.i"},
-                                  {"text": "7.b.i"},
-                                  {"text": "7.c.i"},
-                                  {"text":"7 This is a very long string with more than 16 characters", 
-                                    "selectedItem": true}
+                                  {"label": "7.a.i"},
+                                  {"label": "7.b.i"},
+                                  {"label": "7.c.i"},
+                                  {"label":"7 This is a very long string with more than 16 characters",
+                                   "id":"id7"}
                                 ]},
-                              {"text": "6.b"},
-                              {"text": "6.c"}
+                              {"label": "6.b"},
+                              {"label": "6.c"}
                             ]},
-                          {"text": "5.b"},
-                          {"text": "5.c"}
+                          {"label": "5.b"},
+                          {"label": "5.c"}
                           ]
                         },
-                      {"text": "4.d.i"},
-                      {"text": "4.e.i"},
-                      {"text": "4.f.i"},
-                      {"text": "4.g.i"},
-                      {"text": "4.i.i"},
-                      {"text": "4.j.i"},
-                      {"text": "4.k.i"},
-                      {"text": "4.l.i"},
-                      {"text": "4.m.i"},
-                      {"text": "4.n.i"},
-                      {"text": "4.o.i"}
+                      {"label": "4.d.i"},
+                      {"label": "4.e.i"},
+                      {"label": "4.f.i"},
+                      {"label": "4.g.i"},
+                      {"label": "4.i.i"},
+                      {"label": "4.j.i"},
+                      {"label": "4.k.i"},
+                      {"label": "4.l.i"},
+                      {"label": "4.m.i"},
+                      {"label": "4.n.i"},
+                      {"label": "4.o.i"}
                       ]
                     }
                   ]
                 }
               ]
             },
-            {"text": "1.a"}
-          ]'></px-breadcrumbs>
+            {"label": "1.a"}
+          ]' selected-route='["id1","id2","id3","id4","id5","id6","id7"]'></px-breadcrumbs>
         </div>
       </template>
     </test-fixture>
@@ -169,67 +169,67 @@
     <test-fixture id="breadcrumbsFixtureWithDataAndWidthAndClickOnly">
       <template>
         <div>
-       <px-breadcrumbs click-only-mode breadcrumb-data='[
+       <px-breadcrumbs click-only-mode items='[
             {
-            "text":"1 This is a very long string with more than 16 characters", 
-            "hasChildren":true,
+            "label":"1 This is a very long string with more than 16 characters",
+            "id":"id1",
             "children": [
-              {"text": "2 This is a very long string with more than 16 characters",
-                "hasChildren": true,
+              {"label":"2 This is a very long string with more than 16 characters",
+                "id":"id2",
                 "children": [
-                  {"text": "3.a.i"},
-                  {"text": "3.b.i"},
-                  {"text": "3.c.i"},
-                  {"text":"3 This is a very long string with more than 16 characters", 
-                    "hasChildren": true,
+                  {"label": "3.a.i"},
+                  {"label": "3.b.i"},
+                  {"label": "3.c.i"},
+                  {"label":"3 This is a very long string with more than 16 characters",
+                    "id":"id3",
                     "children": [
-                      {"text": "4.a.i"},
-                      {"text": "4.b.i"},
-                      {"text": "4.c.i"},
-                      {"text":"4 This is a very long string with more than 16 characters", 
-                        "hasChildren":true,
+                      {"label": "4.a.i"},
+                      {"label": "4.b.i"},
+                      {"label": "4.c.i"},
+                      {"label":"4 This is a very long string with more than 16 characters",
+                        "id":"id4",
                         "children": [
-                          {"text": "5 This is a very long string with more than 16 characters",
-                            "hasChildren": true,
+                          {"label":"5 This is a very long string with more than 16 characters",
+                            "id":"id5",
                             "children": [
-                              {"text": "6.a.i"},
-                              {"text": "6.b.i"},
-                              {"text": "6.c.i"},
-                              {"text":"6 This is a very long string with more than 16 characters", 
-                                "hasChildren": true,
+                              {"label": "6.a.i"},
+                              {"label": "6.b.i"},
+                              {"label": "6.c.i"},
+                              {"label":"6 This is a very long string with more than 16 characters",
+                                "id":"id6",
                                 "children": [
-                                  {"text": "7.a.i"},
-                                  {"text": "7.b.i"},
-                                  {"text": "7.c.i"},
-                                  {"text":"7 This is a very long string with more than 16 characters", 
-                                    "selectedItem": true}
+                                  {"label": "7.a.i"},
+                                  {"label": "7.b.i"},
+                                  {"label": "7.c.i"},
+                                  {"label":"7 This is a very long string with more than 16 characters",
+                                   "id":"id7"}
                                 ]},
-                              {"text": "6.b"},
-                              {"text": "6.c"}
+                              {"label": "6.b"},
+                              {"label": "6.c"}
                             ]},
-                          {"text": "5.b"},
-                          {"text": "5.c"}
+                          {"label": "5.b"},
+                          {"label": "5.c"}
                           ]
                         },
-                      {"text": "4.d.i"},
-                      {"text": "4.e.i"},
-                      {"text": "4.f.i"},
-                      {"text": "4.g.i"},
-                      {"text": "4.i.i"},
-                      {"text": "4.j.i"},
-                      {"text": "4.k.i"},
-                      {"text": "4.l.i"},
-                      {"text": "4.m.i"},
-                      {"text": "4.n.i"},
-                      {"text": "4.o.i"}
+                      {"label": "4.d.i"},
+                      {"label": "4.e.i"},
+                      {"label": "4.f.i"},
+                      {"label": "4.g.i"},
+                      {"label": "4.i.i"},
+                      {"label": "4.j.i"},
+                      {"label": "4.k.i"},
+                      {"label": "4.l.i"},
+                      {"label": "4.m.i"},
+                      {"label": "4.n.i"},
+                      {"label": "4.o.i"}
                       ]
                     }
                   ]
                 }
               ]
             },
-            {"text": "1.a"}
-          ]'></px-breadcrumbs>
+            {"label": "1.a"}
+          ]' selected-route='["id1","id2","id3","id4","id5","id6","id7"]'></px-breadcrumbs>
         </div>
       </template>
     </test-fixture>
@@ -237,67 +237,67 @@
     <test-fixture id="breadcrumbsFixtureWithDataAndWidthAndFilter">
       <template>
         <div>
-       <px-breadcrumbs filter-mode breadcrumb-data='[
+       <px-breadcrumbs filter-mode items='[
             {
-            "text":"1 This is a very long string with more than 16 characters", 
-            "hasChildren":true,
+            "label":"1 This is a very long string with more than 16 characters",
+            "id":"id1",
             "children": [
-              {"text": "2 This is a very long string with more than 16 characters",
-                "hasChildren": true,
+              {"label":"2 This is a very long string with more than 16 characters",
+                "id":"id2",
                 "children": [
-                  {"text": "3.a.i"},
-                  {"text": "3.b.i"},
-                  {"text": "3.c.i"},
-                  {"text":"3 This is a very long string with more than 16 characters", 
-                    "hasChildren": true,
+                  {"label": "3.a.i"},
+                  {"label": "3.b.i"},
+                  {"label": "3.c.i"},
+                  {"label":"3 This is a very long string with more than 16 characters",
+                    "id":"id3",
                     "children": [
-                      {"text": "4.a.i"},
-                      {"text": "4.b.i"},
-                      {"text": "4.c.i"},
-                      {"text":"4 This is a very long string with more than 16 characters", 
-                        "hasChildren":true,
+                      {"label": "4.a.i"},
+                      {"label": "4.b.i"},
+                      {"label": "4.c.i"},
+                      {"label":"4 This is a very long string with more than 16 characters",
+                        "id":"id4",
                         "children": [
-                          {"text": "5 This is a very long string with more than 16 characters",
-                            "hasChildren": true,
+                          {"label":"5 This is a very long string with more than 16 characters",
+                            "id":"id5",
                             "children": [
-                              {"text": "6.a.i"},
-                              {"text": "6.b.i"},
-                              {"text": "6.c.i"},
-                              {"text":"6 This is a very long string with more than 16 characters", 
-                                "hasChildren": true,
+                              {"label": "6.a.i"},
+                              {"label": "6.b.i"},
+                              {"label": "6.c.i"},
+                              {"label":"6 This is a very long string with more than 16 characters",
+                                "id":"id6",
                                 "children": [
-                                  {"text": "7.a.i"},
-                                  {"text": "7.b.i"},
-                                  {"text": "7.c.i"},
-                                  {"text":"7 This is a very long string with more than 16 characters", 
-                                    "selectedItem": true}
+                                  {"label": "7.a.i"},
+                                  {"label": "7.b.i"},
+                                  {"label": "7.c.i"},
+                                  {"label":"7 This is a very long string with more than 16 characters",
+                                   "id":"id7"}
                                 ]},
-                              {"text": "6.b"},
-                              {"text": "6.c"}
+                              {"label": "6.b"},
+                              {"label": "6.c"}
                             ]},
-                          {"text": "5.b"},
-                          {"text": "5.c"}
+                          {"label": "5.b"},
+                          {"label": "5.c"}
                           ]
                         },
-                      {"text": "4.d.i"},
-                      {"text": "4.e.i"},
-                      {"text": "4.f.i"},
-                      {"text": "4.g.i"},
-                      {"text": "4.i.i"},
-                      {"text": "4.j.i"},
-                      {"text": "4.k.i"},
-                      {"text": "4.l.i"},
-                      {"text": "4.m.i"},
-                      {"text": "4.n.i"},
-                      {"text": "4.o.i"}
+                      {"label": "4.d.i"},
+                      {"label": "4.e.i"},
+                      {"label": "4.f.i"},
+                      {"label": "4.g.i"},
+                      {"label": "4.i.i"},
+                      {"label": "4.j.i"},
+                      {"label": "4.k.i"},
+                      {"label": "4.l.i"},
+                      {"label": "4.m.i"},
+                      {"label": "4.n.i"},
+                      {"label": "4.o.i"}
                       ]
                     }
                   ]
                 }
               ]
             },
-            {"text": "1.a"}
-          ]'></px-breadcrumbs>
+            {"label": "1.a"}
+          ]' selected-route='["id1","id2","id3","id4","id5","id6","id7"]'></px-breadcrumbs>
         </div>
       </template>
     </test-fixture>

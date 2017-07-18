@@ -4,19 +4,20 @@
     'gulp serve' (or similar server setup) to enable correct finding of bower dependencies for local runs.
 -->
 <link rel="import" href="../polymer/polymer.html"/>
-<link rel="import" href="../px-polymer-font-awesome/px-icon-set.html"/>
+<link rel="import" href="../px-icon-set/px-icon-set.html"/>
+<link rel="import" href="../px-icon-set/px-icon.html"/>
 <link rel="import" href="../px-dropdown/px-dropdown.html"/>
 <link rel="import" href="css/px-breadcrumbs-styles.html">
 <link rel="import" href="../iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../px-app-helpers/px-app-asset/px-app-asset-behavior-graph.html"/>
+<link rel="import" href="../px-app-helpers/px-app-asset/px-app-asset-behavior-selectable.html"/>
+<link rel="import" href="../px-app-helpers/px-app-asset/px-app-asset-behavior-activatable.html"/>
 
 <!--
-Breadcrumb dropdown displays the navigational path of the user through a context browser.
-The breadcrumb links provide a way to see the path of navigation or contextual relationship between objects.
-It also provides a quick way to navigate backwards within a path or within a specific context.
 
 ### Usage
 
-    <px-breadcrumbs breadcrumbs-data="[[breadscrumbsData]]"></px-breadcrumbs>
+    <px-breadcrumbs items="[[items]]"></px-breadcrumbs>
 
 @element px-breadcrumbs
 @blurb Breadcrumb drop down displays the navigational path of the user through a context browser.
@@ -34,15 +35,15 @@ It also provides a quick way to navigate backwards within a path or within a spe
         <template is="dom-repeat" items="[[_mainPathItems]]">
           <template is="dom-if" if="{{_isNotFirstItemInData(index, _mainPathItems)}}">
             <li class="breadcrumbTopItem">
-              <span class="rightAngle"><iron-icon icon="px:chevron-right"></iron-icon></span>
+              <span class="rightAngle"><px-icon icon="pxm:next"></px-icon></span>
             </li>
           </template>
-          <li data-text="[[item.text]]" data-item="[[item]]" data-index="[[index]]" class$="breadcrumbTopItem u-ph- u-pv flex--middle {{_calculatePathItemClass(item, _clickPathItem)}}" on-tap="_onPathTap">
+          <li data-text="[[item.label]]" data-item="[[item]]" data-index="[[index]]" class$="breadcrumbTopItem u-ph- u-pv flex--middle {{_calculatePathItemClass(item, _clickPathItem)}}" on-tap="_onPathTap">
             <span>
-              [[item.text]]
+              [[item.label]]
               <template is="dom-if" if="{{!_isClickOnlyModeAndNotOverflow(item, clickOnlyMode)}}">
                 <template is="dom-if" if="{{_doesItemHaveSiblings(item)}}">
-                  <span class="downChevron u-pl--"><iron-icon icon="px:chevron-down"></iron-icon></span>
+                  <span class="downChevron u-pl--"><px-icon icon="pxs:chevron"></px-icon></span>
                 </template>
               </template>
             </span>
@@ -58,14 +59,14 @@ It also provides a quick way to navigate backwards within a path or within a spe
               <input type="text" placeholder="Filter" class="text-input" value="{{_filterString::input}}" id="filter">
             </div>
             <div class="filterIcon">
-              <iron-icon icon="px:filter"></iron-icon>
+              <px-icon icon="pxs:filter"></px-icon>
             </div>
           </div>
         </template>
 
         <ul class="flex flex--col dropdownList">
           <template is="dom-repeat" items="[[_clickedItemChildren]]" filter="{{_filterSiblings(_filterString)}}" on-dom-change="_onDomChange" id="dropdownListDomRepeat">
-            <li data-text="[[item.text]]" on-tap="_dropdownTap" class$="u-pv-- u-ph- dropdownItem {{_calculateDropdownItemClass(item)}}">[[item.text]]</li>
+            <li data-text="[[item.label]]" on-tap="_dropdownTap" class$="u-pv-- u-ph- dropdownItem {{_calculateDropdownItemClass(item)}}">[[item.label]]</li>
           </template>
           <li hidden$=[[_hideNoResultLi]] class="u-pv-- u-ph- dropdownItem">No Results Found</li>
         </ul>
