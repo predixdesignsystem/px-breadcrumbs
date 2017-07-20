@@ -17,7 +17,6 @@
 
 
 // Settings
-@import "px-colors-design/_settings.colors.scss";
 
 // Tools
 
@@ -28,96 +27,48 @@
 
 // Base
 @import "px-flexbox-design/_base.flexbox.scss";
-@import "px-viewport-design/_base.viewport.scss";
-$inuit-enable-input--regular : true;
-@import "px-forms-design/_base.forms.scss";
 
+// Meta
+
+// Objects
+@import "px-actionable-design/_objects.actionable.scss";
+@import "px-shadows-design/_objects.shadows.scss";
+
+// Component
+
+.container {
+  white-space: nowrap;
+  overflow: hidden;
+}
 .container ul {
   margin: 0;
   padding: 0;
   max-height: calculateRem(45px);
   max-width:100%;
 }
-// Meta
-
-// Objects
-
-// Component
-
-.container {
-  background-color: $gray2;
-  white-space: nowrap;
-  box-shadow: 0 1px 1px 0 rgba(0,0,0,0.30);
-  padding: 0 calculateRem(20px) 0 calculateRem(10px);
-  overflow:hidden;
-}
 .breadcrumbTopItem {
   list-style-type: none;
-  max-height: calculateRem(45px);
-  cursor:pointer;
-  background-color: $gray2;
-  //this captures both the text and the icons
-  &:hover span>px-icon, &:hover {
-    color: $primary-default;
-  }
-  //this captures both the text and the icons
-  &:active, span>px-icon {
-    color: $primary-pressed;
-  }
+  height: 2rem;
   &:last-of-type {
     font-weight: 600;
-    color: $black;
   }
-  &.opened {
-    background-color: $white;
+  span.rightAngle.small {
+    // Waiting for Ken to add chevron-right
+    // > px-icon {
+    //   --iron-icon-height: 1rem;
+    //   --iron-icon-width: 1rem;
+    // }
+    font-size: 2rem;
+    color: var(--px-breadcrumbs-chevron-color, gray);
   }
-  span.rightAngle>px-icon {
-    margin-top: calculateRem(17px);
-  }
-}
-
-.downChevron {
-  px-icon {
-    height: 0.7rem;
-    width: 0.7rem;
-    color: gray;
-    font-weight: 100;
-  }
-}
-.rightAngle {
-  px-icon {
-    height: 1rem;
-    width: 1rem;
-    color: gray;
-  }
-}
-
-.breadCrumbDropdown {
-  max-height: calculateRem(360px);
-  min-width: calculateRem(200px);
-  overflow-y: hidden;
-  list-style-type: none;
-  margin: 0;
-  padding-top: calculateRem(7px);
-  position: absolute;
-  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.20);
-  background-color: $white;
-  white-space: nowrap;
-  li {
-    list-style-type: none;
-    cursor: pointer;
-    &:hover {
-      background-color: $gray1;
-      color: $gray15;
-    }
-    &.selected {
-      color: $white;
-      background-color: blue;
-    }
-  }
-  ul {
-    margin: 0;
-    padding: 0;
+  span.rightAngle.large {
+    // Waiting for Ken to add chevron-right
+    // > px-icon {
+    //   --iron-icon-height: 1rem;
+    //   --iron-icon-width: 1rem;
+    // }
+    font-size: 2rem;
+    color: var(--px-breadcrumbs-chevron-color, gray);
   }
 }
 
@@ -126,34 +77,12 @@ $inuit-enable-input--regular : true;
   display: flex;
   flex-direction: row;
 }
-.dropdownList {
-  overflow-y: auto;
-  max-height: calculateRem(360px);
-}
 
-.filterIcon {
-  color: $gray8;
-}
-
-.dropdownItem {
-  min-height: calculateRem(30px);
-  &.highlighted {
-    background-color: $select-default;
-    color: $white;
-  }
-}
 // Trumps
 //because of the low specificity of hidden, we have to add this:
 //PolymerElements/iron-flex-layout#86.
 [hidden] {
   display: none !important;
 }
-$inuit-enable-margins--small : true;
-$inuit-enable-paddings : true;
-$inuit-enable-paddings--tiny : true;
 $inuit-enable-paddings--small : true;
-$inuit-enable-paddings--large : true;
 @import "px-spacing-design/_trumps.spacing.scss";
-@import "inuit-clearfix/_trumps.clearfix.scss";
-@import "px-spacing-responsive-design/_trumps.spacing-responsive.scss";
-@import "px-widths-responsive-design/_trumps.widths-responsive.scss";

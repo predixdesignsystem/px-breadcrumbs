@@ -6,14 +6,13 @@
     behaviors: [
       PxAppBehavior.AssetGraph,
       PxAppBehavior.AssetSelectable,
-      PxAppBehavior.AssetActivatable,
       Polymer.IronResizableBehavior
     ],
 
     properties: {
       /**
-       * This property holds the dynamically generated items (full or shortened, depending on the display options) that are used for the dom repeat,
-       * which draws the main path items. It is read only and can ONLY be changed by the _rebuildBreadcrumbsDisplayOptions function to make sure it's not changed anywhere else.
+       * This property holds the dynamically generated items (full or shortened, depending on the display options)
+       * that are used for the dom repeat that draws the main path items.
        */
       _mainPathItems: {
         type: Array,
@@ -21,7 +20,7 @@
         readOnly: true
       },
       /**
-       * This property holds the latest clicked top path item.
+       * This property holds the latest clicked main path item.
        */
       _clickPathItem: {
         type: Object,
@@ -33,17 +32,10 @@
        */
       _clickedItemChildren: {
         type: Array,
-        value: function() {return [];},
+        value: function() { return []; }
       },
       /**
-       * This Property is used to determine whether the dropdown is hidden or shown.
-       */
-      _isDropdownHidden: {
-        type: Boolean,
-        value: true
-      },
-      /**
-       * This property holds the currently selectedItem. We start out with no value to avoid have it run through an empty object.
+       * This property holds the currently selected item. We start out with no value to avoid have it run through an empty object.
        */
       _selectedItem: {
         type: Object
@@ -72,201 +64,124 @@
        */
       clickOnlyMode: {
         type: Boolean,
-        value: false
+        value: false,
+        observer: '_getBreadcrumbsObj'
       },
-      filterMode: {
+      searchMode: {
         type: Boolean,
         value: false
-      },
-      _filterString: {
-        type: String,
-        value: ''
       },
       _hideNoResultLi: {
         type: Boolean,
         value: true
+      },
+      _breadcrumbsObj: {
+        type: Object
       }
     },
 
     listeners: {
       'iron-resize': '_onResize',
-      'px-app-asset-selected': '_onSelect'
+      'px-app-asset-selected': '_onSelect',
+      'px-dropdown-selection-changed': '_dropdownTap',
+      'px-app-asset-graph-created': '_getBreadcrumbsObj'
     },
     observers: [
-      '_rebuildBreadcrumbsDisplayOptions(_selectedItemPath, _ulWidth)'
-      ],
+      '_getDisplayMode(_ulWidth, _selectedItemPath, _breadcrumbsObj)'
+    ],
     attached() {
-      document.addEventListener('click', this._onCaptureClick.bind(this));
+      this.fire('iron-resize');
     },
     detached() {
-      document.removeEventListener('click', this._onCaptureClick.bind(this));
       if (this.isDebouncerActive('windowResize')) this.cancelDebouncer('windowResize');
     },
     /**
-     * This method is called everytime the dom-repeat in the dropdown list is rendered.
-     * it checks whether there are results (more than just the dom-repeat template, and the hidden LI),
-     * and if there are only 2, changes the _hideNoResultLI to false, showing the "no results found" LI
-     */
-    _onDomChange() {
-      //find the dropdown
-      var dropdownListItemCount = Polymer.dom(this.root).querySelector('#dropdownListDomRepeat').renderedItemCount;
-      //check if there are only 2 elements - which means no results
-      if (!dropdownListItemCount) {
-        //if so, show the no results li by setting this to false
-       this.set('_hideNoResultLi', false);
-      } else {
-        //we have results, make sure the "no results" LI is hidden
-        this.set('_hideNoResultLi', true);
-      }
-    },
-    /**
-     * This method is called by the dom-repeat filter in the dropdown - it checks the item to see if the search string
-     * is in the item - Polymer wants a function returned with a property for the item.
-     * @param {String} _filterString the typed in filter string
-     */
-    _filterSiblings(_filterString) {
-      //no value? send it back.
-      if (!_filterString) return false;
-      //convert our string to lowercase
-      _filterString = _filterString.toLowerCase();
-      //Polymer wants a function returned
-      return function(item) {
-        //make sure we are looking at the full text, not the shortened text by searching the text in the original item, if it exists.
-        item = item.source ? item.source : item;
-        return item.label.toLowerCase().indexOf(_filterString) > -1;
-      }
-    },
-    /**
-     * This method captures all clicks, and determines where they come from, and whether the dropdown needs to be closed.
-     * @param {Object} evt
-     */
-    _onCaptureClick(evt) {
-      //we look through the path to see if the click came anywhere from inside our component by filtering anything that isn't PX-BREADCRUMBS
-      var normalizedEvent = Polymer.dom(evt),
-          filteredPathList =  normalizedEvent.path.filter((evtPathItem) => {
-        return evtPathItem.nodeName === "PX-BREADCRUMBS";
-      });
-
-      //then we check to see if the length is empty - if it is, that means the click did NOT come from inside our component, which makes it an outside click.
-      if (!filteredPathList.length){
-        //if it's an outside click and the dropdown is open, we want to close it.
-        if (!this._isDropdownHidden) {
-          this._closeDropdown();
-        }
-      }
-    },
-    /**
-     * This method checks whether the item that was passed in is the same one that is registered as the clicked one, and
-     * if so, returns the 'opened' class.
-     * @param {Object} pathItem the item we are checking the class for
-     */
-    _calculatePathItemClass(pathItem) {
-      pathItem = pathItem.source ? pathItem.source : pathItem;
-      return (this._clickPathItem === pathItem) ? 'opened': '';
-    },
-    /**
-     * This method is called by iron-resize. It hides/clears out the dropdown menu, and gets the container size to start the display options process.
+     * Called by iron-resize. Determines the container size.
      */
     _onResize() {
-      this.set('_isDropdownHidden', true);
-      this.set('_clickPathItem', {});
-      this.set('_clickedItemChildren', []);
-      this._getContainerSize();
-    },
-    /**
-     * This method is called on initial page load, and on every page resize
-     * to find the width of the container after a draw. we have an observer on _ulWidth that rebuilds the display options automatically.
-     */
-    _getContainerSize() {
       this.debounce('windowResize', () => {
         window.requestAnimationFrame(() => {
           var breadcrumbsContainer = Polymer.dom(this.root).querySelector('.container'),
               breadcrumbsUlContainer = Polymer.dom(breadcrumbsContainer).querySelector('ul'),
               bcUlContainerRect = breadcrumbsUlContainer.getBoundingClientRect();
-
-          this.set('_ulWidth', bcUlContainerRect.width + 4); //the 4 is for the padding (2px on each side) on the ul.
+          this.set('_ulWidth', bcUlContainerRect.width);
         });
-      },10);
-
+      },50);
     },
-    /*
-    * in this method, we decide on the display options for the breadcrumbs.
-    * we have the following options:
-    * 1. nothing needs to be shortened.
-    * 2. we can shorten all but the last one
-    * 2. we can shorten all including the last one
-    * 3. we can shorten all of them, and include the overflow at the beginning of the array. the last one is NOT shortened by default, but can be shortened as needed.
-    * @param {array} strArray an array of objects, which contains the breadcrumbs
-    */
-    _rebuildBreadcrumbsDisplayOptions() {
-
+    _getBreadcrumbsObj() {
       var itemPath = this._selectedItemPath || [],
           graph = this._assetGraph,
-          _ulWidth = this._ulWidth;
-
-      if (!itemPath.length || !graph || !_ulWidth) return;
-
-      var breadcrumbsObj = new window.pxBreadcrumbs.Breadcrumbs(itemPath, graph);
-
-        /*
-        * option 1
-        * we check to see if the container (which is sized automatically to fill out the page)
-        * can fit all the items in the breadcrumbs.
-        * the first option is the simpliest one - everything just fits, but if it doesn't fit...
-        */
-        if (_ulWidth > breadcrumbsObj.sizeOfFullBreadcrumbs) {
-          //everything fits, no need to shorten anything
-          this._set_mainPathItems(itemPath);
-          return;
-        }
-
-        /*
-        * option 2
-        * we want to find out if the container can now fit all the
-        * shortened items + the last Item that wasn't shortened
-        */
-        if (_ulWidth > breadcrumbsObj.sizeOfAllShortenedItemsExcludingLastItem + breadcrumbsObj.sizeOfFullLastItem) {
-
-          let strArrayShortenedWithFullLastItem = breadcrumbsObj.allShortenedItemsExcludingLast.concat(breadcrumbsObj.lastItemFull);
-          this._set_mainPathItems(strArrayShortenedWithFullLastItem);
-          return;
-        }
-
-        /*
-        * option 3
-        * we check if we can fit after we've shortened all the items
-        */
-        if (_ulWidth > breadcrumbsObj.sizeOfAllShortenedItems) {
-          let strArrayShortened = breadcrumbsObj.shortenedItems;
-
-          this._set_mainPathItems(strArrayShortened);
-          return;
-        }
-
-        /*
-        * option 4
-        * we have to create an array with overflow.
-        * we only get to this if non of the if statements above are true.
-        */
-
-        this._set_mainPathItems(this._createArrayWithOverflow(itemPath, _ulWidth, breadcrumbsObj));
-
+          clickOnlyMode = this.clickOnlyMode;
+      if (!itemPath.length || !graph) return;
+      this.set('_breadcrumbsObj', new window.pxBreadcrumbs.Breadcrumbs(graph, clickOnlyMode, itemPath));
     },
     /*
-    * this method is called once we've established that we need to have an
-    * array with overflow.
-    * we keep removing the size of items - starting from the beginning of the array -
-    * from the total size of all the items, until we can fit everything + the last item that isn't shortened
-    * into the container.
-    * @param {Array} strArray the array that holds the breadcrumbs
-    * @param {number} _ulWidth the width of the ul container
+    * In this method, we decide on the display options for the breadcrumbs. We have the following options:
+    * 1. Nothing needs to be shortened.
+    * 2. Shorten all but the last one.
+    * 3. Shorten all, including the last one.
+    * 4. Shorten all of them, and include the overflow at the beginning of the array.
+    *    The last one is NOT shortened by default, but can be shortened as needed.
+    */
+    _getDisplayMode() {
+
+      var ulWidth = this._ulWidth,
+          itemPath = this._selectedItemPath || [],
+          breadcrumbsObj = this._breadcrumbsObj;
+
+      if (!ulWidth || !itemPath || !breadcrumbsObj) return;
+
+      /*
+      * Option 1:
+      * Check to see if the container (which is sized automatically to fill out the page)
+      * can fit all the items in the breadcrumbs.
+      */
+      if (ulWidth > breadcrumbsObj.sizeOfFullBreadcrumbs) {
+        this._set_mainPathItems(itemPath);
+        return;
+      }
+
+      /*
+      * Option 2:
+      * Find out if the container can now fit all the
+      * shortened items, plus the last item that wasn't shortened.
+      */
+      if (ulWidth > breadcrumbsObj.sizeOfAllShortenedItemsExcludingLastItem + breadcrumbsObj.sizeOfFullLastItem) {
+        let strArrayShortenedWithFullLastItem = breadcrumbsObj.allShortenedItemsExcludingLast.concat(breadcrumbsObj.lastItemFull);
+        this._set_mainPathItems(strArrayShortenedWithFullLastItem);
+        return;
+      }
+
+      /*
+      * Option 3:
+      * Check if can fit after shortening all the items.
+      */
+      if (ulWidth > breadcrumbsObj.sizeOfAllShortenedItems) {
+        let strArrayShortened = breadcrumbsObj.shortenedItems;
+        this._set_mainPathItems(strArrayShortened);
+        return;
+      }
+
+      /*
+      * Option 4:
+      * Not all of the shortened options will fit. Have to create an array with overflow.
+      */
+      this._set_mainPathItems(this._createArrayWithOverflow(itemPath, ulWidth, breadcrumbsObj));
+
+    },
+
+    /*
+    * Called once it's established that we need to have an array with overflow.
+    * Keep removing the size of each item - starting from the beginning of the array -
+    * from the total size of all the items, until we can fit everything, plus the last item that
+    * isn't shortened into the container.
     */
     _createArrayWithOverflow(strArray, _ulWidth, breadcrumbsObj) {
 
       var pointer = 0,
           currentAccumSize = breadcrumbsObj.sizeOfAllShortenedItemsExcludingLastItem,
           sizeOfFullLastItem = breadcrumbsObj.sizeOfFullLastItem,
-          sizeOfEllipsis = breadcrumbsObj.sizeOfEllipsis,
+          sizeOfEllipsis = 16,
           noRoomForFullLastItem = false,
           lastItem = {},
           overflowObj = {"label": "...", "hasChildren": true},
@@ -278,7 +193,7 @@
         // while loop, to ensure the last items doesn't go into the overflow object.
         if (pointer === strArray.length-1) {
           noRoomForFullLastItem = true;
-          break
+          break;
         }
         //get the size of the item we are placing into the overflow
         var removedSize = breadcrumbsObj._sizeOfIndividualShortItem(strArray[pointer]);
@@ -287,8 +202,6 @@
         //and make sure to manually change our pointer.
         pointer++;
       }
-
-
 
       //create the overflow object, and populate its children with the shortened strings (if necessary)
       overflowObj.children = strArray.slice(0, pointer);
@@ -309,101 +222,58 @@
 
     },
     /**
-     * This function is used to determine whether we are on the first Item in the array - used by a dom-if to check
-     * if we should display the right angle (we should display it on all but the first one)
-     * @param {Number} index the index of the item
+     * This function is used to determine whether we are on the first item in the array - used by a dom-if to check
+     * if we should display the right angle icon.
      */
     _isNotFirstItemInData(index) {
       return index !== 0;
     },
-
-    /**
-     * This method is used to determine where the path click came from - we have 3 different options,
-     * 1. the text
-     * 2. the down chevron
-     * 3. The side chevron
-     * but we really want the encompossing LI, regardless of what was clicked.
-     * the two icons have a _iconsetName property that is 'fa' so we use that to determine if they were clicked,
-     * and if so, grab their parent, which is the LI.
-     * @param {*} evt the event generated by the user tap
-     */
-    _normalizePathClickTarget(evt) {
-      return (evt.target._iconsetName === 'fa') ? evt.target.parentNode.parentNode : evt.target;
-    },
     _onSelect(evt) {
       this._set_selectedItemPath(evt.detail.path);
+      this._getBreadcrumbsObj();
     },
     /**
      * This function checks whether the item in question has siblings.
-     * if the item is an overflow item, we return a false, since it's not going to be in the graph anyway.
-     * @param {*} itemInPath
+     * If the item is an overflow item, we return a false, since it's not going to be in the graph anyway.
      */
     _doesItemHaveSiblings(itemInPath) {
       var graph = this._assetGraph,
           source = itemInPath.source ? itemInPath.source : itemInPath,
           isItemOverflow = itemInPath.label === '...' ? true : false;
 
-      return (!isItemOverflow)  ? graph.hasSiblings(source) : false;
+      return isItemOverflow  ? true : graph.hasSiblings(source);
     },
     /**
-     *
-     * we consider a dropdown tap an event that changes the path.
-     * We make sure to pass the correct item into the graph by using the source property,
-     * after we hide the dropdown and reset the last clicked item.
-     *
-     * @param {Object} evt the click event from the dropdown item clicked
+     * Handles tap events in the dropdown. Checks each item against the currently selected item.
      */
     _dropdownTap(evt) {
-      var newSelectItem = evt.model.item.source ? evt.model.item.source : evt.model.item;
-
-      //this hides the dropdown
-      this._closeDropdown();
+      var newSelectItem = {};
+      evt.target.items.forEach(function(item) {
+        if(item.id === evt.target.selected) {
+          newSelectItem = item;
+        }
+      });
       this._changePathFromClick(newSelectItem);
     },
     /**
-     * This event is fired whenever a click occurs - from a top path item, or dropdown item -
-     * that changes the context. The new context is attached as 'item'
-     * @event px-breadcrumbs-item-changed
-     */
-    /**
-     * This method sets the _selectedItem to the item that was clicked - whether from the main path items, or the dropdown items
-     * this is the only place we change _selectedItem on click.
+     * Sets the _selectedItem to the item that was clicked - whether from the main path items, or the dropdown items.
+     * This is the only place we change _selectedItem on click.
      */
     _changePathFromClick(item) {
       this.select(item);
       this.fire('px-breadcrumbs-item-changed', item);
-    },
-    /**
-     * This method is called every time we want the dropdown closed.
-     */
-    _closeDropdown() {
-        this.set('_isDropdownHidden', true);
-        this.set('_clickedItemChildren', []);
-        this.set('_clickPathItem', {});
-        if (this.filterMode) this._resetFilter();
-    },
-    /**
-     * this sets the value of _filterStrin to an empty string, emptying out the filter field.
-     * needed for the dropdown is closed, or moves to another path item.
-     */
-    _resetFilter() {
-      this.set('_filterString','');
-    },
-    /**
-     * The dropdown list contains the item that's in the top path - we want to highlight that item by returning the
-     * highlighted class on the ones where highlighted is true.
-     * @param {Object} item
-     */
-    _calculateDropdownItemClass(item) {
-      return (item.highlighted) ? 'highlighted' : '';
+      /**
+       * This event is fired whenever a click occurs - from a top path item, or dropdown item -
+       * that changes the context. The new context is attached as 'item'
+       * @event px-breadcrumbs-item-changed
+       */
     },
     /*
-    * on tap, we need to find out if the clicked item is the same as before.
-    * if it is, we empty our the dropdown, hide it, and clear the _clickPathItem (the last item clicked).
-    * if it is not the same item that was previously clicked, we save the new clicked item into _clickPathItem
-    * set the siblings according to the item, show the dropdown and adjust the positioning for it.
-    * sometimes, a top path item has no siblings, at which point we treat the click like a dropdown click - which is to say
-    * we change the path accordingly.
+    * On tap, we need to find out if the clicked item is the same as before.
+    * If it is, we empty out the dropdown, hide it, and clear the _clickPathItem (the last item clicked).
+    * If it is not the same item that was previously clicked, we save the new clicked item into _clickPathItem and
+    * set the siblings according to the item. Sometimes, a top path item has no siblings, at which point we treat
+    * the click like a dropdown click - which is to say, we change the path accordingly.
     */
     _onPathTap(evt) {
       var dataItem = evt.model.item.source ? evt.model.item.source : evt.model.item;
@@ -411,16 +281,8 @@
 
       //if the click only mode is on, just change the path
       if (this.clickOnlyMode && !isClickedItemOverflow) {
-        //in case the overflow menu is open
-        this._closeDropdown();
         //and change our path.
         this._changePathFromClick(dataItem);
-        return;
-      }
-
-      //if the item that is clicked is the open option, hide the dropdown, and reset the _clickPathItem object.
-      if (this._clickPathItem === dataItem) {
-        this._closeDropdown();
         return;
       }
 
@@ -433,74 +295,54 @@
         var graph = this._assetGraph,
             siblings = !isClickedItemOverflow ? graph.getSiblings(dataItem) : dataItem.children;
 
-        //if the item is the same as the dataItem, we want to highlight it.
-        // we also want to make sure any previous highlighting is removed.
-        siblings = siblings.map((sibling) => {
-          sibling.highlighted = false;
-          if (sibling === dataItem) {
-            sibling.highlighted = true;
-          }
-          return sibling;
+        // Need to map the id and label to key and val for use in px-dropdown
+        var siblingsCopy = siblings.map((sibling) => {
+          return Object.assign({}, sibling, {"key": sibling.id, "val": sibling.label});
         });
-
-        if (this.filterMode) this._resetFilter();
-
-        this.set('_clickedItemChildren', siblings);
+        this.set('_clickedItemChildren', siblingsCopy);
         this.set('_clickPathItem', dataItem);
-        this._changeDropdownPosition(evt);
-        this.set('_isDropdownHidden', false);
 
       // the clicked item has no siblings - we reset the contents of the dropdown
       // and change the path accordingly.
     } else {
-        this._closeDropdown(); //just in case a dropdown is open.
         this.set('_clickedItemChildren', []);
         this._changePathFromClick(dataItem);
       }
     },
     /**
-     * the dropdown is dynamically positioned - we find out the top and left of the clicked item,
-     * and position the dropdown accordingly.
-     * @param {Object} positioning an object which holds the new positioning for the dropdown
+     * These three methods are used to determine which type of node to render.
+     * Returns true if clickOnlyMode is turned on and its not the overflow node.
      */
-    _changeDropdownPosition(evt) {
-      var normalizedTarget = this._normalizePathClickTarget(evt),
-          targetRect = normalizedTarget.getBoundingClientRect(),
-          targetLeft = targetRect.left,
-          targetBottom = targetRect.bottom,
-          targetHeight = targetRect.height,
-          windowScrollX = window.scrollX || window.pageXOffset,
-          windowScrollY = window.scrollY || window.pageYOffset,
-          dropdown = Polymer.dom(this.root).querySelector('.breadCrumbDropdown');
-      //IE11 doesn't like style.left or style.top, so i'm using cssText, which works everywhere. Thanks IE.
-      dropdown.style.cssText ="top:" +  (targetBottom + windowScrollY + 12) + "px;" + " left: " + (targetLeft + windowScrollX - 10) + "px"; //remember to add the padding to push it down, and rememeber to subtract the padding from the left
-
+    _isLabel(item, clickOnlyMode) {
+      return (clickOnlyMode && item.label !== "...") || (!clickOnlyMode && !this._doesItemHaveSiblings(item));
     },
     /**
-     * This method dispatches a custom event ('px-breadcrumbs-item-clicked') that has the item attached to it.
-     * the 'composed: true' property makes it so the event passes through shadow dom boundaries.
-     * @param {*} item the item that was clicked on.
+     * These three methods are used to determine which type of node to render.
+     * Returns true if clickOnlyMode is turned off and its not the overflow node.
      */
-    _notifyClick(item) {
-      this.fire('px-breadcrumbs-item-clicked', {item: item, composed: true});
+    _isDropdown(item, clickOnlyMode) {
+      return !clickOnlyMode && item.label !== "..." && this._doesItemHaveSiblings(item);
     },
     /**
-     * This method returns the status of the filter-mode
+     * These three methods are used to determine which type of node to render.
+     * Returns true if this is the overflow node.
      */
-    _isFilteredMode() {
-      return this.filterMode;
+    _isOverflow(item) {
+      return item.label === "...";
     },
     /**
-     * This method returns the status of the click-only-mode
+     * Determines whether to display small or large chevrons based on whether
+     * `clickOnlyMode` is enabled.
      */
-    _isClickOnlyModeAndNotOverflow(item) {
-      return this.clickOnlyMode && item.label !== "...";
+    _getSeparatorSize(clickOnlyMode) {
+      return this.clickOnlyMode ? 'small' : 'large';
     }
   });
 
   class Breadcrumbs {
-    constructor(breadcrumbs = [], graph) {
+    constructor(graph, clickOnlyMode, breadcrumbs = []) {
       this.graph = graph;
+      this.clickOnlyMode = clickOnlyMode;
       this.breadcrumbs = breadcrumbs;
       this.map = new WeakMap();
       this.ctx = this._createCanvas();
@@ -509,45 +351,45 @@
     }
 
     /**
-     * a getter that returns the size of the breadcrumb items - unshortened.
-     * it checks to see if it has a value, and if so, returns the cached one, so we don't have to calculate the value again.
+     * A getter that returns the size of the breadcrumb items - at full length.
+     * It checks to see if it has a value, and if so, returns the cached one, so we don't have to calculate the value again.
      */
     get sizeOfFullBreadcrumbs() {
       this.__sizeOfFullBreadcrumbs = this.__sizeOfFullBreadcrumbs || this._calculateSizeOfBreadcrumbs(this.breadcrumbs);
       return this.__sizeOfFullBreadcrumbs;
     }
     /**
-     * a getter that returns the short size of the breadcrumb items excluding the last item.
+     * A getter that returns the short size of the breadcrumb items excluding the last item.
      */
     get sizeOfAllShortenedItemsExcludingLastItem() {
       return this._calculateSizeOfBreadcrumbs(this.breadcrumbs.slice(0, this.breadcrumbs.length-1), false);
     }
     /**
-     * a getter that returns the size of the full last item
+     * A getter that returns the size of the full last item.
      */
     get sizeOfFullLastItem() {
       return this._calculateSizeOfBreadcrumbs(this.breadcrumbs.slice(-1));
     }
     /**
-     * a getter that returns the size of the short last item
+     * A getter that returns the size of the short last item.
      */
     get sizeOfShortLastItem() {
       return this._calculateSizeOfBreadcrumbs(this.breadcrumbs.slice(-1), false);
     }
     /**
-     * a getter that returns the last item in the breadcrumb array.
+     * A getter that returns the last item in the breadcrumb array.
      */
     get lastItemFull() {
       return this.breadcrumbs.slice(-1)[0];
     }
     /**
-     * a getter that returns the short version of the last item in the breadcrumbs array.
+     * A getter that returns the short version of the last item in the breadcrumbs array.
      */
     get lastItemShort() {
       return this.shortenedItems.slice(-1)[0];
     }
     /**
-     * a getter that returns an array of all the shortened items in the breadcrumbs array
+     * A getter that returns an array of all the shortened items in the breadcrumbs array.
      */
     get shortenedItems() {
       this.__shortenedItems = this.__shortenedItems ||  this.breadcrumbs.map((item) => {
@@ -563,26 +405,25 @@
       return this.__shortenedItems;
     }
     /**
-     * a getter that returns the size - in pixels - of the overflow ellipsis
+     * A getter that returns the size - in pixels - of the overflow ellipsis.
      */
     get sizeOfEllipsis() {
-      return parseInt(this.ctx.measureText('...').width,10)
+      return 36;
     }
     /**
-     * a getter that returns the size - in pixels - of all the shortened breadcrumbs items
+     * A getter that returns the size - in pixels - of all the shortened breadcrumbs items.
      */
     get sizeOfAllShortenedItems() {
       return this._calculateSizeOfBreadcrumbs(this.breadcrumbs, false);
     }
     /**
-     * a getter that returns the size - in pixels - of all the shortened breadcrumbs items excluding the last item
+     * A getter that returns the size - in pixels - of all the shortened breadcrumbs items excluding the last item.
      */
     get allShortenedItemsExcludingLast() {
       return this.shortenedItems.slice(0, this.shortenedItems.length -1);
     }
     /**
-     * This method adds the item that is passed in to the weakMap if it is not already there.
-     * @param {Object} item an item from the breadcrumbs array that is being added to the weakMap
+     * Adds the item that is passed in to the weakMap if it is not already there.
      */
     _addToWeakMap(item) {
       const cachedItem = this.map.get(item) || null;
@@ -591,9 +432,8 @@
       }
     }
     /**
-     * This method is called when the class is instantiated. it loops through all the passed in items, and calls the _getShortenedText method on
+     * Called when the class is instantiated. it loops through all the passed in items, and calls the _getShortenedText method on
      * each item.
-     * @param {Array} items an array of breadcrumbs items
      */
     _preShortenItems(items) {
       for (let item of items) {
@@ -601,9 +441,8 @@
       }
     }
     /**
-     * This method returns the shortened version of the text in the item that is passed in, as well as add it into the map.
-     * it checks for a cached version before it sets it.
-     * @param {Object} item a breadcrumb Item
+     * Returns the shortened version of the text in the item that is passed in, as well as add it into the map.
+     * Checks for a cached version before it sets it.
      */
     _getShortenedText(item) {
       const cachedItem = this.map.get(item) || {};
@@ -617,10 +456,8 @@
       return cachedItem.shortText;
     }
     /**
-     *
-     * This method returns the size - in pixels - of the full size of the text in the passed in item, as well as add that info into the map.
-     * it checks for a cached version before setting this value
-     * @param {Object} item a breadcrumb Item
+     * Returns the size - in pixels - of the full size of the text in the passed in item, as well as add that info into the map.
+     * Checks for a cached version before setting this value
      */
     _sizeOfIndividualFullItem(item) {
       const cachedItem = this.map.get(item) || {};
@@ -629,10 +466,8 @@
       return cachedItem.fullSize;
     }
     /**
-     *
-     * This method returns the size - in pixels - of the short size of the text in the passed in item, as well as add that info into the map.
-     * it checks for a cached version before setting this value
-     * @param {Object} item a breadcrumb Item
+     * Returns the size - in pixels - of the short size of the text in the passed in item, as well as add that info into the map.
+     * Checks for a cached version before setting this value
      */
     _sizeOfIndividualShortItem(item) {
       const cachedItem = this.map.get(item) || {};
@@ -641,13 +476,9 @@
       return cachedItem.shortSize;
     }
     /**
-     *
-     * This method loops through the passed in array, and gets the size - in pixels - of all the items
-     * the size can be determined in either short or full text.
-     * it takes into account the size of the iron icons, as well as padding on each item, and padding on the container.
-     *
-     * @param {Array} strArray an array of the items we need the size calculated on.
-     * @param {Boolean} useFullSize this determines whether the full size is measured, or the short size.
+     * Loops through the passed in array, and gets the size - in pixels - of all the items.
+     * The size can be determined in either short or full text.
+     * It takes into account the size of the px-icons, as well as padding on each item, and padding on the container.
      */
     _calculateSizeOfBreadcrumbs(strArray, useFullSize=true) {
       if (strArray) {
@@ -667,24 +498,23 @@
           //add the size of the of the item into our accumulator
           accum += sizeOfItem;
           //if the item has siblings, we need to add the size of the down chevron.
-          if (strArray[i].label !== "..." && this.graph.hasSiblings(source)) {
-            accum += 16;
+          if (strArray[i].label !== "..." && this.graph.hasSiblings(source) && !this.clickOnlyMode) {
+            accum += 21;
           }
           //padding on each item (10 on each side)
           accum += 20;
 
           //right angle arrow - the last item doesn't get a right angle.
           if (i !== len-1){
-            accum += 15;
+            accum += 16;
           }
         }
-
-        return accum;
+        return accum + 10; // extra padding somewhere? slight miscalculation?
       }
     }
     /**
-     * This method creates/returns the canvas that we will use to measure the size of the text.
-     * we also set the font and font size.
+     * Creates/returns the canvas that we will use to measure the size of the text.
+     * We also set the font and font size.
      */
     _createCanvas() {
       const canvas = document.createElement('canvas');
@@ -696,7 +526,7 @@
       ctx.font = "15px GE Inspira Sans";
       return ctx;
     }
-  };
+  }
 
   window.pxBreadcrumbs = {};
   window.pxBreadcrumbs.Breadcrumbs = Breadcrumbs;

@@ -77,14 +77,17 @@
         type: Array,
         value: function(){
           return [
-            { configName: "Default",
-              configReset: true },
             {
-             configName: "Click Only Mode",
-             clickOnlyMode: true
+              configName: "Default",
+              configReset: true
+            },
+            {
+              configName: "Click Only Mode",
+              clickOnlyMode: true
             },
             {
               configName: "Filter Mode",
+              clickOnlyMode: false,
               filterMode: true
             }
           ]
@@ -103,58 +106,86 @@
               {"label": "2 This string is not as long",
                 "id":"id2",
                 "children": [
-                  {"label": "3.a.i"},
-                  {"label": "3.b.i"},
-                  {"label": "3.c.i"},
+                  {"label": "3.a.i",
+                    "id": "id3.a.i"},
+                  {"label": "3.b.i",
+                    "id": "id3.b.i"},
+                  {"label": "3.c.i",
+                    "id": "id3.c.i"},
                   {"label":"3 This string",
                     "id":"id3",
                     "children": [
-                      {"label": "4.a.i"},
-                      {"label": "4.b.i"},
-                      {"label": "4.c.i"},
+                      {"label": "4.a.i",
+                       "id": "id4.a.i"},
+                      {"label": "4.b.i",
+                       "id": "id4.b.i"},
+                      {"label": "4.c.i",
+                       "id": "id4.c.i"},
                       {"label":"4",
                         "id":"id4",
                         "children": [
                           {"label": "5",
                             "id":"id5",
                             "children": [
-                              {"label": "6.a.i"},
-                              {"label": "6.b.i"},
-                              {"label": "6.c.i"},
+                              {"label": "6.a.i",
+                               "id": "id6.a.i"},
+                              {"label": "6.b.i",
+                               "id": "id6.b.i"},
+                              {"label": "6.c.i",
+                               "id": "id6.c.i"},
                               {"label":"6",
                                 "id":"id6",
                                 "children": [
-                                  {"label": "7.a.i"},
-                                  {"label": "7.b.i"},
-                                  {"label": "7.c.i"},
-                                  {"label":"7",
+                                  {"label": "7.a.i",
+                                   "id": "id7.a.i"},
+                                  {"label": "7.b.i",
+                                   "id": "id7.b.i"},
+                                  {"label": "7.c.i",
+                                   "id": "id7.c.i"},
+                                  {"label":"7 This string is the last one",
                                    "id":"id7"}
                                 ]},
-                              {"label": "6.b"},
-                              {"label": "6.c"}
+                              {"label": "6.b",
+                               "id": "id6.b"},
+                              {"label": "6.c",
+                               "id": "id6.c"}
                             ]},
-                          {"label": "5.b"},
-                          {"label": "5.c"}
+                          {"label": "5.b",
+                           "id": "id5.b"},
+                          {"label": "5.c",
+                           "id": "id5.c"}
                           ]
                         },
-                      {"label": "4.d.i"},
-                      {"label": "4.e.i"},
-                      {"label": "4.f.i"},
-                      {"label": "4.g.i"},
-                      {"label": "4.i.i"},
-                      {"label": "4.j.i"},
-                      {"label": "4.k.i"},
-                      {"label": "4.l.i"},
-                      {"label": "4.m.i"},
-                      {"label": "4.n.i"},
-                      {"label": "4.o.i"}
+                      {"label": "4.d.i",
+                       "id": "id4.d.i"},
+                      {"label": "4.e.i",
+                       "id": "id4.e.i"},
+                      {"label": "4.f.i",
+                       "id": "id4.f.i"},
+                      {"label": "4.g.i",
+                       "id": "id4.g.i"},
+                      {"label": "4.i.i",
+                       "id": "id4.i.i"},
+                      {"label": "4.j.i",
+                       "id": "id4.j.i"},
+                      {"label": "4.k.i",
+                       "id": "id4.k.i"},
+                      {"label": "4.l.i",
+                       "id": "id4.l.i"},
+                      {"label": "4.m.i",
+                       "id": "id4.m.i"},
+                      {"label": "4.n.i",
+                       "id": "id4.n.i"},
+                      {"label": "4.o.i",
+                       "id": "id4.o.i"}
                       ]
                     }
                   ]
                 }
               ]
             },
-            {"label": "1.a"}
+            {"label": "1.a",
+             "id": "id1.a"}
           ],
       inputType: 'code:JSON'
     },

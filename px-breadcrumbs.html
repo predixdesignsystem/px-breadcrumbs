@@ -11,7 +11,6 @@
 <link rel="import" href="../iron-resizable-behavior/iron-resizable-behavior.html">
 <link rel="import" href="../px-app-helpers/px-app-asset/px-app-asset-behavior-graph.html"/>
 <link rel="import" href="../px-app-helpers/px-app-asset/px-app-asset-behavior-selectable.html"/>
-<link rel="import" href="../px-app-helpers/px-app-asset/px-app-asset-behavior-activatable.html"/>
 
 <!--
 
@@ -33,43 +32,24 @@ It also provides a quick way to navigate backwards within a path or within a spe
     <div class="container flex">
       <ul class="topPath">
         <template is="dom-repeat" items="[[_mainPathItems]]">
-          <template is="dom-if" if="{{_isNotFirstItemInData(index, _mainPathItems)}}">
-            <li class="breadcrumbTopItem">
-              <span class="rightAngle"><px-icon icon="pxm:next"></px-icon></span>
+          <template is="dom-if" if="[[_isNotFirstItemInData(index, _mainPathItems)]]">
+            <li class="breadcrumbTopItem flex flex--middle">
+              <span class$="rightAngle [[_getSeparatorSize(clickOnlyMode)]]"><!--<px-icon icon="px-nav:next"></px-icon>-->&gt;</span>
             </li>
           </template>
-          <li data-text="[[item.label]]" data-item="[[item]]" data-index="[[index]]" class$="breadcrumbTopItem u-ph- u-pv flex--middle {{_calculatePathItemClass(item, _clickPathItem)}}" on-tap="_onPathTap">
-            <span>
-              [[item.label]]
-              <template is="dom-if" if="{{!_isClickOnlyModeAndNotOverflow(item, clickOnlyMode)}}">
-                <template is="dom-if" if="{{_doesItemHaveSiblings(item)}}">
-                  <span class="downChevron u-pl--"><px-icon icon="pxs:chevron"></px-icon></span>
-                </template>
-              </template>
-            </span>
+          <li data-text="[[item.label]]" data-item="[[item]]" data-index="[[index]]" class="breadcrumbTopItem u-ph- flex flex--row flex--middle" on-tap="_onPathTap">
+            <template is="dom-if" if="[[_isLabel(item, clickOnlyMode)]]">
+              <span class="actionable actionable--action">[[item.label]]</span>
+            </template>
+            <template is="dom-if" if="[[_isDropdown(item, clickOnlyMode)]]">
+              <px-dropdown display-value="[[item.label]]" items="[[_clickedItemChildren]]" search-mode="[[filterMode]]" button-style="bare" disable-clear></px-dropdown>
+            </template>
+            <template is="dom-if" if="[[_isOverflow(item)]]">
+              <px-dropdown id="dropdown" items="[[_clickedItemChildren]]" button-style="icon" icon="px-nav:more"></px-dropdown>
+            </template>
           </li>
         </template>
       </ul>
-      </div>
-      <!-- the dropdown ul - starts out hidden -->
-      <div hidden$="[[_isDropdownHidden]]" class="breadCrumbDropdown flex flex--col">
-        <template is="dom-if" if="{{_isFilteredMode(filterMode)}}">
-          <div class="filter u-mv- u-ph- flex">
-            <div style="width:93%">
-              <input type="text" placeholder="Filter" class="text-input" value="{{_filterString::input}}" id="filter">
-            </div>
-            <div class="filterIcon">
-              <px-icon icon="pxs:filter"></px-icon>
-            </div>
-          </div>
-        </template>
-
-        <ul class="flex flex--col dropdownList">
-          <template is="dom-repeat" items="[[_clickedItemChildren]]" filter="{{_filterSiblings(_filterString)}}" on-dom-change="_onDomChange" id="dropdownListDomRepeat">
-            <li data-text="[[item.label]]" on-tap="_dropdownTap" class$="u-pv-- u-ph- dropdownItem {{_calculateDropdownItemClass(item)}}">[[item.label]]</li>
-          </template>
-          <li hidden$=[[_hideNoResultLi]] class="u-pv-- u-ph- dropdownItem">No Results Found</li>
-        </ul>
       </div>
 
 
