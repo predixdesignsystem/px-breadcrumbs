@@ -41,7 +41,7 @@
         <px-breadcrumbs
           items="[[props.items.value]]"
           click-only-mode="{{props.clickOnlyMode.value}}"
-          filter-mode="{{props.filterMode.value}}"
+          search-mode="{{props.searchMode.value}}"
           selected-route='["id1","id2","id3","id4","id5","id6","id7"]'>
         </px-breadcrumbs>
       </px-demo-component>
@@ -54,7 +54,7 @@
     </px-demo-interactive>
 
     <!-- API Viewer -->
-    <px-demo-api-viewer source="px-breadcrumbs" hide='["active","activeMeta","activeRoute","selected","selectedMeta","selectedRoute","multiActivate","multiSelect","activate","deactivate","select","deselect","addChildren","px-app-asset-activated","px-app-asset-selected","notifyResize", "resizerShouldNotify", "stopResizeNotificationsFor", "assignParentResizable"]'></px-demo-api-viewer>
+    <px-demo-api-viewer source="px-breadcrumbs" hide='["active","activeMeta","activeRoute","selectedMeta","multiActivate","multiSelect","activate","deactivate","select","deselect","addChildren","px-app-asset-activated","px-app-asset-selected","notifyResize", "resizerShouldNotify", "stopResizeNotificationsFor", "assignParentResizable"]'></px-demo-api-viewer>
 
     <!-- Footer -->
     <px-demo-footer></px-demo-footer>
@@ -86,9 +86,9 @@
               clickOnlyMode: true
             },
             {
-              configName: "Filter Mode",
+              configName: "Search Mode",
               clickOnlyMode: false,
-              filterMode: true
+              searchMode: true
             }
           ]
         }
@@ -193,7 +193,7 @@
       type: Boolean,
       defaultValue: false
     },
-    filterMode: {
+    searchMode: {
       type: Boolean,
       defaultValue: false
     }

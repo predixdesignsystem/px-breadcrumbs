@@ -114,6 +114,7 @@
           clickOnlyMode = this.clickOnlyMode;
       if (!itemPath.length || !graph) return;
       this.set('_breadcrumbsObj', new window.pxBreadcrumbs.Breadcrumbs(graph, clickOnlyMode, itemPath));
+      this.updateStyles();
     },
     /*
     * In this method, we decide on the display options for the breadcrumbs. We have the following options:
@@ -335,7 +336,7 @@
      * `clickOnlyMode` is enabled.
      */
     _getSeparatorSize(clickOnlyMode) {
-      return this.clickOnlyMode ? 'small' : 'large';
+      return this.clickOnlyMode ? 'large' : 'small';
     }
   });
 
@@ -506,7 +507,7 @@
 
           //right angle arrow - the last item doesn't get a right angle.
           if (i !== len-1){
-            accum += 16;
+            accum += this.clickOnlyMode ? 30 : 15;
           }
         }
         return accum + 10; // extra padding somewhere? slight miscalculation?

@@ -15,8 +15,11 @@
 <!--
 
 ### Usage
+Note: you **must** provide either `selected` or `selectedRoute` or the breadcrumb will not know
+what path to display and therefore will not appear at all.
 
-    <px-breadcrumbs items="[[items]]"></px-breadcrumbs>
+    <px-breadcrumbs items='[[items]]' selectedRoute='["id1"]'></px-breadcrumbs>
+
 
 @element px-breadcrumbs
 @blurb Breadcrumb drop down displays the navigational path of the user through a context browser.
@@ -34,7 +37,7 @@ It also provides a quick way to navigate backwards within a path or within a spe
         <template is="dom-repeat" items="[[_mainPathItems]]">
           <template is="dom-if" if="[[_isNotFirstItemInData(index, _mainPathItems)]]">
             <li class="breadcrumbTopItem flex flex--middle">
-              <span class$="rightAngle [[_getSeparatorSize(clickOnlyMode)]]"><!--<px-icon icon="px-nav:next"></px-icon>-->&gt;</span>
+              <span class$="rightAngle [[_getSeparatorSize(clickOnlyMode)]]"><px-icon icon="px-utl:chevron-right"></px-icon></span>
             </li>
           </template>
           <li data-text="[[item.label]]" data-item="[[item]]" data-index="[[index]]" class="breadcrumbTopItem u-ph- flex flex--row flex--middle" on-tap="_onPathTap">
@@ -42,7 +45,7 @@ It also provides a quick way to navigate backwards within a path or within a spe
               <span class="actionable actionable--action">[[item.label]]</span>
             </template>
             <template is="dom-if" if="[[_isDropdown(item, clickOnlyMode)]]">
-              <px-dropdown display-value="[[item.label]]" items="[[_clickedItemChildren]]" search-mode="[[filterMode]]" button-style="bare" disable-clear></px-dropdown>
+              <px-dropdown display-value="[[item.label]]" items="[[_clickedItemChildren]]" search-mode="[[searchMode]]" button-style="bare" disable-clear></px-dropdown>
             </template>
             <template is="dom-if" if="[[_isOverflow(item)]]">
               <px-dropdown id="dropdown" items="[[_clickedItemChildren]]" button-style="icon" icon="px-nav:more"></px-dropdown>

@@ -52,22 +52,14 @@
   &:last-of-type {
     font-weight: 600;
   }
-  span.rightAngle.small {
-    // Waiting for Ken to add chevron-right
-    // > px-icon {
-    //   --iron-icon-height: 1rem;
-    //   --iron-icon-width: 1rem;
-    // }
-    font-size: 2rem;
+  .small > px-icon {
+    --iron-icon-height: 1rem;
+    --iron-icon-width: 1rem;
     color: var(--px-breadcrumbs-chevron-color, gray);
   }
-  span.rightAngle.large {
-    // Waiting for Ken to add chevron-right
-    // > px-icon {
-    //   --iron-icon-height: 1rem;
-    //   --iron-icon-width: 1rem;
-    // }
-    font-size: 2rem;
+  .large > px-icon {
+    --iron-icon-height: 2rem;
+    --iron-icon-width: 2rem;
     color: var(--px-breadcrumbs-chevron-color, gray);
   }
 }
