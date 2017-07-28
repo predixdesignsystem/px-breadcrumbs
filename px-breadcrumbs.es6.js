@@ -89,9 +89,6 @@
     observers: [
       '_getDisplayMode(_ulWidth, _selectedItemPath, _breadcrumbsObj)'
     ],
-    attached() {
-      this.fire('iron-resize');
-    },
     detached() {
       if (this.isDebouncerActive('windowResize')) this.cancelDebouncer('windowResize');
     },
@@ -113,7 +110,7 @@
           graph = this._assetGraph,
           clickOnlyMode = this.clickOnlyMode;
       if (!itemPath.length || !graph) return;
-      this.set('_breadcrumbsObj', new window.pxBreadcrumbs.Breadcrumbs(graph, clickOnlyMode, itemPath));
+      this.set('_breadcrumbsObj', new window.pxBreadcrumbs.Breadcrumbs(this, graph, clickOnlyMode, itemPath));
       this.updateStyles();
     },
     /*
@@ -182,7 +179,7 @@
       var pointer = 0,
           currentAccumSize = breadcrumbsObj.sizeOfAllShortenedItemsExcludingLastItem,
           sizeOfFullLastItem = breadcrumbsObj.sizeOfFullLastItem,
-          sizeOfEllipsis = 16,
+          sizeOfEllipsis = 36,
           noRoomForFullLastItem = false,
           lastItem = {},
           overflowObj = {"label": "...", "hasChildren": true},
@@ -341,12 +338,13 @@
   });
 
   class Breadcrumbs {
-    constructor(graph, clickOnlyMode, breadcrumbs = []) {
+    constructor(breadcrumbEl, graph, clickOnlyMode, breadcrumbs = []) {
+      this.breadcrumbEl = breadcrumbEl;
       this.graph = graph;
       this.clickOnlyMode = clickOnlyMode;
       this.breadcrumbs = breadcrumbs;
       this.map = new WeakMap();
-      this.ctx = this._createCanvas();
+      this.ctx = this._createCanvas(breadcrumbEl);
       this._preShortenItems(this.breadcrumbs);
       return this;
     }
@@ -517,14 +515,18 @@
      * Creates/returns the canvas that we will use to measure the size of the text.
      * We also set the font and font size.
      */
-    _createCanvas() {
+    _createCanvas(breadcrumbEl) {
+      var style = window.getComputedStyle(breadcrumbEl, null),
+          fontSize = style.getPropertyValue('font-size'),
+          fontFamily = style.getPropertyValue('font-family');
+
       const canvas = document.createElement('canvas');
 
       canvas.height = 20;
       canvas.width = 9999;
 
       const ctx = canvas.getContext('2d');
-      ctx.font = "15px GE Inspira Sans";
+      ctx.font = fontSize + " " + fontFamily;
       return ctx;
     }
   }
