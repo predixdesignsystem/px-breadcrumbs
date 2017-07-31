@@ -21,102 +21,6 @@ function runCustomTests() {
 
   });
 
-  describe('px-breadcrumbs classes checks', function () {
-    var sandbox,
-        breadcrumbsEl,
-        breadcrumbsElWithData;
-
-    beforeEach(function () {
-      breadcrumbsEl = fixture('breadcrumbsFixture');
-      breadcrumbsElWithData = fixture('breadcrumbsFixtureWithData');
-      sandbox = sinon.sandbox.create();
-    });
-
-    afterEach(function () {
-      sandbox.restore();
-    });
-
-    it('checks the captured click, and finds out if the click came from inside px-breadcrumbs. This click does NOT come from inside px-breadcrumbs (_onCaptureClick)', function(done) {
-      window.setTimeout(function() {
-        var closeDropdown = sandbox.stub(breadcrumbsElWithData, '_closeDropdown'),
-            firstLi = breadcrumbsElWithData.querySelector('.breadcrumbTopItem'),
-            pTag = document.querySelector('.notElement');
-        debugger
-        Polymer.dom.flush(); //make sure everything is ready
-        firstLi.click(); //open the dropdown
-        pTag.click(); //and click outside of it.
-
-        expect(closeDropdown).to.have.been.calledOnce;
-        done();
-      },200);
-    });
-
-
-    it('calculates the correct class to see if the item is opened or not. This item doesn\'t have a source (_calculatePathItemClass)', function(done) {
-      window.setTimeout(function() {
-        var item = {"opened":true},
-            response = '';
-
-        breadcrumbsElWithData._clickPathItem = item,
-        response = breadcrumbsElWithData._calculatePathItemClass(item)
-
-        expect(response).to.equal('opened');
-        done();
-      },200);
-    });
-
-    it('calculates the correct class to see if the item is opened or not. This item does have a source (_calculatePathItemClass)', function(done) {
-      window.setTimeout(function() {
-        var item = {};
-
-        item.source = {"opened":true};
-        breadcrumbsElWithData._clickPathItem = item.source;
-
-        var response = breadcrumbsElWithData._calculatePathItemClass(item)
-
-        expect(response).to.equal('opened');
-        done();
-      },200);
-    });
-
-  it('calculates the correct class to see if the item is opened or not. This item is different than the pathItem (_calculatePathItemClass)', function(done) {
-    window.setTimeout(function() {
-      var item = {"opened":true},
-          secondItem = {"opened": false},
-          response = '';
-
-      breadcrumbsEl._clickPathItem = item;
-
-      response = breadcrumbsEl._calculatePathItemClass(secondItem)
-
-      expect(response).to.equal('');
-      done();
-    },100);
-  });
-
-  it('checks to see if the passed in item is should return the highlighted class - this one should (_calculateDropdownItemClass)', function(done) {
-    var item = {},
-        response;
-    item.highlighted = true;
-
-    response = breadcrumbsEl._calculateDropdownItemClass(item);
-
-    expect(response).to.equal('highlighted');
-    done();
-  });
-
-  it('checks to see if the passed in item is should return the highlighted class - this one shoudn\'t (_calculateDropdownItemClass)', function(done) {
-    var item = {},
-        response;
-    item.highlighted = false;
-
-    response = breadcrumbsEl._calculateDropdownItemClass(item);
-
-    expect(response).to.be.empty;
-    done();
-  });
-});
-
 describe('px-breadcrumbs creates the overflow array', function () {
     var sandbox,
         breadcrumbsEl,
@@ -197,58 +101,6 @@ describe('general methods', function() {
     done();
   });
 
-  it('checks if the properties _isDropdownHidden, _clickedItemChildren and _clickPathItem are called (_closeDropdown)', function(done) {
-     var set = sandbox.stub(breadcrumbsEl, 'set');
-
-     breadcrumbsEl._closeDropdown();
-
-     expect(set).to.be.calledThrice;
-     done();
-  });
-
-  it('checks if the properties _isDropdownHidden, _clickedItemChildren and _clickPathItem are called, as well as resetting the filter (_closeDropdown)', function(done) {
-     var set = sandbox.stub(breadcrumbsEl, 'set'),
-        resetFilter = sandbox.stub(breadcrumbsEl, '_resetFilter');
-
-     breadcrumbsEl.filterMode = true;
-     breadcrumbsEl._closeDropdown();
-
-     expect(set).to.be.calledThrice;
-     expect(resetFilter).to.be.calledOnce;
-     done();
-  });
-
-  it('checks whether the filterString is reset when called', function(done) {
-    var set = sandbox.stub(breadcrumbsEl, 'set');
-
-    breadcrumbsEl._resetFilter();
-
-    expect(set).to.be.calledOnce;
-    done();
-  });
-
-  it('checks whether the filtered Mode is returned correctly (_isFilterdMode)', function(done) {
-    breadcrumbsEl.filterMode = true;
-
-    var response = breadcrumbsEl._isFilteredMode();
-    expect(response).to.be.true;
-    done();
-  });
-
-  it('checks whether the filtered Mode is returned correctly (_isFilterdMode)', function(done) {
-    breadcrumbsEl.filterMode = false;
-
-    var response = breadcrumbsEl._isFilteredMode();
-    expect(response).to.be.false;
-    done();
-  });
-
-  // it('checks whether click only mode is on, and the passed item isn\'t an overflow (_isClickOnlyModeAndNotOverflow)', function(done) {
-  //   breadcrumbsEl.clickOnlyMode = true;
-  //   var item = {};
-
-  //   item
-  // });
 });
 
 describe('click Events', function() {
@@ -267,49 +119,20 @@ describe('click Events', function() {
     sandbox.restore();
   });
 
-  it('should know if the clicked item is a iron-icon or not. this one IS an iron-icon (_normalizePathClickTarget)', function(done){
-    var evt = {};
-
-    evt.target = {};
-    evt.target._iconsetName = 'fa';
-    evt.target.parentNode = {};
-    evt.target.parentNode.parentNode = "parentNode";
-    var response = breadcrumbsEl._normalizePathClickTarget(evt);
-
-    expect(response).to.equal('parentNode');
-    done();
-  });
-
-  it('should know if the clicked item is a iron-icon or not. this one is NOT an iron-icon (_normalizePathClickTarget)', function(done){
-    var evt = {};
-
-    evt.target = {};
-    evt.target._iconsetName = 'fat';
-    evt.target.parentNode = {};
-    evt.target.parentNode.parentNode = "parentNode";
-    var response = breadcrumbsEl._normalizePathClickTarget(evt);
-
-    expect(response).to.not.equal('parentNode');
-    done();
-  });
-
   it('checks whether the correct functions are called on a dropdown tap (_dropdownTap)', function(done) {
-    var closeDropdown = sandbox.stub(breadcrumbsElWithData, '_closeDropdown'),
-        changePathFromClick = sandbox.stub(breadcrumbsElWithData, '_changePathFromClick'),
+    var changePathFromClick = sandbox.stub(breadcrumbsElWithData, '_changePathFromClick'),
         evt = {};
 
     evt.model = {};
     evt.model.item = {};
     breadcrumbsElWithData._dropdownTap(evt);
 
-    expect(closeDropdown).to.be.calledOnce;
     expect(changePathFromClick).to.be.calledOnce;
     done();
   });
 
-  it('checks whether the click in clickOnly mode, without overflow, calls closeDropdown and _changePathFromClick', function(done) {
-    var closeDropdown = sandbox.stub(breadcrumbsElWithData, '_closeDropdown'),
-        changePathFromClick = sandbox.stub(breadcrumbsElWithData, '_changePathFromClick'),
+  it('checks whether the click in clickOnly mode, without overflow, calls _changePathFromClick', function(done) {
+    var changePathFromClick = sandbox.stub(breadcrumbsElWithData, '_changePathFromClick'),
         evt = {};
 
     evt.model= {};
@@ -320,14 +143,12 @@ describe('click Events', function() {
 
     breadcrumbsElWithData._onPathTap(evt);
 
-    expect(closeDropdown).to.be.calledOnce;
     expect(changePathFromClick).to.be.calledOnce;
     done();
   });
 
-  it('checks whether the click in clickOnly mode, without overflow, with source calls closeDropdown and _changePathFromClick', function(done) {
-    var closeDropdown = sandbox.stub(breadcrumbsElWithData, '_closeDropdown'),
-        changePathFromClick = sandbox.stub(breadcrumbsElWithData, '_changePathFromClick'),
+  it('checks whether the click in clickOnly mode, without overflow, with source calls _changePathFromClick', function(done) {
+    var changePathFromClick = sandbox.stub(breadcrumbsElWithData, '_changePathFromClick'),
         evt = {};
 
     evt.model= {};
@@ -338,30 +159,12 @@ describe('click Events', function() {
 
     breadcrumbsElWithData._onPathTap(evt);
 
-    expect(closeDropdown).to.be.calledOnce;
     expect(changePathFromClick).to.be.calledOnce;
     done();
   });
 
-  it('checks that if the same item that was previously clicked is clicked again, closeDropdown is called', function(done) {
-    var closeDropdown = sandbox.stub(breadcrumbsEl, '_closeDropdown'),
-        evt = {};
-
-    evt.model= {};
-    evt.model.item = {}
-    evt.model.item.label = "hello";
-
-    breadcrumbsEl._clickPathItem = evt.model.item;
-
-    breadcrumbsEl._onPathTap(evt);
-
-    expect(closeDropdown).to.be.calledOnce;
-    done();
-  });
-
-  it('checks if the item has siblings/is overflow, and calls _clickedItemChildren, _clickPathItem, _isDropdownHidden, _changeDropdownPosition (_onPathTap)', function(done) {
-    var changeDropdownPosition = sandbox.stub(breadcrumbsElWithData, '_changeDropdownPosition'),
-        _doesItemHaveSiblings = sandbox.stub(breadcrumbsElWithData, '_doesItemHaveSiblings', () => true),
+  it('checks if the item has siblings/is overflow, and calls _clickedItemChildren, _clickPathItem, _changeDropdownPosition (_onPathTap)', function(done) {
+    var _doesItemHaveSiblings = sandbox.stub(breadcrumbsElWithData, '_doesItemHaveSiblings', () => true),
         set = sandbox.stub(breadcrumbsElWithData, 'set'),
 
         evt = {};
@@ -374,38 +177,31 @@ describe('click Events', function() {
     breadcrumbsElWithData._assetGraph.getSiblings = () => [{"label":"hello1"},{"label":"hello2"},{"label":"hello3"},{"label":"hello4"},{"label":"hello5"},{"label":"hello6"},{"label":"hello7"}];
     breadcrumbsElWithData._onPathTap(evt);
 
-    expect(set).to.be.calledThrice;
-    expect(changeDropdownPosition).to.be.calledOnce;
+    expect(set).to.be.calledTwice;
     done();
   });
 
-  it('checks if the item has siblings/is overflow, and calls _clickedItemChildren, _clickPathItem, _isDropdownHidden, _changeDropdownPosition as well as resetFilter (_onPathTap)', function(done) {
+  it('checks if the item has siblings/is overflow, and calls _clickedItemChildren, _clickPathItem (_onPathTap)', function(done) {
 
-    var changeDropdownPosition = sandbox.stub(breadcrumbsElWithData, '_changeDropdownPosition'),
-        _doesItemHaveSiblings = sandbox.stub(breadcrumbsElWithData, '_doesItemHaveSiblings', () => true),
+    var _doesItemHaveSiblings = sandbox.stub(breadcrumbsElWithData, '_doesItemHaveSiblings', () => true),
         set = sandbox.stub(breadcrumbsElWithData, 'set'),
-        resetFilter = sandbox.stub(breadcrumbsElWithData, '_resetFilter'),
         evt = {};
 
     evt.model= {};
     evt.model.item = {}
     evt.model.item.label = "hello";
     breadcrumbsElWithData._assetGraph = {};
-    breadcrumbsElWithData.filterMode = true
     breadcrumbsElWithData._assetGraph.getSiblings = () => [{"label":"hello1"},{"label":"hello2"},{"label":"hello3"},{"label":"hello4"},{"label":"hello5"},{"label":"hello6"},{"label":"hello7"}];
     breadcrumbsElWithData._onPathTap(evt);
 
-    expect(set).to.be.calledThrice;
-    expect(changeDropdownPosition).to.be.calledOnce;
-    expect(resetFilter).to.be.calledOnce;
+    expect(set).to.be.calledTwice;
     done();
   });
 
-  it('checks if the item has siblings (it doesn\'t this time around), and calls _closeDropdown, _clickedItemChildren, _changePathFromClick, (_onPathTap)', function(done) {
+  it('checks if the item has siblings (it doesn\'t this time around), and calls _clickedItemChildren, _changePathFromClick (_onPathTap)', function(done) {
     var changePathFromClick = sandbox.stub(breadcrumbsElWithData, '_changePathFromClick'),
         _doesItemHaveSiblings = sandbox.stub(breadcrumbsElWithData, '_doesItemHaveSiblings', () => false),
         set = sandbox.stub(breadcrumbsElWithData, 'set'),
-        closeDropdown = sandbox.stub(breadcrumbsElWithData, '_closeDropdown'),
         evt = {};
 
     evt.model= {};
@@ -416,19 +212,9 @@ describe('click Events', function() {
 
     expect(set).to.be.calledOnce;
     expect(changePathFromClick).to.be.calledOnce;
-    expect(closeDropdown).to.be.calledOnce;
     done();
   });
 
-  it('checks that an event is fired (_notifyClick)',function(done) {
-    var item = {"label":"hello"},
-        fire = sandbox.stub(breadcrumbsEl, 'fire');
-
-    breadcrumbsEl._notifyClick(item);
-
-    expect(fire).to.be.calledOnce;
-    done();
-  });
 });
 
 describe('does item have siblings', function() {
@@ -463,69 +249,6 @@ describe('does item have siblings', function() {
     done();
   });
 
-});
-
-describe('checks various positioning methods', function() {
-
-  var sandbox,
-        breadcrumbsEl,
-        breadcrumbsElWithData;
-
-  beforeEach(function () {
-    breadcrumbsEl = fixture('breadcrumbsFixture');
-    breadcrumbsElWithData = fixture('breadcrumbsFixtureWithData');
-    sandbox = sinon.sandbox.create();
-  });
-
-  afterEach(function () {
-    sandbox.restore();
-  });
-
-  it('checks that the cssText is set on the dropdown (_changeDropdownPosition)', function(done) {
-    var evt = {},
-        dropdown = {},
-        dom = {};
-
-    dropdown.style = {};
-    dropdown.style.cssText = '';
-    dom.querySelector = () => dropdown;
-
-    sandbox.stub(Polymer,'dom').returns(dom);
-
-    evt.getBoundingClientRect = () => ({"left":10,"bottom":10,"height": 10});
-
-    var normalizePathClickTarget = sandbox.stub(breadcrumbsElWithData, '_normalizePathClickTarget').returns(evt);
-
-    breadcrumbsElWithData._changeDropdownPosition(evt);
-
-    expect(dropdown.style.cssText).to.not.be.empty;
-    done();
-  });
-
-  it('checks that the top and left are set correctly on the dropdown (_changeDropdownPosition)', function(done) {
-    var evt = {},
-        dropdown = {},
-        dom = {};
-
-    dropdown.style = {};
-    dropdown.style.cssText = '';
-    dom.querySelector = () => dropdown;
-
-    sandbox.stub(Polymer,'dom').returns(dom);
-
-    evt.getBoundingClientRect = () => ({"left":20,"bottom":10,"height": 10});
-
-    var normalizePathClickTarget = sandbox.stub(breadcrumbsElWithData, '_normalizePathClickTarget').returns(evt);
-
-    breadcrumbsElWithData._changeDropdownPosition(evt);
-
-    var top = dropdown.style.cssText.substr(4,2),
-        left = dropdown.style.cssText.substr(16,2);
-
-    expect(top).to.eql('22');
-    expect(left).to.eql('10');
-    done();
-  });
 });
 
 
@@ -608,8 +331,9 @@ describe('Breadcrumb Class', function() {
       recursive: true,
       childrenKey: 'children'
     });
-
-    breadcrumbs = new window.pxBreadcrumbs.Breadcrumbs(breadcrumbsArray, graph);
+    var fixtureContainer = fixture('breadcrumbsFixtureWithDataAndWidth');
+    breadcrumbsEl = fixtureContainer.querySelector('px-breadcrumbs');
+    breadcrumbs = new window.pxBreadcrumbs.Breadcrumbs(breadcrumbsEl, graph, false, breadcrumbsArray);
 
   });
 
@@ -624,31 +348,31 @@ describe('Breadcrumb Class', function() {
   it('checks that the returned size of full breadcrumbs is as expected (sizeOfFullBreadcrumbs)', function() {
     var response = breadcrumbs.sizeOfFullBreadcrumbs;
 
-    expect(response).to.be.closeTo(1569, 5);
+    expect(response).to.be.closeTo(1594, 5);
   });
 
   it('checks that the returned size of full breadcrumbs is as expected (_calculateSizeOfBreadcrumbs)', function() {
     var response = breadcrumbs._calculateSizeOfBreadcrumbs(breadcrumbs.breadcrumbs);
 
-    expect(response).to.be.closeTo(1569, 5);
+    expect(response).to.be.closeTo(1594, 5);
   });
 
   it('checks that the returned size of full breadcrumbs except last one is as expected (sizeOfAllShortenedItemsExcludingLastItem)', function() {
     var response = breadcrumbs.sizeOfAllShortenedItemsExcludingLastItem;
 
-    expect(response).to.be.closeTo(377, 5);
+    expect(response).to.be.closeTo(397, 5);
   });
 
   it('checks that the returned size of the last full item is as expected (sizeOfFullLastItem)', function() {
     var response = breadcrumbs.sizeOfFullLastItem;
 
-    expect(response).to.be.closeTo(385, 5);
+    expect(response).to.be.closeTo(400, 5);
   });
 
   it('checks that the returned size of the last short item is as expected (sizeOfShortLastItem)', function() {
     var response = breadcrumbs.sizeOfShortLastItem;
 
-    expect(response).to.be.closeTo(121, 5);
+    expect(response).to.be.closeTo(136, 5);
   });
 
   it('checks that the last full item is returned as expected (lastItemFull)', function() {
@@ -681,13 +405,13 @@ describe('Breadcrumb Class', function() {
   it('checks that the size of the ellipsis is as expected (sizeOfEllipsis)', function() {
     var response = breadcrumbs.sizeOfEllipsis;
 
-    expect(response).to.be.closeTo(9,3);
+    expect(response).to.be.closeTo(36,3);
   });
 
   it('checks that the size of all the shortened items is as expected (sizeOfAllShortenedItems)', function() {
     var response = breadcrumbs.sizeOfAllShortenedItems;
 
-    expect(response).to.be.closeTo(513,3);
+    expect(response).to.be.closeTo(538,3);
   });
 
   it('checks that the length of the array of all the shortened items except the last one is as expected (allShortenedItemsExcludingLast)', function() {
@@ -734,304 +458,20 @@ describe('Breadcrumb Class', function() {
   it('checks that the correct size is returned for all full strings (_calculateSizeOfBreadcrumbs)', function() {
     var response = breadcrumbs._calculateSizeOfBreadcrumbs(breadcrumbs.breadcrumbs);
 
-    expect(response).to.be.closeTo(1569,5);
+    expect(response).to.be.closeTo(1594,5);
   });
 
   it('checks that the correct size is returned for all short strings (_calculateSizeOfBreadcrumbs)', function() {
     var response = breadcrumbs._calculateSizeOfBreadcrumbs(breadcrumbs.breadcrumbs, false);
 
-    expect(response).to.be.closeTo(513,5);
+    expect(response).to.be.closeTo(538,5);
   });
 
   it('checks if the returned object .measureText method exists (_createCanvas)', function() {
-    var response = breadcrumbs._createCanvas();
+    var response = breadcrumbs._createCanvas(breadcrumbsEl);
 
     expect(response.measureText).to.exist;
   });
 });
 
-describe('integration tests, no special modes', function() {
-  var sandbox,
-      fixtureContainer,
-      breadcrumbsEl;
-
-  beforeEach(function () {
-    fixtureContainer = fixture('breadcrumbsFixtureWithDataAndWidth');
-    breadcrumbsEl = fixtureContainer.querySelector('px-breadcrumbs');
-    sandbox = sinon.sandbox.create();
-  });
-
-  afterEach(function () {
-    sandbox.restore();
-  });
-
-  it('checks that if there\'s enough room, every item is displayed in full.', function(done) {
-    fixtureContainer.style.width = '2820px';
-    breadcrumbsEl.notifyResize();
-    Polymer.dom.flush();
-    window.setTimeout(function() {
-      var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
-      expect(items).to.have.lengthOf(13);
-      expect(items[0].innerText.trim()).to.eql('1 This is a very long string with more than 16 characters');
-      expect(items[2].innerText.trim()).to.eql('2 This is a very long string with more than 16 characters');
-      expect(items[4].innerText.trim()).to.eql('3 This is a very long string with more than 16 characters');
-      expect(items[6].innerText.trim()).to.eql('4 This is a very long string with more than 16 characters');
-      expect(items[8].innerText.trim()).to.eql('5 This is a very long string with more than 16 characters');
-      expect(items[10].innerText.trim()).to.eql('6 This is a very long string with more than 16 characters');
-      expect(items[12].innerText.trim()).to.eql('7 This is a very long string with more than 16 characters');
-      done();
-    },1000);
-  });
-
-  it('checks that if there\'s enough room, every item is shortened, except the last item, which is displayed in full.', function(done) {
-    fixtureContainer.style.width = '2770px';
-    breadcrumbsEl.notifyResize();
-    Polymer.dom.flush();
-    window.setTimeout(function() {
-        var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
-        expect(items).to.have.lengthOf(13);
-        expect(items[0].innerText.trim()).to.eql('1 This...acters');
-        expect(items[2].innerText.trim()).to.eql('2 This...acters');
-        expect(items[4].innerText.trim()).to.eql('3 This...acters');
-        expect(items[6].innerText.trim()).to.eql('4 This...acters');
-        expect(items[8].innerText.trim()).to.eql('5 This...acters');
-        expect(items[10].innerText.trim()).to.eql('6 This...acters');
-        expect(items[12].innerText.trim()).to.eql('7 This is a very long string with more than 16 characters');
-        done();
-    },100);
-  });
-
-  it('checks that if there\'s enough room, every item is shortened.', function(done) {
-    fixtureContainer.style.width = '1150px';
-    breadcrumbsEl.notifyResize();
-    Polymer.dom.flush();
-    window.setTimeout(function() {
-      var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
-      expect(items).to.have.lengthOf(13);
-      expect(items[0].innerText.trim()).to.eql('1 This...acters');
-      expect(items[2].innerText.trim()).to.eql('2 This...acters');
-      expect(items[4].innerText.trim()).to.eql('3 This...acters');
-      expect(items[6].innerText.trim()).to.eql('4 This...acters');
-      expect(items[8].innerText.trim()).to.eql('5 This...acters');
-      expect(items[10].innerText.trim()).to.eql('6 This...acters');
-      expect(items[12].innerText.trim()).to.eql('7 This...acters');
-      done();
-    },100);
-  });
-
-  it('checks that if there\'s enough room, overflow shows up with 2 shortened items, and a full last item.', function(done) {
-    fixtureContainer.style.width = '900px';
-    breadcrumbsEl.notifyResize();
-    Polymer.dom.flush();
-    window.setTimeout(function() {
-      var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
-      expect(items).to.have.lengthOf(7);
-      expect(items[0].innerText.trim()).to.eql('...');
-      expect(items[2].innerText.trim()).to.eql('5 This...acters');
-      expect(items[4].innerText.trim()).to.eql('6 This...acters');
-      expect(items[6].innerText.trim()).to.eql('7 This is a very long string with more than 16 characters');
-      done();
-    },100);
-  });
-
-  it('checks that if there\'s enough room, overflow shows up with 1 shortened items, and a full last item', function(done) {
-    fixtureContainer.style.width = '845px';
-    breadcrumbsEl.notifyResize();
-    Polymer.dom.flush();
-    window.setTimeout(function() {
-      var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
-      expect(items).to.have.lengthOf(5);
-      expect(items[0].innerText.trim()).to.eql('...');
-      expect(items[2].innerText.trim()).to.eql('6 This...acters');
-      expect(items[4].innerText.trim()).to.eql('7 This is a very long string with more than 16 characters');
-      done();
-    },100);
-  });
-
-  it('checks that if there\'s enough room, overflow shows up with a full last item', function(done) {
-    fixtureContainer.style.width = '766px';
-    breadcrumbsEl.notifyResize();
-    Polymer.dom.flush();
-    window.setTimeout(function() {
-      var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
-      expect(items).to.have.lengthOf(3);
-      expect(items[0].innerText.trim()).to.eql('...');
-      expect(items[2].innerText.trim()).to.eql('7 This is a very long string with more than 16 characters');
-      done();
-    },100);
-  });
-
-  it('checks that if there\'s enough room, overflow shows up with a short last item', function(done) {
-    fixtureContainer.style.width = '640px';
-    breadcrumbsEl.notifyResize();
-    Polymer.dom.flush();
-    window.setTimeout(function() {
-      var items = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
-      expect(items).to.have.lengthOf(3);
-      expect(items[0].innerText.trim()).to.eql('...');
-      expect(items[2].innerText.trim()).to.eql('7 This...acters');
-      done();
-    },100);
-  });
-
-  it('checks that the dropdown is visible when the first top path item is clicked, and counts the number of items in the dropdown', function(done) {
-    fixtureContainer.style.width = '2820px';
-    breadcrumbsEl.notifyResize();
-    Polymer.dom.flush();
-    window.setTimeout(function() {
-      var topPathItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem'),
-        dropdown = Polymer.dom(breadcrumbsEl.root).querySelector('.breadCrumbDropdown'),
-        dropdownItems;
-
-      expect(breadcrumbsEl._isDropdownHidden).to.be.true;
-      topPathItems[0].click();
-      Polymer.dom.flush();
-      expect(breadcrumbsEl._isDropdownHidden).to.be.false;
-
-      dropdownItems = Polymer.dom(dropdown).querySelectorAll('.dropdownItem');
-
-      expect(dropdownItems).to.have.lengthOf(3); //it's 3, and not 2 because of the hidden results LI
-      done();
-    },100);
-  });
-
-  it('checks the the top path changes when an item with no siblings is clicked', function(done) {
-    fixtureContainer.style.width = '2820px';
-    breadcrumbsEl.notifyResize();
-    Polymer.dom.flush();
-    window.setTimeout(function() {
-      var topPathItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
-
-      expect(topPathItems).to.have.lengthOf(13);
-
-      topPathItems[2].click();
-      Polymer.dom.flush();
-      topPathItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
-
-      expect(topPathItems).to.have.lengthOf(3);
-      done();
-    },100);
-  });
-
-  it('checks that a dropdown item click changes the top Path items length', function(done) {
-    fixtureContainer.style.width = '2820px';
-    breadcrumbsEl.notifyResize();
-    Polymer.dom.flush();
-
-    window.setTimeout(function() {
-      var topPathItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem'),
-          dropdownItems;
-
-      expect(topPathItems).to.have.lengthOf(13);
-
-      topPathItems[4].click();
-      Polymer.dom.flush();
-
-      dropdownItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.dropdownItem');
-
-      dropdownItems[0].click();
-      Polymer.dom.flush();
-
-      topPathItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
-
-      expect(topPathItems).to.have.lengthOf(5);
-      done();
-    },100);
-  });
-
-  it('checks that a dropdown item click from an overflow changes the top Path items length', function(done) {
-    fixtureContainer.style.width = '640px';
-    breadcrumbsEl.notifyResize();
-    Polymer.dom.flush();
-
-    window.setTimeout(function() {
-      var topPathItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem'),
-          dropdownItems;
-
-      expect(topPathItems).to.have.lengthOf(3);
-
-      topPathItems[0].click();
-      Polymer.dom.flush();
-
-      dropdownItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.dropdownItem');
-
-      dropdownItems[0].click();
-      Polymer.dom.flush();
-
-      topPathItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
-
-      expect(topPathItems).to.have.lengthOf(1);
-      done()
-    },100);
-  });
-});
-
-describe('integration tests, Click Only Mode', function(done) {
-  var sandbox,
-      fixtureContainer,
-      breadcrumbsEl;
-
-  beforeEach(function () {
-    fixtureContainer = fixture('breadcrumbsFixtureWithDataAndWidthAndClickOnly');
-    breadcrumbsEl = fixtureContainer.querySelector('px-breadcrumbs');
-    sandbox = sinon.sandbox.create();
-  });
-
-  afterEach(function () {
-    sandbox.restore();
-  });
-
-  it('checks that the top Path Item length changes when an item is clicked', function(done) {
-    fixtureContainer.style.width = '2820px';
-    breadcrumbsEl.notifyResize();
-    Polymer.dom.flush();
-
-    window.setTimeout(function() {
-      var topPathItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
-
-      expect(topPathItems).to.have.lengthOf(13);
-
-      topPathItems[0].click();
-      Polymer.dom.flush();
-
-      topPathItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem');
-      expect(topPathItems).to.have.lengthOf(1);
-      done();
-    },100);
-  });
-});
-
-describe('integration tests, filter Mode', function(done) {
-  var sandbox,
-      fixtureContainer,
-      breadcrumbsEl;
-
-  beforeEach(function () {
-    fixtureContainer = fixture('breadcrumbsFixtureWithDataAndWidthAndFilter');
-    breadcrumbsEl = fixtureContainer.querySelector('px-breadcrumbs');
-    sandbox = sinon.sandbox.create();
-  });
-
-  afterEach(function () {
-    sandbox.restore();
-  });
-
-  it('checks that the opened dropdown has the filter showing.', function(done) {
-    fixtureContainer.style.width = '2820px';
-    breadcrumbsEl.notifyResize();
-    Polymer.dom.flush();
-
-    window.setTimeout(function() {
-      var filter = Polymer.dom(breadcrumbsEl.root).querySelector('.filter'),
-          topPathItems = Polymer.dom(breadcrumbsEl.root).querySelectorAll('.breadcrumbTopItem'),
-          breadcrumbDropdown = Polymer.dom(breadcrumbsEl.root).querySelector('.breadCrumbDropdown'),
-          dropdown = Polymer.dom(breadcrumbsEl.root).querySelector('.breadCrumbDropdown');
-
-      topPathItems[0].click();
-      Polymer.dom.flush();
-      expect(filter).to.exist;
-      done();
-    },100);
-  });
-});
 }

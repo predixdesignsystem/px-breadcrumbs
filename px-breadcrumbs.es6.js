@@ -246,11 +246,13 @@
      */
     _dropdownTap(evt) {
       var newSelectItem = {};
-      evt.target.items.forEach(function(item) {
-        if(item.id === evt.target.selected) {
-          newSelectItem = item;
-        }
-      });
+      if(evt.target && evt.target.items) {
+        evt.target.items.forEach(function(item) {
+          if(item.id === evt.target.selected) {
+            newSelectItem = item;
+          }
+        });
+      }
       this._changePathFromClick(newSelectItem);
     },
     /**
