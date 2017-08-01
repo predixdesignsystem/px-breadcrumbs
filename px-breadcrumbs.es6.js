@@ -335,7 +335,7 @@
      * `clickOnlyMode` is enabled.
      */
     _getSeparatorSize(clickOnlyMode) {
-      return this.clickOnlyMode ? 'large' : 'small';
+      return this.clickOnlyMode ? 'small' : 'large';
     }
   });
 
