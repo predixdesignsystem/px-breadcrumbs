@@ -42,7 +42,7 @@
           items="[[props.items.value]]"
           click-only-mode="{{props.clickOnlyMode.value}}"
           search-mode="{{props.searchMode.value}}"
-          selected-route='["id1","id2","id3","id4","id5"]'>
+          selected-route='["North America","United States of America","California","San Ramon","Crow Canyon Gardens"]'>
         </px-breadcrumbs>
       </px-demo-component>
       <!-- END Component ------------------------------------------------------>
@@ -95,95 +95,115 @@
     items: {
       type: Object,
       defaultValue: [
+        {
+          "label": "North America",
+          "id": "North America",
+          "children": [
             {
-            "label":"North America",
-            "id":"id1",
-            "children": [
-              {
-                "label":"United States of America",
-                "id":"id2",
-                "children": [
-                  {
-                    "label": "California",
-                    "id": "id3",
-                    "children": [
-                      {
-                        "label": "Alameda"
-                      },
-                      {
-                        "label": "Albany"
-                      },
-                      {
-                        "label": "Alhambra"
-                      },
-                      {
-                        "label": "Brentwood"
-                      },
-                      {
-                        "label": "Burlingame"
-                      },
-                      {
-                        "label": "Calistoga"
-                      },
-                      {
-                        "label": "Concord"
-                      },
-                      {
-                        "label": "Danville"
-                      },
-                      {
-                        "label": "Emeryville"
-                      },
-                      {
-                        "label": "Fresno"
-                      },
-                      {
-                        "label": "Gilroy"
-                      },
-                      {
-                        "label": "Hayward"
-                      },
-                      {
-                        "label": "Oakland"
-                      },
-                      {
-                        "label": "San Francisco"
-                      },
-                      {
-                        "label": "San Ramon",
-                        "id": "id4",
-                        "children": [
-                          {
-                            "label": "Crow Canyon Gardens",
-                            "id": "id5"
-                          },
-                          {
-                            "label": "Old Ranch Park"
-                          },
-                          {
-                            "label": "Valley View Park"
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  {
-                    "label": "Colorado"
-                  },
-                  {
-                    "label": "Delaware"
-                  },
-                  {
-                    "label": "Florida"
-                  }
-                ]
-              }
+              "label": "United States of America",
+              "id": "United States of America",
+              "children": [
+                {
+                  "label": "California",
+                  "id": "California",
+                  "children": [
+                    {
+                      "label": "Alameda",
+                      "id": "Alameda"
+                    },
+                    {
+                      "label": "Albany",
+                      "id": "Albany"
+                    },
+                    {
+                      "label": "Alhambra",
+                      "id": "Alhambra"
+                    },
+                    {
+                      "label": "Brentwood",
+                      "id": "Brentwood"
+                    },
+                    {
+                      "label": "Burlingame",
+                      "id": "Burlingame"
+                    },
+                    {
+                      "label": "Calistoga",
+                      "id": "Calistoga"
+                    },
+                    {
+                      "label": "Concord",
+                      "id": "Concord"
+                    },
+                    {
+                      "label": "Danville",
+                      "id": "Danville"
+                    },
+                    {
+                      "label": "Emeryville",
+                      "id": "Emeryville"
+                    },
+                    {
+                      "label": "Fresno",
+                      "id": "Fresno"
+                    },
+                    {
+                      "label": "Gilroy",
+                      "id": "Gilroy"
+                    },
+                    {
+                      "label": "Hayward",
+                      "id": "Hayward"
+                    },
+                    {
+                      "label": "Oakland",
+                      "id": "Oakland"
+                    },
+                    {
+                      "label": "San Francisco",
+                      "id": "San Francisco"
+                    },
+                    {
+                      "label": "San Ramon",
+                      "id": "San Ramon",
+                      "children": [
+                        {
+                          "label": "Crow Canyon Gardens",
+                          "id": "Crow Canyon Gardens"
+                        },
+                        {
+                          "label": "Old Ranch Park",
+                          "id": "Old Ranch Park"
+                        },
+                        {
+                          "label": "Valley View Park",
+                          "id": "Valley View Park"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "label": "Colorado",
+                  "id": "Colorado"
+                },
+                {
+                  "label": "Delaware",
+                  "id": "Delaware"
+                },
+                {
+                  "label": "Florida",
+                  "id": "Florida"
+                }
               ]
-            },
-            {
-            "label":"South America"
             }
-          ],
+          ]
+        },
+        {
+          "label": "South America",
+          "id": "South America"
+        }
+      ],
       inputType: 'code:JSON'
     },
     clickOnlyMode: {

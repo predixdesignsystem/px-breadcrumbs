@@ -1,3 +1,7 @@
+v1.0.3
+==================
+* fix dropdown search (provide IDs for all items)
+
 v1.0.2
 ==================
 * update demo per design feedback
