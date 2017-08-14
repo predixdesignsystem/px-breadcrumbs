@@ -35,7 +35,9 @@
 @import "px-shadows-design/_objects.shadows.scss";
 
 // Component
-
+:host {
+  display: block;
+}
 .container {
   white-space: nowrap;
   overflow: hidden;

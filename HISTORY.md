@@ -1,3 +1,7 @@
+v1.0.5
+==================
+* add display:block
+
 v1.0.4
 ==================
 * update demo to use unique name
