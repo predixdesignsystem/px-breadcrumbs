@@ -42,7 +42,7 @@
           items="[[props.items.value]]"
           click-only-mode="{{props.clickOnlyMode.value}}"
           search-mode="{{props.searchMode.value}}"
-          selected-route='["North America","United States of America","California","San Ramon","Crow Canyon Gardens"]'>
+          selected-route="{{props.selectedRoute.value}}">
         </px-breadcrumbs>
       </px-demo-component>
       <!-- END Component ------------------------------------------------------>
@@ -54,7 +54,7 @@
     </px-demo-interactive>
 
     <!-- API Viewer -->
-    <px-demo-api-viewer source="px-breadcrumbs" hide='["active","activeMeta","activeRoute","selectedMeta","multiActivate","multiSelect","activate","deactivate","select","deselect","addChildren","px-app-asset-activated","px-app-asset-selected","notifyResize", "resizerShouldNotify", "stopResizeNotificationsFor", "assignParentResizable"]'></px-demo-api-viewer>
+    <px-demo-api-viewer source="px-breadcrumbs" hide='["active","activeMeta","activeRoute","selectedMeta","multiActivate","multiSelect","activate","deactivate","select","deselect","addChildren","removeChildren","px-app-asset-activated","px-app-asset-selected","notifyResize", "resizerShouldNotify", "stopResizeNotificationsFor", "assignParentResizable"]'></px-demo-api-viewer>
 
     <!-- Footer -->
     <px-demo-footer></px-demo-footer>
@@ -78,13 +78,8 @@
         value: function(){
           return [
             {
-              configName: "Click only mode",
-              clickOnlyMode: true
-            },
-            {
-              configName: "Dropdown",
-              clickOnlyMode: false,
-              searchMode: true
+              configName: "Default",
+              configReset: true
             }
           ]
         }
@@ -206,13 +201,20 @@
       ],
       inputType: 'code:JSON'
     },
+    selectedRoute: {
+      type: Array,
+      defaultValue: ["North America","United States of America","California","San Ramon","Crow Canyon Gardens"],
+      inputType: 'code:JSON'
+    },
     clickOnlyMode: {
       type: Boolean,
-      defaultValue: true
+      defaultValue: false,
+      inputType: 'toggle'
     },
     searchMode: {
       type: Boolean,
-      defaultValue: false
+      defaultValue: false,
+      inputType: 'toggle'
     }
   }
 });
