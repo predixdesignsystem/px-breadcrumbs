@@ -1,4 +1,4 @@
-(function(window) {
+(function (window) {
   Polymer({
 
     is: 'px-breadcrumbs',
@@ -16,7 +16,7 @@
        */
       _mainPathItems: {
         type: Array,
-        value: function() {return [];},
+        value: function () { return []; },
         readOnly: true
       },
       /**
@@ -24,7 +24,7 @@
        */
       _clickPathItem: {
         type: Object,
-        value: function() {return {};}
+        value: function () { return {}; }
       },
       /**
        * This property holds all the items that are to be shown in the dropdown - these are usually siblings,
@@ -32,7 +32,7 @@
        */
       _clickedItemChildren: {
         type: Array,
-        value: function() { return []; }
+        value: function () { return []; }
       },
       /**
        * This property holds the currently selected item. We start out with no value to avoid have it run through an empty object.
@@ -56,7 +56,7 @@
        */
       _selectedItemPath: {
         type: Array,
-        value: function() {return [];},
+        value: function () { return []; },
         readOnly: true
       },
       /**
@@ -83,7 +83,7 @@
     listeners: {
       'iron-resize': '_onResize',
       'px-app-asset-selected': '_onSelect',
-      'px-dropdown-selection-changed': '_dropdownTap',
+      //'px-dropdown-selection-changed': '_dropdownTap',
       'px-app-asset-graph-created': '_getBreadcrumbsObj'
     },
     observers: [
@@ -99,16 +99,16 @@
       this.debounce('windowResize', () => {
         window.requestAnimationFrame(() => {
           var breadcrumbsContainer = Polymer.dom(this.root).querySelector('.container'),
-              breadcrumbsUlContainer = Polymer.dom(breadcrumbsContainer).querySelector('ul'),
-              bcUlContainerRect = breadcrumbsUlContainer.getBoundingClientRect();
+            breadcrumbsUlContainer = Polymer.dom(breadcrumbsContainer).querySelector('ul'),
+            bcUlContainerRect = breadcrumbsUlContainer.getBoundingClientRect();
           this.set('_ulWidth', bcUlContainerRect.width);
         });
-      },50);
+      }, 50);
     },
     _getBreadcrumbsObj() {
       var itemPath = this._selectedItemPath || [],
-          graph = this._assetGraph,
-          clickOnlyMode = this.clickOnlyMode;
+        graph = this._assetGraph,
+        clickOnlyMode = this.clickOnlyMode;
       if (!itemPath.length || !graph) return;
       this.set('_breadcrumbsObj', new window.pxBreadcrumbs.Breadcrumbs(this, graph, clickOnlyMode, itemPath));
       this.updateStyles();
@@ -124,8 +124,8 @@
     _getDisplayMode() {
 
       var ulWidth = this._ulWidth,
-          itemPath = this._selectedItemPath || [],
-          breadcrumbsObj = this._breadcrumbsObj;
+        itemPath = this._selectedItemPath || [],
+        breadcrumbsObj = this._breadcrumbsObj;
 
       if (!ulWidth || !itemPath || !breadcrumbsObj) return;
 
@@ -177,19 +177,19 @@
     _createArrayWithOverflow(strArray, _ulWidth, breadcrumbsObj) {
 
       var pointer = 0,
-          currentAccumSize = breadcrumbsObj.sizeOfAllShortenedItemsExcludingLastItem,
-          sizeOfFullLastItem = breadcrumbsObj.sizeOfFullLastItem,
-          sizeOfEllipsis = 36,
-          noRoomForFullLastItem = false,
-          lastItem = {},
-          overflowObj = {"label": "...", "hasChildren": true},
-          slicedStrArray = [];
+        currentAccumSize = breadcrumbsObj.sizeOfAllShortenedItemsExcludingLastItem,
+        sizeOfFullLastItem = breadcrumbsObj.sizeOfFullLastItem,
+        sizeOfEllipsis = 36,
+        noRoomForFullLastItem = false,
+        lastItem = {},
+        overflowObj = { "label": "...", "hasChildren": true },
+        slicedStrArray = [];
 
       //keep looping until all the items fit into the container
       while (_ulWidth < sizeOfEllipsis + currentAccumSize + sizeOfFullLastItem) {
         //if we made it to the last item, and it's STILL can't fit, break out of the
         // while loop, to ensure the last items doesn't go into the overflow object.
-        if (pointer === strArray.length-1) {
+        if (pointer === strArray.length - 1) {
           noRoomForFullLastItem = true;
           break;
         }
@@ -207,15 +207,15 @@
       // clean up - in case the user clicked on the path, there will be a highlighted property set to true.
       // since overflow shouldn't have anything highlighted, we clear is up, just to be sure.
       overflowObj.children.forEach((child) => {
-          child.highlighted = false;
+        child.highlighted = false;
       });
       //the last item is usually full size, but, if if it's just the overflow and the last item
       // and the last item is too long, it should shortened.
-      lastItem  = (noRoomForFullLastItem) ? breadcrumbsObj.lastItemShort : breadcrumbsObj.lastItemFull;
+      lastItem = (noRoomForFullLastItem) ? breadcrumbsObj.lastItemShort : breadcrumbsObj.lastItemFull;
 
       //add the overflow obj to the beginning of the array, and follow it up with all the shortened strings,
       //starting with the point we stopped at with the pointer, and going till the last item, which is dynamically determined.
-      slicedStrArray = [overflowObj].concat(breadcrumbsObj.shortenedItems.slice(pointer, strArray.length-1)).concat(lastItem);
+      slicedStrArray = [overflowObj].concat(breadcrumbsObj.shortenedItems.slice(pointer, strArray.length - 1)).concat(lastItem);
       return slicedStrArray;
 
     },
@@ -236,25 +236,42 @@
      */
     _doesItemHaveSiblings(itemInPath) {
       var graph = this._assetGraph,
-          source = itemInPath.source ? itemInPath.source : itemInPath,
-          isItemOverflow = itemInPath.label === '...' ? true : false;
+        source = itemInPath.source ? itemInPath.source : itemInPath,
+        isItemOverflow = itemInPath.label === '...' ? true : false;
 
-      return isItemOverflow  ? true : graph.hasSiblings(source);
+      return isItemOverflow ? true : graph.hasSiblings(source);
     },
     /**
      * Handles tap events in the dropdown. Checks each item against the currently selected item.
      */
     _dropdownTap(evt) {
-      var newSelectItem = {};
-      if(evt.target && evt.target.items) {
-        evt.target.items.forEach(function(item) {
-          if(item.id === evt.target.selected) {
-            newSelectItem = item;
-          }
-        });
-      }
+      var newSelectItem;
+      var _dropDownSelectedBy = evt.target && evt.target.selectBy || 'key';
+      var _selectedItem = evt.detail;
+      var _dropdownItems = evt.target && evt.target.items;
+      var _validNewItem = _dropdownItems && _dropdownItems.some((item) => {
+        if (item[_dropDownSelectedBy] === _selectedItem[_dropDownSelectedBy]) {
+          newSelectItem = item;
+          return true;
+        }
+        return false;
+      });
       this._changePathFromClick(newSelectItem);
     },
+    /*
+
+        _dropdownTap(evt) {
+          var newSelectItem = {};
+          if(evt.target && evt.target.items) {
+            evt.target.items.forEach(function(item) {
+              if(item.id === evt.target.selected) {
+                newSelectItem = item;
+              }
+            });
+          }
+          this._changePathFromClick(newSelectItem);
+        },
+    */
     /**
      * Sets the _selectedItem to the item that was clicked - whether from the main path items, or the dropdown items.
      * This is the only place we change _selectedItem on click.
@@ -277,7 +294,7 @@
     */
     _onPathTap(evt) {
       var dataItem = evt.model.item.source ? evt.model.item.source : evt.model.item;
-      var isClickedItemOverflow = dataItem.label ==='...' ? true : false;
+      var isClickedItemOverflow = dataItem.label === '...' ? true : false;
 
       //if the click only mode is on, just change the path
       if (this.clickOnlyMode && !isClickedItemOverflow) {
@@ -293,18 +310,18 @@
 
       if (this._doesItemHaveSiblings(dataItem) || isClickedItemOverflow) {
         var graph = this._assetGraph,
-            siblings = !isClickedItemOverflow ? graph.getSiblings(dataItem) : dataItem.children;
+          siblings = !isClickedItemOverflow ? graph.getSiblings(dataItem) : dataItem.children;
 
         // Need to map the id and label to key and val for use in px-dropdown
         var siblingsCopy = siblings.map((sibling) => {
-          return Object.assign({}, sibling, {"key": sibling.id, "val": sibling.label});
+          return Object.assign({}, sibling, { "key": sibling.id, "val": sibling.label });
         });
         this.set('_clickedItemChildren', siblingsCopy);
         this.set('_clickPathItem', dataItem);
 
-      // the clicked item has no siblings - we reset the contents of the dropdown
-      // and change the path accordingly.
-    } else {
+        // the clicked item has no siblings - we reset the contents of the dropdown
+        // and change the path accordingly.
+      } else {
         this.set('_clickedItemChildren', []);
         this._changePathFromClick(dataItem);
       }
@@ -363,7 +380,7 @@
      * A getter that returns the short size of the breadcrumb items excluding the last item.
      */
     get sizeOfAllShortenedItemsExcludingLastItem() {
-      return this._calculateSizeOfBreadcrumbs(this.breadcrumbs.slice(0, this.breadcrumbs.length-1), false);
+      return this._calculateSizeOfBreadcrumbs(this.breadcrumbs.slice(0, this.breadcrumbs.length - 1), false);
     }
     /**
      * A getter that returns the size of the full last item.
@@ -393,7 +410,7 @@
      * A getter that returns an array of all the shortened items in the breadcrumbs array.
      */
     get shortenedItems() {
-      this.__shortenedItems = this.__shortenedItems ||  this.breadcrumbs.map((item) => {
+      this.__shortenedItems = this.__shortenedItems || this.breadcrumbs.map((item) => {
         var wrapper = {};
         wrapper.source = item;
         wrapper.isTruncated = true;
@@ -421,7 +438,7 @@
      * A getter that returns the size - in pixels - of all the shortened breadcrumbs items excluding the last item.
      */
     get allShortenedItemsExcludingLast() {
-      return this.shortenedItems.slice(0, this.shortenedItems.length -1);
+      return this.shortenedItems.slice(0, this.shortenedItems.length - 1);
     }
     /**
      * Adds the item that is passed in to the weakMap if it is not already there.
@@ -447,10 +464,10 @@
      */
     _getShortenedText(item) {
       const cachedItem = this.map.get(item) || {};
-      if(!cachedItem.shortText && item.label.length > 13) {
-        cachedItem.shortText = `${item.label.substr(0,6)}...${item.label.substr(item.label.length-6)}`;
+      if (!cachedItem.shortText && item.label.length > 13) {
+        cachedItem.shortText = `${item.label.substr(0, 6)}...${item.label.substr(item.label.length - 6)}`;
       }
-      else if(!cachedItem.shortText) {
+      else if (!cachedItem.shortText) {
         cachedItem.shortText = item.label;
       }
       this.map.set(item, cachedItem);
@@ -462,7 +479,7 @@
      */
     _sizeOfIndividualFullItem(item) {
       const cachedItem = this.map.get(item) || {};
-      cachedItem.fullSize = (cachedItem.fullSize || parseInt(this.ctx.measureText(item.label).width,10));
+      cachedItem.fullSize = (cachedItem.fullSize || parseInt(this.ctx.measureText(item.label).width, 10));
       this.map.set(item, cachedItem);
       return cachedItem.fullSize;
     }
@@ -472,7 +489,7 @@
      */
     _sizeOfIndividualShortItem(item) {
       const cachedItem = this.map.get(item) || {};
-      cachedItem.shortSize = (cachedItem.shortSize || parseInt(this.ctx.measureText(cachedItem.shortText).width,10));
+      cachedItem.shortSize = (cachedItem.shortSize || parseInt(this.ctx.measureText(cachedItem.shortText).width, 10));
       this.map.set(item, cachedItem);
       return cachedItem.shortSize;
     }
@@ -481,14 +498,14 @@
      * The size can be determined in either short or full text.
      * It takes into account the size of the px-icons, as well as padding on each item, and padding on the container.
      */
-    _calculateSizeOfBreadcrumbs(strArray, useFullSize=true) {
+    _calculateSizeOfBreadcrumbs(strArray, useFullSize = true) {
       if (strArray) {
         let accum = 0,
-            i = 0,
-            len = strArray.length,
-            sizeOfItem;
+          i = 0,
+          len = strArray.length,
+          sizeOfItem;
         //run through all the items, and get the sizes.
-        for (i=0; i<len;i++,sizeOfItem=null) {
+        for (i = 0; i < len; i++ , sizeOfItem = null) {
 
           if (useFullSize) {
             sizeOfItem = this._sizeOfIndividualFullItem(strArray[i]);
@@ -506,7 +523,7 @@
           accum += 20;
 
           //right angle arrow - the last item doesn't get a right angle.
-          if (i !== len-1){
+          if (i !== len - 1) {
             accum += this.clickOnlyMode ? 30 : 15;
           }
         }
@@ -519,8 +536,8 @@
      */
     _createCanvas(breadcrumbEl) {
       var style = window.getComputedStyle(breadcrumbEl, null),
-          fontSize = style.getPropertyValue('font-size'),
-          fontFamily = style.getPropertyValue('font-family');
+        fontSize = style.getPropertyValue('font-size'),
+        fontFamily = style.getPropertyValue('font-family');
 
       const canvas = document.createElement('canvas');
 
