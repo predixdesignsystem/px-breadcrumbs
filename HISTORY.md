@@ -1,3 +1,7 @@
+v1.0.7
+==================
+* fix style with latest dropdown
+
 v1.0.6
 ==================
 * update demo

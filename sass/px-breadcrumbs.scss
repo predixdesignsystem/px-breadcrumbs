@@ -51,8 +51,11 @@
 .breadcrumbTopItem {
   list-style-type: none;
   height: 2rem;
-  &:last-of-type {
+  &:last-of-type .actionable {
     font-weight: 600;
+  }
+  &:last-of-type px-dropdown {
+    --px-dropdown-font-weight: bold;
   }
   .small > px-icon {
     --iron-icon-height: 1rem;
