@@ -45,10 +45,10 @@ It also provides a quick way to navigate backwards within a path or within a spe
               <span class="actionable actionable--action">[[item.label]]</span>
             </template>
             <template is="dom-if" if="[[_isDropdown(item, clickOnlyMode)]]">
-              <px-dropdown display-value="[[item.label]]" items="[[_clickedItemChildren]]" search-mode="[[searchMode]]" button-style="bare" disable-clear></px-dropdown>
+              <px-dropdown display-value="[[item.label]]" items="[[_clickedItemChildren]]" search-mode="[[searchMode]]" button-style="bare" disable-clear on-px-dropdown-selection-changed="_dropdownTap"></px-dropdown>
             </template>
             <template is="dom-if" if="[[_isOverflow(item)]]">
-              <px-dropdown id="dropdown" items="[[_clickedItemChildren]]" button-style="icon" icon="px-nav:more"></px-dropdown>
+              <px-dropdown id="dropdown" items="[[_clickedItemChildren]]" button-style="icon" icon="px-nav:more" on-px-dropdown-selection-changed="_dropdownTap"></px-dropdown>
             </template>
           </li>
         </template>

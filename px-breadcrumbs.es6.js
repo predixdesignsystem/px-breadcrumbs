@@ -83,7 +83,7 @@
     listeners: {
       'iron-resize': '_onResize',
       'px-app-asset-selected': '_onSelect',
-      'px-dropdown-selection-changed': '_dropdownTap',
+      //'px-dropdown-selection-changed': '_dropdownTap',
       'px-app-asset-graph-created': '_getBreadcrumbsObj'
     },
     observers: [
@@ -243,18 +243,36 @@
     },
     /**
      * Handles tap events in the dropdown. Checks each item against the currently selected item.
+     * event.target.selected is pointing to null but evt.detail[evt.target.selectBy] gives actual selected dropdown item
      */
     _dropdownTap(evt) {
-      var newSelectItem = {};
-      if(evt.target && evt.target.items) {
-        evt.target.items.forEach(function(item) {
-          if(item.id === evt.target.selected) {
-            newSelectItem = item;
-          }
-        });
-      }
+      var newSelectItem;
+      var _dropDownSelectedBy = evt.target && evt.target.selectBy || 'key';
+      var _selectedItem = evt.detail;
+      var _dropdownItems = evt.target && evt.target.items;
+      var _validNewItem = _dropdownItems && _dropdownItems.some((item) => {
+        if (item[_dropDownSelectedBy] === _selectedItem[_dropDownSelectedBy]) {
+          newSelectItem = item;
+          return true;
+        }
+        return false;
+      });
       this._changePathFromClick(newSelectItem);
     },
+    /*
+     _dropdownTap(evt) {
+       var newSelectItem = {};
+       if(evt.target && evt.target.items) {
+         evt.target.items.forEach(function(item) {
+           if(item.id === evt.target.selected) {
+             newSelectItem = item;
+           }
+         });
+       }
+       this._changePathFromClick(newSelectItem);
+     },
+    */
+
     /**
      * Sets the _selectedItem to the item that was clicked - whether from the main path items, or the dropdown items.
      * This is the only place we change _selectedItem on click.
