@@ -272,6 +272,7 @@
           this._changePathFromClick(newSelectItem);
         },
     */
+
     /**
      * Sets the _selectedItem to the item that was clicked - whether from the main path items, or the dropdown items.
      * This is the only place we change _selectedItem on click.
