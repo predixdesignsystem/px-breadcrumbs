@@ -1,3 +1,7 @@
+v1.0.8
+==================
+* add device flags
+
 v1.0.7
 ==================
 * fix style with latest dropdown
