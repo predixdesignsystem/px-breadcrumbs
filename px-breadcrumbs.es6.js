@@ -245,15 +245,16 @@
      * Handles tap events in the dropdown. Checks each item against the currently selected item.
      */
     _dropdownTap(evt) {
-      var newSelectItem = {};
-      if(evt.target && evt.target.items) {
-        evt.target.items.forEach(function(item) {
-          if(item.id === evt.target.selected) {
-            newSelectItem = item;
+      var target = Polymer.dom(evt).rootTarget;
+      var newSelectItem;
+      if (target && target.items) {
+        newSelectItem = target.items.find(function(item) {
+          if (item.id === target.selected) {
+            return item;
           }
         });
       }
-      this._changePathFromClick(newSelectItem);
+      this._changePathFromClick(newSelectItem || {});
     },
     /**
      * Sets the _selectedItem to the item that was clicked - whether from the main path items, or the dropdown items.
