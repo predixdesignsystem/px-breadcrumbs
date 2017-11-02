@@ -2,9 +2,9 @@
     "name": "px-breadcrumbs",
     "author": "General Electric",
     "description": "A Px component",
-    "version": "1.0.8",
+    "version": "1.0.9",
     "private": false,
-    "extName" : null,
+    "extName": null,
     "repository": {
         "type": "git",
         "url": "https://github.com/PredixDev/px-breadcrumbs.git"

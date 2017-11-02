@@ -1,3 +1,9 @@
+v1.0.9
+==================
+* Moves class declaration above usage (#13/#14)
+* Normalize event root target to fix bug that prevented user from selecting
+a breadcrumbs dropdown item in shadow DOM mode (#12/#15)
+
 v1.0.8
 ==================
 * add device flags
