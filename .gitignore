@@ -1,4 +1,10 @@
 node_modules
 .DS_Store
+temp
 bower_components
-build/
+.idea
+reports
+.yo-rc.json
+bower_components-*/
+bower-*.json
+monogram-wdmk.png
