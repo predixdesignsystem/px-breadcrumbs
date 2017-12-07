@@ -319,7 +319,7 @@
     * 4. Shorten all of them, and include the overflow at the beginning of the array.
     *    The last one is NOT shortened by default, but can be shortened as needed.
     */
-    _getDisplayMode() {
+    _getDisplayMode(_ulWidth, _selectedItemPath, _breadcrumbsObj) {
 
       var ulWidth = this._ulWidth,
           itemPath = this._selectedItemPath || [],
@@ -443,11 +443,12 @@
      * Handles tap events in the dropdown. Checks each item against the currently selected item.
      */
     _dropdownTap(evt) {
-      var target = Polymer.dom(evt).rootTarget;
+      evt = Polymer.dom(evt);
+      var target = evt.rootTarget;
       var newSelectItem;
       if (target && target.items) {
         newSelectItem = target.items.find(function(item) {
-          if (item.id === target.selected) {
+          if (item.id === evt.event.detail.key) {
             return item;
           }
         });

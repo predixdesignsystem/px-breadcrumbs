@@ -29,7 +29,8 @@
     "polymer": "#1.9 - 2",
     "px-icon-set": "^2.0.0",
     "iron-resizable-behavior": "^2.0.0",
-    "px-app-helpers": "^2.0.0"
+    "px-app-helpers": "^2.0.0",
+    "px-dropdown": "^4.2.1"
   },
   "devDependencies": {
     "px-theme": "^3.0.0",
