@@ -7,7 +7,7 @@
 
     <!-- COMMON TEST IMPORTS -->
     <!-- Loads webcomponents.js polyfill is provided by the page for browsers that don't support html imports -->
-    <script src="../../webcomponentsjs/webcomponents-lite.min.js"></script>
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
     <!-- Load web-component-tester's browser.js test runner -->
     <script src="../../web-component-tester/browser.js"></script>
     <!-- Load Polymer -->
@@ -15,13 +15,11 @@
     <!-- Retain this link for px-theme.html -->
     <!-- px-theme is needed for WCT to run without errors -->
     <link rel="import" href="../../px-theme/px-theme-styles.html"/>
-    <!-- Load test helpers -->
-    <script src="../../test-fixture/test-fixture-mocha.js"></script>
-    <link rel="import" href="../../test-fixture/test-fixture.html"/>
-
     <!-- LOCAL IMPORTS -->
     <!-- Load local components -->
     <link rel="import" href="../px-breadcrumbs.html"/>
+    <script src="chai-expect-eventually.js"></script>
+
     <!-- Load tests -->
     <script src="px-breadcrumbs-custom-tests.js"></script>
   </head>
@@ -29,12 +27,14 @@
   <body>
 
     <p class="notElement">hello</p>
-    <style include="px-theme-styles" is="custom-style">
+    <custom-style>
+      <style include="px-theme-styles" is="custom-style">
       px-breadcrumbs {
         font-family: 'GE Inspira Sans';
         font-size: 15px;
       }
-    </style>
+      </style>
+    </custom-style>
 
     <test-fixture id="breadcrumbsFixture">
       <template>

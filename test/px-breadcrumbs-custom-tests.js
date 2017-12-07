@@ -1,26 +1,3 @@
-document.addEventListener("WebComponentsReady", function() {
-  runCustomTests();
-});
-
-function runCustomTests() {
-
-  describe('px-breadcrumbs sets its display options', function () {
-    var sandbox,
-        breadcrumbsEl,
-        breadcrumbsElWithData;
-
-    beforeEach(function () {
-      breadcrumbsEl = fixture('breadcrumbsFixture');
-      breadcrumbsElWithData = fixture('breadcrumbsFixtureWithData');
-      sandbox = sinon.sandbox.create();
-    });
-
-    afterEach(function () {
-      sandbox.restore();
-    });
-
-  });
-
 describe('px-breadcrumbs creates the overflow array', function () {
     var sandbox,
         breadcrumbsEl,
@@ -75,8 +52,8 @@ describe('px-breadcrumbs creates the overflow array', function () {
 describe('general methods', function() {
 
   var sandbox,
-        breadcrumbsEl,
-        breadcrumbsElWithData;
+      breadcrumbsEl,
+      breadcrumbsElWithData;
 
   beforeEach(function () {
     breadcrumbsEl = fixture('breadcrumbsFixture');
@@ -106,8 +83,8 @@ describe('general methods', function() {
 describe('click Events', function() {
 
   var sandbox,
-        breadcrumbsEl,
-        breadcrumbsElWithData;
+      breadcrumbsEl,
+      breadcrumbsElWithData;
 
   beforeEach(function () {
     breadcrumbsEl = fixture('breadcrumbsFixture');
@@ -220,8 +197,8 @@ describe('click Events', function() {
 describe('does item have siblings', function() {
 
   var sandbox,
-        breadcrumbsEl,
-        breadcrumbsElWithData;
+      breadcrumbsEl,
+      breadcrumbsElWithData;
 
   beforeEach(function () {
     breadcrumbsEl = fixture('breadcrumbsFixture');
@@ -345,133 +322,122 @@ describe('Breadcrumb Class', function() {
     expect(breadcrumbs).to.be.instanceOf(window.pxBreadcrumbs.Breadcrumbs);
   });
 
-  it('checks that the returned size of full breadcrumbs is as expected (sizeOfFullBreadcrumbs)', function() {
-    var response = breadcrumbs.sizeOfFullBreadcrumbs;
-
-    expect(response).to.be.closeTo(1594, 5);
+  it('checks that the returned size of full breadcrumbs is as expected (sizeOfFullBreadcrumbs)', done => {
+    expect(() => breadcrumbs.sizeOfFullBreadcrumbs)
+      .to.eventuallyEqual(1594, {within: 9000, every: 200}, done);
   });
 
-  it('checks that the returned size of full breadcrumbs is as expected (_calculateSizeOfBreadcrumbs)', function() {
-    var response = breadcrumbs._calculateSizeOfBreadcrumbs(breadcrumbs.breadcrumbs);
-
-    expect(response).to.be.closeTo(1594, 5);
+  it('checks that the returned size of full breadcrumbs is as expected (_calculateSizeOfBreadcrumbs)', done => {
+    expect(() => breadcrumbs._calculateSizeOfBreadcrumbs(breadcrumbs.breadcrumbs))
+      .to.eventuallyEqual(1594, {within: 9000, every: 200}, done);
   });
 
-  it('checks that the returned size of full breadcrumbs except last one is as expected (sizeOfAllShortenedItemsExcludingLastItem)', function() {
-    var response = breadcrumbs.sizeOfAllShortenedItemsExcludingLastItem;
-
-    expect(response).to.be.closeTo(397, 5);
+  it('checks that the returned size of full breadcrumbs except last one is as expected (sizeOfAllShortenedItemsExcludingLastItem)', done => {
+    expect(() => breadcrumbs.sizeOfAllShortenedItemsExcludingLastItem)
+      .to.eventuallyEqual(397, {within: 9000, every: 200}, done);
   });
 
-  it('checks that the returned size of the last full item is as expected (sizeOfFullLastItem)', function() {
-    var response = breadcrumbs.sizeOfFullLastItem;
-
-    expect(response).to.be.closeTo(400, 5);
+  it('checks that the returned size of the last full item is as expected (sizeOfFullLastItem)', done => {
+    expect(() => breadcrumbs.sizeOfFullLastItem)
+      .to.eventuallyEqual(400, {within: 9000, every: 200}, done);
   });
 
-  it('checks that the returned size of the last short item is as expected (sizeOfShortLastItem)', function() {
-    var response = breadcrumbs.sizeOfShortLastItem;
-
-    expect(response).to.be.closeTo(136, 5);
+  it('checks that the returned size of the last short item is as expected (sizeOfShortLastItem)', done => {
+    expect(() => breadcrumbs.sizeOfShortLastItem)
+      .to.eventuallyEqual(136, {within: 9000, every: 200}, done);
   });
 
-  it('checks that the last full item is returned as expected (lastItemFull)', function() {
-    var response = breadcrumbs.lastItemFull;
-
-    expect(response.label).to.be.eql('4 This is a very long string with more than 16 characters');
+  it('checks that the last full item is returned as expected (lastItemFull)', done => {
+    expect(() => breadcrumbs.lastItemFull.label)
+      .to.eventuallyEqual('4 This is a very long string with more than 16 characters', {within: 9000, every: 200}, done);
   });
 
-  it('checks that the last short item is returned as expected (lastItemShort)', function() {
-    var response = breadcrumbs.lastItemShort;
-
-    expect(response.label).to.be.eql('4 This...acters');
+  it('checks that the last short item is returned as expected (lastItemShort)', done => {
+    expect(() => breadcrumbs.lastItemShort.label)
+      .to.eventuallyEqual('4 This...acters', {within: 9000, every: 200}, done);
   });
 
-  it('checks that the shortenedItem length is as expected (shortenedItems)', function() {
-    var response = breadcrumbs.shortenedItems;
-
-    expect(response).to.have.lengthOf(4);
+  it('checks that the shortenedItem length is as expected (shortenedItems)', done => {
+    expect(() => breadcrumbs.shortenedItems.length)
+      .to.eventuallyEqual(4, {within: 9000, every: 200}, done);
   });
 
-  it('checks that the shortenedItem items has the shortedned text as expected (shortenedItems)', function() {
-    var response = breadcrumbs.shortenedItems;
+  it('checks that the shortenedItem items has the shortedned text as expected (shortenedItems)', done => {
+    let response = breadcrumbs.shortenedItems;
 
-    expect(response[0].label).to.be.eql('1 This...acters');
-    expect(response[1].label).to.be.eql('2 This...acters');
-    expect(response[2].label).to.be.eql('3 This...acters');
-    expect(response[3].label).to.be.eql('4 This...acters');
+    expect(() => breadcrumbs.shortenedItems[0].label)
+      .to.eventuallyEqual('1 This...acters', {within: 9000, every: 200}, ()=>{
+        expect(response[1].label).to.be.eql('2 This...acters');
+        expect(response[2].label).to.be.eql('3 This...acters');
+        expect(response[3].label).to.be.eql('4 This...acters');
+        done();
+
+      });
+
   });
 
-  it('checks that the size of the ellipsis is as expected (sizeOfEllipsis)', function() {
-    var response = breadcrumbs.sizeOfEllipsis;
-
-    expect(response).to.be.closeTo(36,3);
+  it('checks that the size of the ellipsis is as expected (sizeOfEllipsis)', done => {
+    expect(() => breadcrumbs.sizeOfEllipsis)
+      .to.eventuallyEqual(36, {within: 9000, every: 200}, done);
   });
 
-  it('checks that the size of all the shortened items is as expected (sizeOfAllShortenedItems)', function() {
-    var response = breadcrumbs.sizeOfAllShortenedItems;
-
-    expect(response).to.be.closeTo(538,3);
+  it('checks that the size of all the shortened items is as expected (sizeOfAllShortenedItems)', done => {
+    expect(() => breadcrumbs.sizeOfAllShortenedItems)
+    	.to.eventuallyEqual(538, {within: 9000, every: 200}, done);
   });
 
-  it('checks that the length of the array of all the shortened items except the last one is as expected (allShortenedItemsExcludingLast)', function() {
-    var response = breadcrumbs.allShortenedItemsExcludingLast;
-
-    expect(response).to.have.lengthOf(3);
+  it('checks that the length of the array of all the shortened items except the last one is as expected (allShortenedItemsExcludingLast)', done => {
+    expect(() => breadcrumbs.allShortenedItemsExcludingLast.length)
+      .to.eventuallyEqual(3, {within: 9000, every: 200}, done);
   });
 
-  it('checks that the array returns the shortened items as expected (allShortenedItemsExcludingLast)', function() {
-    var response = breadcrumbs.allShortenedItemsExcludingLast;
-
-    expect(response[0].label).to.be.eql('1 This...acters');
-    expect(response[1].label).to.be.eql('2 This...acters');
-    expect(response[2].label).to.be.eql('3 This...acters');
+  it('checks that the array returns the shortened items as expected (allShortenedItemsExcludingLast)', done => {
+    let response = breadcrumbs.allShortenedItemsExcludingLast;
+    expect(() => breadcrumbs.allShortenedItemsExcludingLast[0].label)
+      .to.eventuallyEqual('1 This...acters', {within: 9000, every: 200}, () => {
+        expect(response[1].label).to.be.eql('2 This...acters');
+        expect(response[2].label).to.be.eql('3 This...acters');
+        done();
+      });
   });
 
-  it('checks that the _getShortenedText method is called as many times as the length of the items array that\'s passed into it', function() {
+  it('checks that the _getShortenedText method is called as many times as the length of the items array that\'s passed into it', done => {
     var items = [nodes[0], nodes[0].children[0],nodes[0].children[0].children[3],nodes[0].children[0].children[3].children[3] ];
     var getShortenedText = sandbox.stub(breadcrumbs, '_getShortenedText');
     breadcrumbs._preShortenItems(items);
 
-
-    expect(getShortenedText).to.have.callCount(items.length);
+    expect(() =>  getShortenedText.callCount)
+      .to.eventuallyEqual(items.length, {within: 9000, every: 200}, done);
   });
 
-  it('checks if the text is shortened as expected (_getShortenedText)', function() {
-    var response = breadcrumbs._getShortenedText(nodes[0]);
-
-    expect(response).to.be.eql('1 This...acters');
+  it('checks if the text is shortened as expected (_getShortenedText)', done => {
+    expect(() => breadcrumbs._getShortenedText(nodes[0]))
+      .to.eventuallyEqual('1 This...acters', {within: 9000, every: 1000}, done);
   });
 
-  it('checks if the size of the full item is as expected (_sizeOfIndividualFullItem)', function() {
-    var response = breadcrumbs._sizeOfIndividualFullItem(nodes[0]);
-
-    expect(response).to.be.closeTo(349,5);
+  it('checks if the size of the full item is as expected (_sizeOfIndividualFullItem)', done => {
+    expect(() => breadcrumbs._sizeOfIndividualFullItem(nodes[0]))
+      .to.eventuallyEqual(349, {within: 9000, every: 1000}, done);
   });
 
-  it('checks if the size of the short item is as expected (_sizeOfIndividualShortItem)', function() {
-    var response = breadcrumbs._sizeOfIndividualShortItem(nodes[0]);
-
-    expect(response).to.be.closeTo(85,5);
+  it('checks if the size of the short item is as expected (_sizeOfIndividualShortItem)', done => {
+    expect(() => breadcrumbs._sizeOfIndividualShortItem(nodes[0]))
+      .to.eventuallyEqual(85, {within: 9000, every: 200}, done);
   });
 
-  it('checks that the correct size is returned for all full strings (_calculateSizeOfBreadcrumbs)', function() {
-    var response = breadcrumbs._calculateSizeOfBreadcrumbs(breadcrumbs.breadcrumbs);
-
-    expect(response).to.be.closeTo(1594,5);
+  it('checks that the correct size is returned for all full strings (_calculateSizeOfBreadcrumbs)', done => {
+    expect(() => breadcrumbs._calculateSizeOfBreadcrumbs(breadcrumbs.breadcrumbs))
+      .to.eventuallyEqual(1594, {within: 9000, every: 200}, done);
   });
 
-  it('checks that the correct size is returned for all short strings (_calculateSizeOfBreadcrumbs)', function() {
-    var response = breadcrumbs._calculateSizeOfBreadcrumbs(breadcrumbs.breadcrumbs, false);
-
-    expect(response).to.be.closeTo(538,5);
+  it('checks that the correct size is returned for all short strings (_calculateSizeOfBreadcrumbs)', done => {
+    expect(() => breadcrumbs._calculateSizeOfBreadcrumbs(breadcrumbs.breadcrumbs, false))
+      .to.eventuallyEqual(538, {within: 9000, every: 200}, done);
   });
 
-  it('checks if the returned object .measureText method exists (_createCanvas)', function() {
+  it('checks if the returned object .measureText method exists (_createCanvas)', done => {
     var response = breadcrumbs._createCanvas(breadcrumbsEl);
-
     expect(response.measureText).to.exist;
+    done();
   });
 });
-
-}
