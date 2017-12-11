@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>px-breacrumbs Demo</title>
+
+  <!-- Load webcomponentsjs + Polymer -->
+  <script>
+  (function() {
+    'use strict';
+
+    var onload = function() {
+      // For native Imports, manually fire WebComponentsReady so user code
+      // can use the same code path for native and polyfill'd imports.
+      if (!window.HTMLImports) {
+        document.dispatchEvent(
+          new CustomEvent('WebComponentsReady', {bubbles: true})
+        );
+      }
+    };
+
+    var webComponentsSupported = (
+      'registerElement' in document && 'import' in document.createElement('link') && 'content' in document.createElement('template')
+    );
+
+    if (!webComponentsSupported) {
+      var script = document.createElement('script');
+      script.async = true;
+      script.src = '../../webcomponentsjs/webcomponents-lite.js';
+      script.onload = onload;
+      document.head.appendChild(script);
+    } else {
+      onload();
+    }
+  })();
+  </script>
+  <link rel="import" href="../../polymer/polymer.html"/>
+
+  <!-- Load components -->
+  <link rel="import" href="../px-breadcrumbs.html"/>
+
+  <style>
+    html {
+      font-size: 15px;
+    }
+  </style>
+
+  <!-- Load theme -->
+  <link rel="import" href="../../px-theme/px-theme-styles.html"/>
+  <custom-style>
+    <style include="px-theme-styles" is="custom-style"></style>
+  </custom-style>
+</head>
+<body>
+  <px-breadcrumbs></px-breadcrumbs>
+  <script>
+    const breadcrumbs = document.querySelector('px-breadcrumbs');
+    breadcrumbs.items = [
+      {
+        "label":"North America",
+        "id":"North America",
+        "children":[
+          {
+            "label":"United States of America",
+            "id":"United States of America",
+            "children":[
+              {
+                "label":"California",
+                "id":"California",
+                "children":[
+                  {
+                    "label":"Alameda",
+                    "id":"Alameda"
+                  },
+                  {
+                    "label":"Albany",
+                    "id":"Albany"
+                  },
+                  {
+                    "label":"Alhambra",
+                    "id":"Alhambra"
+                  },
+                  {
+                    "label":"Brentwood",
+                    "id":"Brentwood"
+                  },
+                  {
+                    "label":"Burlingame",
+                    "id":"Burlingame"
+                  },
+                  {
+                    "label":"Calistoga",
+                    "id":"Calistoga"
+                  },
+                  {
+                    "label":"Concord",
+                    "id":"Concord"
+                  },
+                  {
+                    "label":"Danville",
+                    "id":"Danville"
+                  },
+                  {
+                    "label":"Emeryville",
+                    "id":"Emeryville"
+                  },
+                  {
+                    "label":"Fresno",
+                    "id":"Fresno"
+                  },
+                  {
+                    "label":"Gilroy",
+                    "id":"Gilroy"
+                  },
+                  {
+                    "label":"Hayward",
+                    "id":"Hayward"
+                  },
+                  {
+                    "label":"Oakland",
+                    "id":"Oakland"
+                  },
+                  {
+                    "label":"San Francisco",
+                    "id":"San Francisco"
+                  },
+                  {
+                    "label":"San Ramon",
+                    "id":"San Ramon",
+                    "children":[
+                      {
+                        "label":"Crow Canyon Gardens",
+                        "id":"Crow Canyon Gardens"
+                      },
+                      {
+                        "label":"Old Ranch Park",
+                        "id":"Old Ranch Park"
+                      },
+                      {
+                        "label":"Valley View Park",
+                        "id":"Valley View Park"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "label":"Colorado",
+                "id":"Colorado"
+              },
+              {
+                "label":"Delaware",
+                "id":"Delaware"
+              },
+              {
+                "label":"Florida",
+                "id":"Florida"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label":"South America",
+        "id":"South America"
+      }
+    ];
+    setTimeout(() => {
+      breadcrumbs.selectedRoute = ["North America","United States of America","California","San Ramon","Crow Canyon Gardens"];
+    }, 1000);
+  </script>
+</body>
+</html>
