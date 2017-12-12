@@ -2,9 +2,9 @@
   "schema_version": "1.0.0",
   "elements": [
     {
-      "description": "### Usage\nNote: you **must** provide either `selected` or `selectedRoute` or the breadcrumb will not know\nwhat path to display and therefore will not appear at all.\n\n    <px-breadcrumbs items='[[items]]' selectedRoute='[\"id1\"]'></px-breadcrumbs>",
+      "description": "### Usage\n\nNote: you **must** provide either `selected` or `selectedRoute` or the breadcrumb will not know\nwhat path to display and therefore will not appear at all.\n\n    <px-breadcrumbs items='[[items]]' selectedRoute='[\"id1\"]'></px-breadcrumbs>",
       "summary": "",
-      "path": "px-breadcrumbs.es6.js",
+      "path": "px-breadcrumbs.html",
       "properties": [
         {
           "name": "items",
@@ -236,11 +236,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 214,
+              "line": 284,
               "column": 6
             },
             "end": {
-              "line": 218,
+              "line": 288,
               "column": 7
             }
           },
@@ -258,11 +258,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 222,
+              "line": 292,
               "column": 6
             },
             "end": {
-              "line": 225,
+              "line": 295,
               "column": 7
             }
           },
@@ -278,11 +278,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 230,
+              "line": 300,
               "column": 6
             },
             "end": {
-              "line": 233,
+              "line": 303,
               "column": 7
             }
           },
@@ -298,11 +298,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 237,
+              "line": 307,
               "column": 6
             },
             "end": {
-              "line": 239,
+              "line": 309,
               "column": 7
             }
           },
@@ -317,11 +317,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 245,
+              "line": 315,
               "column": 6
             },
             "end": {
-              "line": 248,
+              "line": 318,
               "column": 7
             }
           },
@@ -337,11 +337,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 254,
+              "line": 324,
               "column": 6
             },
             "end": {
-              "line": 258,
+              "line": 328,
               "column": 7
             }
           },
@@ -359,11 +359,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 262,
+              "line": 332,
               "column": 6
             },
             "end": {
-              "line": 266,
+              "line": 336,
               "column": 7
             }
           },
@@ -381,11 +381,11 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 267,
+              "line": 337,
               "column": 6
             },
             "end": {
-              "line": 270,
+              "line": 340,
               "column": 7
             }
           },
@@ -401,11 +401,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 271,
+              "line": 341,
               "column": 6
             },
             "end": {
-              "line": 274,
+              "line": 344,
               "column": 7
             }
           },
@@ -421,11 +421,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 275,
+              "line": 345,
               "column": 6
             },
             "end": {
-              "line": 277,
+              "line": 347,
               "column": 7
             }
           },
@@ -522,11 +522,11 @@
           "params": [
             {
               "name": "node",
-              "type": "(Object|null)"
+              "type": "(Object | null)"
             },
             {
               "name": "children",
-              "type": "(Object|Array.<Object>)"
+              "type": "(Object | Array.<Object>)"
             },
             {
               "name": "options"
@@ -553,11 +553,11 @@
           "params": [
             {
               "name": "node",
-              "type": "(Object|null)"
+              "type": "(Object | null)"
             },
             {
               "name": "children",
-              "type": "(Object|Array.<Object>)"
+              "type": "(Object | Array.<Object>)"
             },
             {
               "name": "options"
@@ -630,7 +630,7 @@
           "params": [
             {
               "name": "item",
-              "type": "(Object|Array)"
+              "type": "(Object | Array)"
             },
             {
               "name": "source",
@@ -639,7 +639,7 @@
             }
           ],
           "return": {
-            "type": "(Object|Array)",
+            "type": "(Object | Array)",
             "desc": "The next `selected` item or items"
           },
           "inheritedFrom": "PxAppBehavior.AssetSelectable"
@@ -663,7 +663,7 @@
           "params": [
             {
               "name": "item",
-              "type": "(Object|Array|null)"
+              "type": "(Object | Array | null)"
             },
             {
               "name": "source",
@@ -672,7 +672,7 @@
             }
           ],
           "return": {
-            "type": "(Object|Array|null)",
+            "type": "(Object | Array | null)",
             "desc": "The remaining `selected` items or null"
           },
           "inheritedFrom": "PxAppBehavior.AssetSelectable"
@@ -1029,11 +1029,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 289,
+              "line": 359,
               "column": 4
             },
             "end": {
-              "line": 291,
+              "line": 361,
               "column": 5
             }
           },
@@ -1265,16 +1265,40 @@
           "inheritedFrom": "Polymer.IronResizableBehavior"
         },
         {
+          "name": "_getItemProp",
+          "description": "Fetches an item's property at the configured key. Used to dynamically\nfetch the item's label, icon, children, etc. based on the configured\n`keys` for the component.",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 367,
+              "column": 4
+            },
+            "end": {
+              "line": 372,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "item"
+            },
+            {
+              "name": "key"
+            }
+          ]
+        },
+        {
           "name": "_onResize",
           "description": "Called by iron-resize. Determines the container size.",
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 295,
+              "line": 376,
               "column": 4
             },
             "end": {
-              "line": 304,
+              "line": 385,
               "column": 5
             }
           },
@@ -1287,11 +1311,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 305,
+              "line": 386,
               "column": 4
             },
             "end": {
-              "line": 312,
+              "line": 393,
               "column": 5
             }
           },
@@ -1304,11 +1328,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 321,
+              "line": 402,
               "column": 4
             },
             "end": {
-              "line": 366,
+              "line": 446,
               "column": 5
             }
           },
@@ -1331,11 +1355,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 374,
+              "line": 454,
               "column": 4
             },
             "end": {
-              "line": 418,
+              "line": 502,
               "column": 5
             }
           },
@@ -1358,11 +1382,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 423,
+              "line": 507,
               "column": 4
             },
             "end": {
-              "line": 425,
+              "line": 509,
               "column": 5
             }
           },
@@ -1379,11 +1403,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 426,
+              "line": 510,
               "column": 4
             },
             "end": {
-              "line": 429,
+              "line": 513,
               "column": 5
             }
           },
@@ -1400,11 +1424,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 434,
+              "line": 518,
               "column": 4
             },
             "end": {
-              "line": 440,
+              "line": 524,
               "column": 5
             }
           },
@@ -1421,11 +1445,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 444,
+              "line": 528,
               "column": 4
             },
             "end": {
-              "line": 456,
+              "line": 541,
               "column": 5
             }
           },
@@ -1442,11 +1466,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 461,
+              "line": 546,
               "column": 4
             },
             "end": {
-              "line": 469,
+              "line": 554,
               "column": 5
             }
           },
@@ -1463,11 +1487,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 477,
+              "line": 562,
               "column": 4
             },
             "end": {
-              "line": 510,
+              "line": 595,
               "column": 5
             }
           },
@@ -1484,11 +1508,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 515,
+              "line": 600,
               "column": 4
             },
             "end": {
-              "line": 517,
+              "line": 602,
               "column": 5
             }
           },
@@ -1508,11 +1532,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 522,
+              "line": 607,
               "column": 4
             },
             "end": {
-              "line": 524,
+              "line": 609,
               "column": 5
             }
           },
@@ -1532,11 +1556,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 529,
+              "line": 614,
               "column": 4
             },
             "end": {
-              "line": 531,
+              "line": 616,
               "column": 5
             }
           },
@@ -1553,11 +1577,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 536,
+              "line": 621,
               "column": 4
             },
             "end": {
-              "line": 538,
+              "line": 623,
               "column": 5
             }
           },
@@ -1579,11 +1603,11 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 199,
+          "line": 270,
           "column": 10
         },
         "end": {
-          "line": 539,
+          "line": 624,
           "column": 3
         }
       },
@@ -1685,11 +1709,11 @@
           "description": "Use this mode if you want a more traditional breadcrumb path, and don't want the dropdowns to show up when a path item is clicked.",
           "sourceRange": {
             "start": {
-              "line": 262,
+              "line": 332,
               "column": 6
             },
             "end": {
-              "line": 266,
+              "line": 336,
               "column": 7
             }
           },
@@ -1701,11 +1725,11 @@
           "description": "",
           "sourceRange": {
             "start": {
-              "line": 267,
+              "line": 337,
               "column": 6
             },
             "end": {
-              "line": 270,
+              "line": 340,
               "column": 7
             }
           },
@@ -1761,7 +1785,7 @@
     {
       "description": "",
       "summary": "",
-      "path": "px-breadcrumbs.es6.js",
+      "path": "px-breadcrumbs.html",
       "properties": [],
       "methods": [
         {
@@ -1770,11 +1794,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 89,
+              "line": 148,
               "column": 4
             },
             "end": {
-              "line": 94,
+              "line": 153,
               "column": 5
             }
           },
@@ -1791,11 +1815,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 99,
+              "line": 158,
               "column": 4
             },
             "end": {
-              "line": 103,
+              "line": 162,
               "column": 5
             }
           },
@@ -1812,11 +1836,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 108,
+              "line": 167,
               "column": 4
             },
             "end": {
-              "line": 118,
+              "line": 178,
               "column": 5
             }
           },
@@ -1833,11 +1857,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 123,
+              "line": 183,
               "column": 4
             },
             "end": {
-              "line": 128,
+              "line": 189,
               "column": 5
             }
           },
@@ -1854,11 +1878,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 133,
+              "line": 194,
               "column": 4
             },
             "end": {
-              "line": 138,
+              "line": 199,
               "column": 5
             }
           },
@@ -1875,11 +1899,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 144,
+              "line": 205,
               "column": 4
             },
             "end": {
-              "line": 175,
+              "line": 236,
               "column": 5
             }
           },
@@ -1900,11 +1924,11 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 180,
+              "line": 241,
               "column": 4
             },
             "end": {
-              "line": 193,
+              "line": 254,
               "column": 5
             }
           },
@@ -1914,6 +1938,30 @@
               "name": "breadcrumbEl"
             }
           ]
+        },
+        {
+          "name": "_getItemProp",
+          "description": "Fetches an item's property at the configured key. Used to dynamically\nfetch the item's label, icon, children, etc. based on the configured\n`keys` for the component.",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 260,
+              "column": 4
+            },
+            "end": {
+              "line": 265,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "item"
+            },
+            {
+              "name": "key"
+            }
+          ]
         }
       ],
       "staticMethods": [],
@@ -1921,11 +1969,11 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 2,
+          "line": 58,
           "column": 2
         },
         "end": {
-          "line": 194,
+          "line": 266,
           "column": 3
         }
       },
