@@ -40,12 +40,12 @@ It also provides a quick way to navigate backwards within a path or within a spe
               <span class$="rightAngle [[_getSeparatorSize(clickOnlyMode)]]"><px-icon icon="px-utl:chevron-right"></px-icon></span>
             </li>
           </template>
-          <li data-text="[[item.label]]" data-item="[[item]]" data-index="[[index]]" class="breadcrumbTopItem u-ph- flex flex--row flex--middle" on-tap="_onPathTap">
+          <li data-text="[[_getItemProp(item, keys.label)]]" data-item="[[item]]" data-index="[[index]]" class="breadcrumbTopItem u-ph- flex flex--row flex--middle" on-tap="_onPathTap">
             <template is="dom-if" if="[[_isLabel(item, clickOnlyMode)]]">
-              <span class="actionable actionable--action">[[item.label]]</span>
+              <span class="actionable actionable--action">[[_getItemProp(item, keys.label)]]</span>
             </template>
             <template is="dom-if" if="[[_isDropdown(item, clickOnlyMode)]]">
-              <px-dropdown display-value="[[item.label]]" items="[[_clickedItemChildren]]" search-mode="[[searchMode]]" button-style="bare" disable-clear></px-dropdown>
+              <px-dropdown display-value="[[_getItemProp(item, keys.label)]]" items="[[_clickedItemChildren]]" search-mode="[[searchMode]]" button-style="bare" disable-clear></px-dropdown>
             </template>
             <template is="dom-if" if="[[_isOverflow(item)]]">
               <px-dropdown id="dropdown" items="[[_clickedItemChildren]]" button-style="icon" icon="px-nav:more"></px-dropdown>

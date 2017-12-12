@@ -1,7 +1,8 @@
 (function(window) {
 
   class Breadcrumbs {
-    constructor(breadcrumbEl, graph, clickOnlyMode, breadcrumbs = []) {
+    constructor(breadcrumbEl, graph, clickOnlyMode, breadcrumbs = [], keys) {
+      this.keys = keys;
       this.breadcrumbEl = breadcrumbEl;
       this.graph = graph;
       this.clickOnlyMode = clickOnlyMode;
@@ -58,8 +59,10 @@
         var wrapper = {};
         wrapper.source = item;
         wrapper.isTruncated = true;
-        wrapper.label = this._getShortenedText(item);
-        wrapper.children = item.children;
+        var labelKey = this.keys.label;
+        var childrenKey = this.keys.children;
+        wrapper[labelKey] = this._getShortenedText(item);
+        wrapper[childrenKey] = this._getItemProp(item, this.keys.children);
         wrapper.selectedItem = item.selectedItem;
         wrapper.hasChildren = item.hasChildren;
         return wrapper;
@@ -108,11 +111,12 @@
      */
     _getShortenedText(item) {
       const cachedItem = this.map.get(item) || {};
-      if(!cachedItem.shortText && item.label.length > 13) {
-        cachedItem.shortText = `${item.label.substr(0,6)}...${item.label.substr(item.label.length-6)}`;
+      const label = this._getItemProp(item, this.keys.label);
+      if(!cachedItem.shortText && label.length > 13) {
+        cachedItem.shortText = `${label.substr(0,6)}...${label.substr(label.length-6)}`;
       }
       else if(!cachedItem.shortText) {
-        cachedItem.shortText = item.label;
+        cachedItem.shortText = label;
       }
       this.map.set(item, cachedItem);
       return cachedItem.shortText;
@@ -123,7 +127,8 @@
      */
     _sizeOfIndividualFullItem(item) {
       const cachedItem = this.map.get(item) || {};
-      cachedItem.fullSize = (cachedItem.fullSize || parseInt(this.ctx.measureText(item.label).width,10));
+      const label = this._getItemProp(item, this.keys.label);
+      cachedItem.fullSize = (cachedItem.fullSize || parseInt(this.ctx.measureText(label).width,10));
       this.map.set(item, cachedItem);
       return cachedItem.fullSize;
     }
@@ -160,7 +165,7 @@
           //add the size of the of the item into our accumulator
           accum += sizeOfItem;
           //if the item has siblings, we need to add the size of the down chevron.
-          if (strArray[i].label !== "..." && this.graph.hasSiblings(source) && !this.clickOnlyMode) {
+          if (this._getItemProp(strArray[i], this.keys.label) !== "..." && this.graph.hasSiblings(source) && !this.clickOnlyMode) {
             accum += 21;
           }
           //padding on each item (10 on each side)
@@ -192,13 +197,23 @@
       ctx.font = fontSize + " " + fontFamily;
       return ctx;
     }
+    /**
+     * Fetches an item's property at the configured key. Used to dynamically
+     * fetch the item's label, icon, children, etc. based on the configured
+     * `keys` for the component.
+     */
+    _getItemProp(item, key) {
+      if (item && typeof item === 'object' && typeof key === 'string' && item.hasOwnProperty(key)) {
+        return item[key];
+      }
+      return null;
+    }
   }
 
   window.pxBreadcrumbs = {};
   window.pxBreadcrumbs.Breadcrumbs = Breadcrumbs;
 
   Polymer({
-
     is: 'px-breadcrumbs',
 
     behaviors: [
@@ -291,6 +306,17 @@
       if (this.isDebouncerActive('windowResize')) this.cancelDebouncer('windowResize');
     },
     /**
+     * Fetches an item's property at the configured key. Used to dynamically
+     * fetch the item's label, icon, children, etc. based on the configured
+     * `keys` for the component.
+     */
+    _getItemProp(item, key) {
+      if (item && typeof item === 'object' && typeof key === 'string' && item.hasOwnProperty(key)) {
+        return item[key];
+      }
+      return null;
+    },
+    /**
      * Called by iron-resize. Determines the container size.
      */
     _onResize() {
@@ -308,7 +334,7 @@
           graph = this._assetGraph,
           clickOnlyMode = this.clickOnlyMode;
       if (!itemPath.length || !graph) return;
-      this.set('_breadcrumbsObj', new window.pxBreadcrumbs.Breadcrumbs(this, graph, clickOnlyMode, itemPath));
+      this.set('_breadcrumbsObj', new window.pxBreadcrumbs.Breadcrumbs(this, graph, clickOnlyMode, itemPath, this.keys));
       this.updateStyles();
     },
     /*
@@ -380,8 +406,12 @@
           sizeOfEllipsis = 36,
           noRoomForFullLastItem = false,
           lastItem = {},
-          overflowObj = {"label": "...", "hasChildren": true},
           slicedStrArray = [];
+
+      var labelKey = this.keys.label;
+      var overflowObj = {}
+      overflowObj.hasChildren = true;
+      overflowObj[labelKey] = '...';
 
       //keep looping until all the items fit into the container
       while (_ulWidth < sizeOfEllipsis + currentAccumSize + sizeOfFullLastItem) {
@@ -400,11 +430,12 @@
       }
 
       //create the overflow object, and populate its children with the shortened strings (if necessary)
-      overflowObj.children = strArray.slice(0, pointer);
+      var childKey = this.keys.children;
+      overflowObj[childKey] = strArray.slice(0, pointer);
 
       // clean up - in case the user clicked on the path, there will be a highlighted property set to true.
       // since overflow shouldn't have anything highlighted, we clear is up, just to be sure.
-      overflowObj.children.forEach((child) => {
+      overflowObj[childKey].forEach((child) => {
           child.highlighted = false;
       });
       //the last item is usually full size, but, if if it's just the overflow and the last item
@@ -435,7 +466,7 @@
     _doesItemHaveSiblings(itemInPath) {
       var graph = this._assetGraph,
           source = itemInPath.source ? itemInPath.source : itemInPath,
-          isItemOverflow = itemInPath.label === '...' ? true : false;
+          isItemOverflow = this._getItemProp(itemInPath, this.keys.label) === '...' ? true : false;
 
       return isItemOverflow  ? true : graph.hasSiblings(source);
     },
@@ -447,8 +478,9 @@
       var target = evt.rootTarget;
       var newSelectItem;
       if (target && target.items) {
-        newSelectItem = target.items.find(function(item) {
-          if (item.id === evt.event.detail.key) {
+        newSelectItem = target.items.find(item => {
+          let id = this._getItemProp(item, this.keys.id);
+          if (id === evt.event.detail.key) {
             return item;
           }
         });
@@ -477,7 +509,7 @@
     */
     _onPathTap(evt) {
       var dataItem = evt.model.item.source ? evt.model.item.source : evt.model.item;
-      var isClickedItemOverflow = dataItem.label ==='...' ? true : false;
+      var isClickedItemOverflow = this._getItemProp(dataItem, this.keys.label) ==='...' ? true : false;
 
       //if the click only mode is on, just change the path
       if (this.clickOnlyMode && !isClickedItemOverflow) {
@@ -493,11 +525,11 @@
 
       if (this._doesItemHaveSiblings(dataItem) || isClickedItemOverflow) {
         var graph = this._assetGraph,
-            siblings = !isClickedItemOverflow ? graph.getSiblings(dataItem) : dataItem.children;
+            siblings = !isClickedItemOverflow ? graph.getSiblings(dataItem) : this._getItemProp(dataItem, this.keys.children);
 
         // Need to map the id and label to key and val for use in px-dropdown
         var siblingsCopy = siblings.map((sibling) => {
-          return Object.assign({}, sibling, {"key": sibling.id, "val": sibling.label});
+          return Object.assign({}, sibling, {"key": this._getItemProp(sibling, this.keys.id), "val": this._getItemProp(sibling, this.keys.label)});
         });
         this.set('_clickedItemChildren', siblingsCopy);
         this.set('_clickPathItem', dataItem);
@@ -514,21 +546,21 @@
      * Returns true if clickOnlyMode is turned on and its not the overflow node.
      */
     _isLabel(item, clickOnlyMode) {
-      return (clickOnlyMode && item.label !== "...") || (!clickOnlyMode && !this._doesItemHaveSiblings(item));
+      return (clickOnlyMode && this._getItemProp(item, this.keys.label) !== "...") || (!clickOnlyMode && !this._doesItemHaveSiblings(item));
     },
     /**
      * These three methods are used to determine which type of node to render.
      * Returns true if clickOnlyMode is turned off and its not the overflow node.
      */
     _isDropdown(item, clickOnlyMode) {
-      return !clickOnlyMode && item.label !== "..." && this._doesItemHaveSiblings(item);
+      return !clickOnlyMode && this._getItemProp(item, this.keys.label) !== "..." && this._doesItemHaveSiblings(item);
     },
     /**
      * These three methods are used to determine which type of node to render.
      * Returns true if this is the overflow node.
      */
     _isOverflow(item) {
-      return item.label === "...";
+      return this._getItemProp(item, this.keys.label) === "...";
     },
     /**
      * Determines whether to display small or large chevrons based on whether

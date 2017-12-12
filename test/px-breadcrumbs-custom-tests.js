@@ -309,8 +309,13 @@ describe('Breadcrumb Class', function() {
       childrenKey: 'children'
     });
     var fixtureContainer = fixture('breadcrumbsFixtureWithDataAndWidth');
+    var defaultKeys = {
+      "id" : "id",
+      "label" : "label",
+      "children" : "children"
+    };
     breadcrumbsEl = fixtureContainer.querySelector('px-breadcrumbs');
-    breadcrumbs = new window.pxBreadcrumbs.Breadcrumbs(breadcrumbsEl, graph, false, breadcrumbsArray);
+    breadcrumbs = new window.pxBreadcrumbs.Breadcrumbs(breadcrumbsEl, graph, false, breadcrumbsArray, defaultKeys);
 
   });
 
