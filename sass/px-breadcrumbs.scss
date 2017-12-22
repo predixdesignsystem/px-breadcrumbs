@@ -67,6 +67,10 @@
     --iron-icon-width: 2rem;
     color: var(--px-breadcrumbs-chevron-color, gray);
   }
+  &.disabled > .actionable {
+    cursor: not-allowed;
+    color: var(--px-breadcrumbs-text-color--disabled, gray);
+  }
 }
 
 .topPath {

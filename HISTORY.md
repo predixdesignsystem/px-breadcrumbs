@@ -1,3 +1,7 @@
+v1.1.2
+==================
+* add support for isSelectable (#10)
+
 v1.1.1
 ==================
 * Add support for custom keys

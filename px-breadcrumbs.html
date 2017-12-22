@@ -20,6 +20,16 @@ what path to display and therefore will not appear at all.
 
     <px-breadcrumbs items='[[items]]' selectedRoute='["id1"]'></px-breadcrumbs>
 
+
+### Styling
+
+The following custom properties and mixins are also available for styling:
+
+Custom property | Description
+:----------------|:-------------
+`--px-breadcrumbs-chevron-color` | Color of the chevrons between breadcrumb items
+`--px-breadcrumbs-text-color--disabled` | Text color for a non-selectable top-level item
+
 @element px-breadcrumbs
 @blurb Breadcrumb drop down displays the navigational path of the user through a context browser.
 The breadcrumb links provide a way to see the path of navigation or contextual relationship between objects.
@@ -38,7 +48,7 @@ It also provides a quick way to navigate backwards within a path or within a spe
               <span class$="rightAngle [[_getSeparatorSize(clickOnlyMode)]]"><px-icon icon="px-utl:chevron-right"></px-icon></span>
             </li>
           </template>
-          <li data-text="[[_getItemProp(item, keys.label)]]" data-item="[[item]]" data-index="[[index]]" class="breadcrumbTopItem u-ph- flex flex--row flex--middle" on-tap="_onPathTap">
+          <li data-text="[[_getItemProp(item, keys.label)]]" data-item="[[item]]" data-index="[[index]]" class$="breadcrumbTopItem u-ph- flex flex--row flex--middle [[_getDisabled(item)]]" on-tap="_onPathTap">
             <template is="dom-if" if="[[_isLabel(item, clickOnlyMode)]]">
               <span class="actionable actionable--action">[[_getItemProp(item, keys.label)]]</span>
             </template>
@@ -564,6 +574,8 @@ It also provides a quick way to navigate backwards within a path or within a spe
       var dataItem = evt.model.item.source ? evt.model.item.source : evt.model.item;
       var isClickedItemOverflow = this._getItemProp(dataItem, this.keys.label) ==='...' ? true : false;
 
+      if(dataItem.isSelectable === false) return;
+
       //if the click only mode is on, just change the path
       if (this.clickOnlyMode && !isClickedItemOverflow) {
         //and change our path.
@@ -582,7 +594,7 @@ It also provides a quick way to navigate backwards within a path or within a spe
 
         // Need to map the id and label to key and val for use in px-dropdown
         var siblingsCopy = siblings.map((sibling) => {
-          return Object.assign({}, sibling, {"key": this._getItemProp(sibling, this.keys.id), "val": this._getItemProp(sibling, this.keys.label)});
+          return Object.assign({}, sibling, {"key": this._getItemProp(sibling, this.keys.id), "val": this._getItemProp(sibling, this.keys.label), "disabled": sibling.isSelectable === false});
         });
         this.set('_clickedItemChildren', siblingsCopy);
         this.set('_clickPathItem', dataItem);
@@ -621,6 +633,12 @@ It also provides a quick way to navigate backwards within a path or within a spe
      */
     _getSeparatorSize(clickOnlyMode) {
       return this.clickOnlyMode ? 'small' : 'large';
+    },
+    /**
+    * Returns a disabled class if the item is set as non-selectable.
+    */
+    _getDisabled(item) {
+      return item.isSelectable === false ? 'disabled' : '';
     }
   });
 })();

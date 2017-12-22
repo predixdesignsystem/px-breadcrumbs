@@ -65,7 +65,6 @@ describe('general methods', function() {
     sandbox.restore();
   });
 
-  it('')
   it ('should return true if index is 1 (_isNotFirstItemInData)', function(done) {
     var response  = breadcrumbsEl._isNotFirstItemInData(1);
     expect(response).to.be.true;
@@ -189,6 +188,22 @@ describe('click Events', function() {
 
     expect(set).to.be.calledOnce;
     expect(changePathFromClick).to.be.calledOnce;
+    done();
+  });
+
+  it('checks if the item is selectable and if not, does not call _changePathFromClick', function(done) {
+    var changePathFromClick = sandbox.stub(breadcrumbsElWithData, '_changePathFromClick'),
+        set = sandbox.stub(breadcrumbsElWithData, 'set'),
+        evt = {};
+
+    evt.model= {};
+    evt.model.item = {}
+    evt.model.item.isSelectable = false;
+
+    breadcrumbsElWithData._onPathTap(evt);
+
+    expect(set).to.not.be.calledOnce;
+    expect(changePathFromClick).to.not.be.calledOnce;
     done();
   });
 
