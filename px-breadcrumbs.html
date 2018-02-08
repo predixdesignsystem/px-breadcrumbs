@@ -400,6 +400,7 @@ It also provides a quick way to navigate backwards within a path or within a spe
           clickOnlyMode = this.clickOnlyMode;
       if (!itemPath.length || !graph) return;
       this.set('_breadcrumbsObj', new window.pxBreadcrumbs.Breadcrumbs(this, graph, clickOnlyMode, itemPath, this.keys));
+      this._set_mainPathItems(itemPath)
       this.updateStyles();
     },
     /*
