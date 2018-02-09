@@ -1,3 +1,7 @@
+v1.1.3
+==================
+* Fix demo for IE
+
 v1.1.2
 ==================
 * add support for isSelectable (#10)
