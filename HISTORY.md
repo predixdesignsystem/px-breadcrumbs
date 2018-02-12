@@ -1,3 +1,7 @@
+v1.1.4
+==================
+* reduce icon-set imports
+
 v1.1.3
 ==================
 * Fix demo for IE
