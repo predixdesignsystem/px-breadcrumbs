@@ -131,6 +131,7 @@ It also provides a quick way to navigate backwards within a path or within a spe
         wrapper[childrenKey] = this._getItemProp(item, this.keys.children);
         wrapper.selectedItem = item.selectedItem;
         wrapper.hasChildren = item.hasChildren;
+        wrapper.isSelectable = item.isSelectable;
         return wrapper;
       });
       return this.__shortenedItems;

@@ -1,3 +1,7 @@
+v1.1.6
+==================
+* fix disabled when truncating (#23)
+
 v1.1.5
 ==================
 * reduce icon-set imports
